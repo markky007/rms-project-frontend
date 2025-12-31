@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
+import Login from "./pages/Login";
 import RoomDashboard from "./pages/RoomDashboard";
 import MeterReadingForm from "./pages/MeterReadingForm";
 import Invoices from "./pages/Invoices";
@@ -10,11 +11,13 @@ import ContractManagement from "./pages/ContractManagement";
 import PaymentManagement from "./pages/PaymentManagement";
 import MaintenanceRequests from "./pages/MaintenanceRequests";
 import "./index.css";
+import "./login.css";
 
 export function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<Login />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<RoomDashboard />} />
           <Route path="meter-reading" element={<MeterReadingForm />} />

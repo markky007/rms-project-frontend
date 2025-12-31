@@ -129,7 +129,7 @@ export default function TenantManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, full_name: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="นายสมชาย ใจดี"
               />
             </div>
@@ -145,7 +145,7 @@ export default function TenantManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, id_card: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="1234567890123"
               />
             </div>
@@ -159,7 +159,7 @@ export default function TenantManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="0812345678"
               />
             </div>
@@ -173,7 +173,7 @@ export default function TenantManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, line_id: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="lineid123"
               />
             </div>
@@ -186,7 +186,7 @@ export default function TenantManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, address: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="ที่อยู่ปัจจุบัน"
                 rows={3}
               />
@@ -195,7 +195,7 @@ export default function TenantManagement() {
           <div className="flex gap-2 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+              className="flex-1 bg-[#16a34a] text-white px-6 py-2 rounded-lg hover:bg-[#15803d] transition-colors"
             >
               {editingId ? "บันทึกการแก้ไข" : "เพิ่มผู้เช่า"}
             </button>
@@ -257,7 +257,7 @@ export default function TenantManagement() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => handleEdit(tenant)}
-                      className="text-emerald-600 hover:text-emerald-900 mr-4"
+                      className="text-green-600 hover:text-green-900 mr-4"
                     >
                       แก้ไข
                     </button>

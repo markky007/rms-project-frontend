@@ -183,7 +183,7 @@ export default function ContractManagement() {
                       tenant_id: parseInt(e.target.value),
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value={0}>เลือกผู้เช่า</option>
                   {tenants.map((tenant) => (
@@ -204,7 +204,7 @@ export default function ContractManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, start_date: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
               <div>
@@ -218,7 +218,7 @@ export default function ContractManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, end_date: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
               <div>
@@ -236,7 +236,7 @@ export default function ContractManagement() {
                       deposit: parseFloat(e.target.value),
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="0.00"
                 />
               </div>
@@ -255,7 +255,7 @@ export default function ContractManagement() {
                       rent_amount: parseFloat(e.target.value),
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="0.00"
                 />
               </div>
@@ -285,7 +285,7 @@ export default function ContractManagement() {
             onClick={() => setFilterStatus("all")}
             className={`px-4 py-2 rounded-lg ${
               filterStatus === "all"
-                ? "bg-indigo-600 text-white"
+                ? "bg-emerald-600 text-white"
                 : "bg-gray-200 text-gray-700"
             }`}
           >

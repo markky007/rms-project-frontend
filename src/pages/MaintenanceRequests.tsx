@@ -177,7 +177,7 @@ export default function MaintenanceRequests() {
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="เช่น ท่อน้ำรั่ว"
                 />
               </div>
@@ -190,7 +190,7 @@ export default function MaintenanceRequests() {
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="รายละเอียดปัญหา"
                   rows={3}
                 />
@@ -221,7 +221,7 @@ export default function MaintenanceRequests() {
             onClick={() => setFilterStatus("all")}
             className={`px-4 py-2 rounded-lg ${
               filterStatus === "all"
-                ? "bg-indigo-600 text-white"
+                ? "bg-emerald-600 text-white"
                 : "bg-gray-200 text-gray-700"
             }`}
           >

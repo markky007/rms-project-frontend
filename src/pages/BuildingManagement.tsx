@@ -125,7 +125,7 @@ export default function BuildingManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="เช่น อาคาร A"
               />
             </div>
@@ -139,7 +139,7 @@ export default function BuildingManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, address: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="ที่อยู่อาคาร"
               />
             </div>
@@ -157,7 +157,7 @@ export default function BuildingManagement() {
                     water_rate: parseFloat(e.target.value),
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div>
@@ -174,14 +174,14 @@ export default function BuildingManagement() {
                     elec_rate: parseFloat(e.target.value),
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
           </div>
           <div className="flex gap-2 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+              className="flex-1 bg-[#16a34a] text-white px-6 py-2 rounded-lg hover:bg-[#15803d] transition-colors"
             >
               {editingId ? "บันทึกการแก้ไข" : "เพิ่มอาคาร"}
             </button>
@@ -243,7 +243,7 @@ export default function BuildingManagement() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => handleEdit(building)}
-                      className="text-emerald-600 hover:text-emerald-900 mr-4"
+                      className="text-green-600 hover:text-green-900 mr-4"
                     >
                       แก้ไข
                     </button>

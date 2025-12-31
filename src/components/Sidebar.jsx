@@ -11,9 +11,18 @@ import {
   Wrench,
   UserCog,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    // Redirect to login page
+    navigate("/login");
+  };
   const navItems = [
     { name: "ห้องพัก", path: "/", icon: <DoorOpen size={20} /> },
     { name: "อาคาร", path: "/buildings", icon: <Building2 size={20} /> },
@@ -73,7 +82,10 @@ const Sidebar = () => {
       </nav>
 
       <div className="p-4 border-t border-slate-700">
-        <button className="flex items-center space-x-3 px-4 py-2 w-full text-slate-400 hover:text-red-400 transition-colors">
+        <button
+          onClick={handleLogout}
+          className="flex items-center space-x-3 px-4 py-2 w-full text-slate-400 hover:text-red-400 transition-colors"
+        >
           <LogOut size={20} />
           <span>ออกจากระบบ</span>
         </button>
