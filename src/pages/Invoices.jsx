@@ -21,7 +21,7 @@ const Invoices = () => {
         setLoading(false);
       } catch (err) {
         console.error("Failed to fetch invoices", err);
-        setError("Failed to load invoices. Please try again later.");
+        setError("โหลดข้อมูลใบแจ้งหนี้ล้มเหลว โปรดลองใหม่อีกครั้ง");
         setLoading(false);
       }
     };
@@ -34,19 +34,19 @@ const Invoices = () => {
       case "paid":
         return (
           <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-            <CheckCircle size={14} /> Paid
+            <CheckCircle size={14} /> ชำระแล้ว
           </span>
         );
       case "pending":
         return (
           <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
-            <Clock size={14} /> Pending
+            <Clock size={14} /> รอชำระ
           </span>
         );
       case "overdue":
         return (
           <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-            <AlertCircle size={14} /> Overdue
+            <AlertCircle size={14} /> เกินกำหนด
           </span>
         );
       default:
@@ -78,7 +78,7 @@ const Invoices = () => {
     <div className="max-w-6xl mx-auto">
       <h2 className="text-3xl font-bold text-slate-800 mb-6 flex items-center gap-2">
         <FileText className="text-blue-600" />
-        Invoices
+        ใบแจ้งหนี้
       </h2>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -87,25 +87,25 @@ const Invoices = () => {
             <thead className="bg-slate-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Invoice ID
+                  เลขที่ใบแจ้งหนี้
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Room
+                  ห้อง
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Tenant
+                  ผู้เช่า
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Month
+                  เดือน
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Amount
+                  ยอดชำระ
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Status
+                  สถานะ
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Issue Date
+                  วันที่ออก
                 </th>
               </tr>
             </thead>
@@ -116,7 +116,7 @@ const Invoices = () => {
                     colSpan="7"
                     className="px-6 py-8 text-center text-slate-500"
                   >
-                    No invoices found
+                    ไม่พบใบแจ้งหนี้
                   </td>
                 </tr>
               ) : (
@@ -130,7 +130,7 @@ const Invoices = () => {
                     </td>
                     <td className="px-6 py-4 font-semibold text-slate-800">
                       {invoice.room_number
-                        ? `Room ${invoice.room_number}`
+                        ? `ห้อง ${invoice.room_number}`
                         : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-slate-600">

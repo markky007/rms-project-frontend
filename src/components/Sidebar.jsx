@@ -1,16 +1,49 @@
 import React from "react";
-import { Home, ClipboardList, PenTool, LogOut } from "lucide-react";
+import {
+  ClipboardList,
+  PenTool,
+  LogOut,
+  Building2,
+  DoorOpen,
+  Users,
+  FileText,
+  CreditCard,
+  Wrench,
+  UserCog,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
   const navItems = [
-    { name: "Dashboard", path: "/", icon: <Home size={20} /> },
+    { name: "ห้องพัก", path: "/", icon: <DoorOpen size={20} /> },
+    { name: "อาคาร", path: "/buildings", icon: <Building2 size={20} /> },
+    { name: "ผู้เช่า", path: "/tenants", icon: <Users size={20} /> },
+    { name: "สัญญา", path: "/contracts", icon: <FileText size={20} /> },
     {
-      name: "Meter Reading",
+      name: "จดมิเตอร์",
       path: "/meter-reading",
       icon: <PenTool size={20} />,
     },
-    { name: "Invoices", path: "/invoices", icon: <ClipboardList size={20} /> },
+    {
+      name: "ใบแจ้งหนี้",
+      path: "/invoices",
+      icon: <ClipboardList size={20} />,
+    },
+    {
+      name: "การชำระเงิน",
+      path: "/payments",
+      icon: <CreditCard size={20} />,
+    },
+    {
+      name: "แจ้งซ่อม",
+      path: "/maintenance",
+      icon: <Wrench size={20} />,
+    },
+    {
+      name: "จัดการผู้ใช้",
+      path: "/users",
+      icon: <UserCog size={20} />,
+    },
   ];
 
   return (
@@ -42,7 +75,7 @@ const Sidebar = () => {
       <div className="p-4 border-t border-slate-700">
         <button className="flex items-center space-x-3 px-4 py-2 w-full text-slate-400 hover:text-red-400 transition-colors">
           <LogOut size={20} />
-          <span>Sign Out</span>
+          <span>ออกจากระบบ</span>
         </button>
       </div>
     </div>

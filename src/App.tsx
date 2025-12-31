@@ -3,6 +3,12 @@ import Layout from "./components/Layout";
 import RoomDashboard from "./pages/RoomDashboard";
 import MeterReadingForm from "./pages/MeterReadingForm";
 import Invoices from "./pages/Invoices";
+import UserManagement from "./pages/UserManagement";
+import BuildingManagement from "./pages/BuildingManagement";
+import TenantManagement from "./pages/TenantManagement";
+import ContractManagement from "./pages/ContractManagement";
+import PaymentManagement from "./pages/PaymentManagement";
+import MaintenanceRequests from "./pages/MaintenanceRequests";
 import "./index.css";
 
 export function App() {
@@ -13,6 +19,12 @@ export function App() {
           <Route index element={<RoomDashboard />} />
           <Route path="meter-reading" element={<MeterReadingForm />} />
           <Route path="invoices" element={<Invoices />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="buildings" element={<BuildingManagement />} />
+          <Route path="tenants" element={<TenantManagement />} />
+          <Route path="contracts" element={<ContractManagement />} />
+          <Route path="payments" element={<PaymentManagement />} />
+          <Route path="maintenance" element={<MaintenanceRequests />} />
           {/* Add more routes here */}
           <Route path="*" element={<div className="p-4">Page Not Found</div>} />
         </Route>
