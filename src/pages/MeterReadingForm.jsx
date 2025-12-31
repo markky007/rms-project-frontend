@@ -8,6 +8,7 @@ const MeterReadingForm = () => {
   const [currentElec, setCurrentElec] = useState("");
   const [calculation, setCalculation] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Debounced calculation
   useEffect(() => {
@@ -22,6 +23,7 @@ const MeterReadingForm = () => {
 
   const handleCalculate = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await axios.post(
         "http://localhost:3000/api/billing/calculate",
@@ -35,6 +37,13 @@ const MeterReadingForm = () => {
       setCalculation(response.data);
     } catch (error) {
       console.error("Calculation error", error);
+      if (error.response) {
+        // Backend returns JSON with error field
+        const msg = error.response.data.error || "Server Error";
+        setError(msg);
+      } else {
+        setError("Network Error: Ensure backend is running.");
+      }
     } finally {
       setLoading(false);
     }
@@ -113,6 +122,11 @@ const MeterReadingForm = () => {
 
           {loading ? (
             <p className="text-slate-500 animate-pulse">Calculating...</p>
+          ) : error ? (
+            <div className="h-full flex flex-col items-center justify-center text-red-500 p-4 bg-red-50 rounded-lg border border-red-100">
+              <p className="font-medium">Calculation Failed</p>
+              <p className="text-sm">{error}</p>
+            </div>
           ) : calculation ? (
             <div className="space-y-4">
               <div className="bg-white p-4 rounded-lg shadow-sm">
