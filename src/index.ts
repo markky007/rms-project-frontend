@@ -21,7 +21,7 @@ const server = serve({
       },
     },
 
-    "/api/hello/:name": async req => {
+    "/api/hello/:name": async (req) => {
       const name = req.params.name;
       return Response.json({
         message: `Hello, ${name}!`,
@@ -36,6 +36,7 @@ const server = serve({
     // Echo console logs from the browser to the server
     console: true,
   },
+  port: 9000,
 });
 
 console.log(`🚀 Server running at ${server.url}`);
