@@ -142,7 +142,7 @@ export default function PaymentManagement() {
                         href={payment.slip_image_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-indigo-600 hover:text-indigo-900"
+                        className="text-emerald-600 hover:text-emerald-900"
                       >
                         ดูสลิป
                       </a>

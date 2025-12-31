@@ -4,6 +4,7 @@ import Dialog from "../components/Dialog";
 import userService, {
   type User,
   type CreateUserData,
+  type UpdateUserData,
 } from "../services/userService";
 
 export default function UserManagement() {
@@ -38,7 +39,7 @@ export default function UserManagement() {
     e.preventDefault();
     try {
       if (editingId) {
-        const updateData = { ...formData };
+        const updateData: UpdateUserData = { ...formData };
         if (!updateData.password) {
           delete updateData.password;
         }
@@ -108,7 +109,7 @@ export default function UserManagement() {
         <h1 className="text-3xl font-bold text-gray-800">จัดการผู้ใช้งาน</h1>
         <button
           onClick={() => setShowDialog(true)}
-          className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 shadow-md"
+          className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 shadow-md"
         >
           <Plus size={20} />
           เพิ่มผู้ใช้
@@ -135,7 +136,7 @@ export default function UserManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, username: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 placeholder="username"
               />
             </div>
@@ -181,7 +182,7 @@ export default function UserManagement() {
           <div className="flex gap-2 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              className="flex-1 bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
             >
               {editingId ? "บันทึกการแก้ไข" : "เพิ่มผู้ใช้"}
             </button>
@@ -237,7 +238,7 @@ export default function UserManagement() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => handleEdit(user)}
-                      className="text-indigo-600 hover:text-indigo-900 mr-4"
+                      className="text-emerald-600 hover:text-emerald-900 mr-4"
                     >
                       แก้ไข
                     </button>

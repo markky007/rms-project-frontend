@@ -131,7 +131,7 @@ export default function MaintenanceRequests() {
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+            className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
           >
             + แจ้งซ่อมใหม่
           </button>
@@ -156,7 +156,7 @@ export default function MaintenanceRequests() {
                       room_id: parseInt(e.target.value),
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value={0}>เลือกห้อง</option>
                   {rooms.map((room) => (
@@ -199,7 +199,7 @@ export default function MaintenanceRequests() {
             <div className="flex gap-2">
               <button
                 type="submit"
-                className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
               >
                 แจ้งซ่อม
               </button>

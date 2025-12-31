@@ -77,7 +77,7 @@ const MeterReadingForm = () => {
                 type="number"
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
-                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
                 placeholder="ระบุหมายเลขห้อง"
               />
             </div>
@@ -110,7 +110,7 @@ const MeterReadingForm = () => {
             <button
               type="submit"
               disabled={!calculation}
-              className="w-full mt-6 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-6 bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save size={18} />
               สร้างใบแจ้งหนี้
