@@ -2,44 +2,47 @@ import api from "./api";
 
 export interface Room {
   room_id: number;
-  building_id: number;
-  room_number: string;
-  floor: number;
+  house_number: string;
+  bedrooms: number;
+  bathrooms: number;
   base_rent: number;
   status: RoomStatus;
-  // Extra fields from joins
-  building_name?: string;
   // Tenant information
   current_tenant_id?: number | null;
   tenant_name?: string | null;
   tenant_phone?: string | null;
+  water_rate?: number;
+  elec_rate?: number;
 }
 
 export type RoomStatus = "vacant" | "occupied" | "reserved" | "maintenance";
 
 export interface CreateRoomData {
-  building_id: number;
-  room_number: string;
-  floor: number;
+  house_number: string;
+  bedrooms: number;
+  bathrooms: number;
   base_rent: number;
   status?: "vacant" | "occupied" | "reserved" | "maintenance";
   current_tenant_id?: number | null;
+  water_rate?: number;
+  elec_rate?: number;
 }
 
 export interface UpdateRoomData {
-  building_id?: number;
-  room_number?: string;
-  floor?: number;
+  house_number?: string;
+  bedrooms?: number;
+  bathrooms?: number;
   base_rent?: number;
   status?: "vacant" | "occupied" | "reserved" | "maintenance";
   current_tenant_id?: number | null;
+  water_rate?: number;
+  elec_rate?: number;
 }
 
 const roomService = {
-  // Get all rooms or filter by building
-  getRooms: async (buildingId?: number): Promise<Room[]> => {
-    const url = buildingId ? `/rooms?building_id=${buildingId}` : "/rooms";
-    const response = await api.get(url);
+  // Get all rooms
+  getRooms: async (): Promise<Room[]> => {
+    const response = await api.get("/rooms");
     return response.data;
   },
 

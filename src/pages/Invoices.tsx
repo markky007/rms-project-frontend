@@ -6,7 +6,7 @@ type InvoiceStatus = "paid" | "pending" | "overdue";
 
 interface Invoice {
   invoice_id: number;
-  room_number: string | null;
+  house_number: string | null;
   tenant_name: string | null;
   month_year: string;
   total_amount: number | string;
@@ -95,7 +95,7 @@ const Invoices: React.FC = () => {
                   เลขที่ใบแจ้งหนี้
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ห้อง
+                  บ้านเลขที่
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ผู้เช่า
@@ -134,8 +134,8 @@ const Invoices: React.FC = () => {
                       #{String(invoice.invoice_id).padStart(5, "0")}
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-800">
-                      {invoice.room_number
-                        ? `ห้อง ${invoice.room_number}`
+                      {invoice.house_number
+                        ? `บ้านเลขที่ ${invoice.house_number}`
                         : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-gray-600">

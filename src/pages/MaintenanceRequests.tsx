@@ -169,7 +169,7 @@ export default function MaintenanceRequests() {
                   <option value={0}>เลือกห้อง</option>
                   {rooms.map((room) => (
                     <option key={room.room_id} value={room.room_id}>
-                      ห้อง {room.room_number} (ชั้น {room.floor})
+                      บ้านเลขที่ {room.house_number}
                     </option>
                   ))}
                 </select>

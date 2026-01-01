@@ -5,9 +5,7 @@ import { useAlert } from "../hooks/useAlert";
 
 interface Room {
   room_id: number;
-  room_number: string;
-  building_name: string;
-  floor: number;
+  house_number: string;
   base_rent: number | string;
   water_rate: number | string;
   elec_rate: number | string;
@@ -215,8 +213,7 @@ const MeterReadingForm: React.FC = () => {
                   <option value="">-- เลือกห้อง --</option>
                   {rooms.map((room) => (
                     <option key={room.room_id} value={room.room_id}>
-                      ห้อง {room.room_number} - {room.building_name} (ชั้น{" "}
-                      {room.floor})
+                      บ้านเลขที่ {room.house_number}
                     </option>
                   ))}
                 </select>

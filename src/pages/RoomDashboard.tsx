@@ -96,11 +96,11 @@ const RoomDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">ห้องพัก</h1>
+      <h1 className="text-3xl font-bold text-gray-800">บ้านเช่า</h1>
       <div className="space-y-4">
         <div>
           <p className="text-gray-500 text-lg">
-            จัดการและตรวจสอบสถานะห้องพักทั้งหมดของคุณ
+            จัดการและตรวจสอบสถานะบ้านเช่าทั้งหมดของคุณ
           </p>
         </div>
 
@@ -141,7 +141,7 @@ const RoomDashboard: React.FC = () => {
               {/* Card Header */}
               <div className="px-6 py-4 flex justify-between items-center border-b border-black/5">
                 <span className="text-2xl font-bold text-gray-800">
-                  {room.room_number}
+                  {room.house_number}
                 </span>
                 <div
                   className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold bg-white/50 shadow-sm ring-1 ring-black/5 ${status.color}`}
@@ -153,22 +153,18 @@ const RoomDashboard: React.FC = () => {
 
               {/* Card Body */}
               <div className="p-6 space-y-4 flex-grow">
-                {/* Building Location */}
+                {/* House Details */}
                 <div className="flex items-start gap-4">
                   <div className="text-gray-600 shrink-0 mt-1">
                     <Building2 size={20} />
                   </div>
                   <div className="pt-0.5">
                     <p className="text-xs text-gray-500 font-medium mb-0.5">
-                      อาคาร
+                      รายละเอียด
                     </p>
                     <p className="text-base font-bold text-gray-800 leading-tight">
-                      {room.building_name}
+                      {room.bedrooms} ห้องนอน, {room.bathrooms} ห้องน้ำ
                     </p>
-                    <div className="flex items-center gap-1 mt-1 text-gray-500">
-                      <MapPin size={12} />
-                      <span className="text-xs">ชั้น {room.floor}</span>
-                    </div>
                   </div>
                 </div>
 

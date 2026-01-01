@@ -6,7 +6,7 @@ import RoomManagement from "./pages/RoomManagement";
 import MeterReadingForm from "./pages/MeterReadingForm";
 import Invoices from "./pages/Invoices";
 import UserManagement from "./pages/UserManagement";
-import BuildingManagement from "./pages/BuildingManagement";
+
 import TenantManagement from "./pages/TenantManagement";
 import ContractManagement from "./pages/ContractManagement";
 import PaymentManagement from "./pages/PaymentManagement";
@@ -28,7 +28,7 @@ export function App() {
             <Route path="meter-reading" element={<MeterReadingForm />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="users" element={<UserManagement />} />
-            <Route path="buildings" element={<BuildingManagement />} />
+
             <Route path="tenants" element={<TenantManagement />} />
             <Route path="contracts" element={<ContractManagement />} />
             <Route path="payments" element={<PaymentManagement />} />

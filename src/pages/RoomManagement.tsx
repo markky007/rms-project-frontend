@@ -1,41 +1,35 @@
 import { useState, useEffect } from "react";
-import { Plus, Filter } from "lucide-react";
+import { Plus } from "lucide-react";
 import Dialog from "../components/Dialog";
 import roomService, {
   type Room,
   type CreateRoomData,
 } from "../services/roomService";
-import buildingService, { type Building } from "../services/buildingService";
 import tenantService, { type Tenant } from "../services/tenantService";
 import { useAlert } from "../hooks/useAlert";
 
 export default function RoomManagement() {
   const { showAlert } = useAlert();
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [buildings, setBuildings] = useState<Building[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [selectedBuilding, setSelectedBuilding] = useState<number | null>(null);
   const [formData, setFormData] = useState<CreateRoomData>({
-    building_id: 0,
-    room_number: "",
-    floor: 1,
+    house_number: "",
+    bedrooms: 1,
+    bathrooms: 1,
     base_rent: 0,
     status: "vacant",
     current_tenant_id: null,
+    water_rate: 18.0,
+    elec_rate: 7.0,
   });
 
   useEffect(() => {
-    fetchBuildings();
     fetchRooms();
     fetchTenants();
   }, []);
-
-  useEffect(() => {
-    fetchRooms();
-  }, [selectedBuilding]);
 
   const fetchTenants = async () => {
     try {
@@ -46,26 +40,14 @@ export default function RoomManagement() {
     }
   };
 
-  const fetchBuildings = async () => {
-    try {
-      const data = await buildingService.getBuildings();
-      setBuildings(data);
-    } catch (error) {
-      console.error("Error fetching buildings:", error);
-      showAlert({ message: "ไม่สามารถโหลดข้อมูลอาคารได้", type: "error" });
-    }
-  };
-
   const fetchRooms = async () => {
     try {
       setLoading(true);
-      const data = selectedBuilding
-        ? await roomService.getRooms(selectedBuilding)
-        : await roomService.getRooms();
+      const data = await roomService.getRooms();
       setRooms(data);
     } catch (error) {
       console.error("Error fetching rooms:", error);
-      showAlert({ message: "ไม่สามารถโหลดข้อมูลห้องพักได้", type: "error" });
+      showAlert({ message: "ไม่สามารถโหลดข้อมูลบ้านเช่าได้", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -94,12 +76,14 @@ export default function RoomManagement() {
   const handleEdit = (room: Room) => {
     setEditingId(room.room_id);
     setFormData({
-      building_id: room.building_id,
-      room_number: room.room_number,
-      floor: room.floor,
+      house_number: room.house_number,
+      bedrooms: room.bedrooms,
+      bathrooms: room.bathrooms,
       base_rent: room.base_rent,
       status: room.status,
       current_tenant_id: room.current_tenant_id || null,
+      water_rate: room.water_rate || 18.0,
+      elec_rate: room.elec_rate || 7.0,
     });
     setShowDialog(true);
   };
@@ -124,12 +108,14 @@ export default function RoomManagement() {
     setShowDialog(false);
     setEditingId(null);
     setFormData({
-      building_id: 0,
-      room_number: "",
-      floor: 1,
+      house_number: "",
+      bedrooms: 1,
+      bathrooms: 1,
       base_rent: 0,
       status: "vacant",
       current_tenant_id: null,
+      water_rate: 18.0,
+      elec_rate: 7.0,
     });
   };
 
@@ -159,33 +145,14 @@ export default function RoomManagement() {
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">จัดการห้องพัก</h1>
+        <h1 className="text-3xl font-bold text-gray-800">จัดการบ้านเช่า</h1>
         <div className="flex gap-3">
-          <div className="flex items-center gap-2">
-            <Filter size={20} className="text-gray-600" />
-            <select
-              value={selectedBuilding || ""}
-              onChange={(e) =>
-                setSelectedBuilding(
-                  e.target.value ? Number(e.target.value) : null
-                )
-              }
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value="">ทุกอาคาร</option>
-              {buildings.map((building) => (
-                <option key={building.building_id} value={building.building_id}>
-                  {building.name}
-                </option>
-              ))}
-            </select>
-          </div>
           <button
             onClick={() => setShowDialog(true)}
             className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 shadow-md"
           >
             <Plus size={20} />
-            เพิ่มห้องพัก
+            เพิ่มบ้านเช่า
           </button>
         </div>
       </div>
@@ -201,56 +168,48 @@ export default function RoomManagement() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                อาคาร <span className="text-red-500">*</span>
-              </label>
-              <select
-                required
-                value={formData.building_id}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    building_id: Number(e.target.value),
-                  })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value={0}>เลือกอาคาร</option>
-                {buildings.map((building) => (
-                  <option
-                    key={building.building_id}
-                    value={building.building_id}
-                  >
-                    {building.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                หมายเลขห้อง <span className="text-red-500">*</span>
+                บ้านเลขที่ <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
-                value={formData.room_number}
+                value={formData.house_number}
                 onChange={(e) =>
-                  setFormData({ ...formData, room_number: e.target.value })
+                  setFormData({ ...formData, house_number: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="เช่น 101, A-201"
+                placeholder="เช่น 123/45"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ชั้น <span className="text-red-500">*</span>
+                จำนวนห้องนอน <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
                 required
                 min="1"
-                value={formData.floor}
+                value={formData.bedrooms}
                 onChange={(e) =>
-                  setFormData({ ...formData, floor: Number(e.target.value) })
+                  setFormData({ ...formData, bedrooms: Number(e.target.value) })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                จำนวนห้องน้ำ <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                required
+                min="1"
+                value={formData.bathrooms}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    bathrooms: Number(e.target.value),
+                  })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
@@ -269,6 +228,40 @@ export default function RoomManagement() {
                   setFormData({
                     ...formData,
                     base_rent: Number(e.target.value),
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ค่าน้ำ (บาท/หน่วย)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.water_rate}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    water_rate: parseFloat(e.target.value),
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ค่าไฟ (บาท/หน่วย)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.elec_rate}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    elec_rate: parseFloat(e.target.value),
                   })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -324,7 +317,7 @@ export default function RoomManagement() {
               type="submit"
               className="flex-1 bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
             >
-              {editingId ? "บันทึกการแก้ไข" : "เพิ่มห้องพัก"}
+              {editingId ? "บันทึกการแก้ไข" : "เพิ่มบ้านเช่า"}
             </button>
             <button
               type="button"
@@ -343,13 +336,16 @@ export default function RoomManagement() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                อาคาร
+                บ้านเลขที่
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                หมายเลขห้อง
+                เรท (น้ำ/ไฟ)
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ชั้น
+                ห้องนอน
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                ห้องน้ำ
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 ค่าเช่า (บาท/เดือน)
@@ -369,20 +365,23 @@ export default function RoomManagement() {
             {rooms.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
-                  ไม่พบข้อมูลห้องพัก
+                  ไม่พบข้อมูลบ้านเช่า
                 </td>
               </tr>
             ) : (
               rooms.map((room) => (
                 <tr key={room.room_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                    {(room as any).building_name}
+                    {room.house_number}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-700">
-                    {room.room_number}
+                    {room.water_rate}/{room.elec_rate}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-700">
-                    {room.floor}
+                    {room.bedrooms}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                    {room.bathrooms}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                     ฿{Number(room.base_rent).toLocaleString()}
