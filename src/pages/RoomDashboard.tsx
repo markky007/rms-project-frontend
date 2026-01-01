@@ -8,17 +8,30 @@ import {
   Clock,
   AlertTriangle,
 } from "lucide-react";
-import roomService from "../services/roomService";
+import roomService, {
+  type Room,
+  type RoomStatus,
+} from "../services/roomService";
 
-const RoomDashboard = () => {
-  const [rooms, setRooms] = useState([]);
-  const [loading, setLoading] = useState(true);
+interface StatusConfig {
+  label: string;
+  color: string;
+  bg: string;
+  border: string;
+  icon: React.ComponentType<{ size?: number }>;
+}
+
+type StatusConfigMap = Record<RoomStatus, StatusConfig>;
+
+const RoomDashboard: React.FC = () => {
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchRooms();
   }, []);
 
-  const fetchRooms = async () => {
+  const fetchRooms = async (): Promise<void> => {
     try {
       const data = await roomService.getRooms();
       setRooms(data);
@@ -29,7 +42,7 @@ const RoomDashboard = () => {
     }
   };
 
-  const statusConfig = {
+  const statusConfig: StatusConfigMap = {
     vacant: {
       label: "ว่าง",
       color: "text-green-700",
@@ -60,7 +73,7 @@ const RoomDashboard = () => {
     },
   };
 
-  const getStatusStyle = (status) => {
+  const getStatusStyle = (status: RoomStatus): StatusConfig => {
     return statusConfig[status] || statusConfig.vacant;
   };
 

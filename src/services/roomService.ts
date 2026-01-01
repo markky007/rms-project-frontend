@@ -6,12 +6,16 @@ export interface Room {
   room_number: string;
   floor: number;
   base_rent: number;
-  status: "vacant" | "occupied" | "reserved" | "maintenance";
+  status: RoomStatus;
+  // Extra fields from joins
+  building_name?: string;
   // Tenant information
   current_tenant_id?: number | null;
   tenant_name?: string | null;
   tenant_phone?: string | null;
 }
+
+export type RoomStatus = "vacant" | "occupied" | "reserved" | "maintenance";
 
 export interface CreateRoomData {
   building_id: number;

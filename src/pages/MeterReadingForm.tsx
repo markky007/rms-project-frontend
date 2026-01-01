@@ -3,22 +3,66 @@ import axios from "axios";
 import { Calculator, Save, Building2 } from "lucide-react";
 import { useAlert } from "../hooks/useAlert";
 
-const MeterReadingForm = () => {
+interface Room {
+  room_id: number;
+  room_number: string;
+  building_name: string;
+  floor: number;
+  base_rent: number | string;
+  water_rate: number | string;
+  elec_rate: number | string;
+  previous_water_reading: number | null;
+  previous_elec_reading: number | null;
+  current_contract_id?: number;
+}
+
+interface PreviousReadings {
+  water: number;
+  elec: number;
+}
+
+interface Usage {
+  water: number;
+  elec: number;
+}
+
+interface Rates {
+  water: number;
+  elec: number;
+}
+
+interface Costs {
+  water: number;
+  elec: number;
+  rent: number;
+}
+
+interface Calculation {
+  prev_readings: PreviousReadings;
+  usage: Usage;
+  rates: Rates;
+  costs: Costs;
+  total_amount: number;
+}
+
+const MeterReadingForm: React.FC = () => {
   const { showAlert } = useAlert();
-  const [rooms, setRooms] = useState([]);
-  const [roomId, setRoomId] = useState("");
-  const [currentWater, setCurrentWater] = useState("");
-  const [currentElec, setCurrentElec] = useState("");
-  const [calculation, setCalculation] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [loadingRooms, setLoadingRooms] = useState(true);
-  const [error, setError] = useState(null);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [roomId, setRoomId] = useState<string>("");
+  const [currentWater, setCurrentWater] = useState<string>("");
+  const [currentElec, setCurrentElec] = useState<string>("");
+  const [calculation, setCalculation] = useState<Calculation | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingRooms, setLoadingRooms] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch all rooms on component mount
   useEffect(() => {
-    const fetchRooms = async () => {
+    const fetchRooms = async (): Promise<void> => {
       try {
-        const response = await axios.get("http://localhost:3000/api/rooms");
+        const response = await axios.get<Room[]>(
+          "http://localhost:3000/api/rooms"
+        );
         setRooms(response.data);
       } catch (error) {
         console.error("Failed to fetch rooms", error);
@@ -29,7 +73,7 @@ const MeterReadingForm = () => {
     };
 
     fetchRooms();
-  }, []);
+  }, [showAlert]);
 
   // Debounced calculation
   useEffect(() => {
@@ -44,11 +88,11 @@ const MeterReadingForm = () => {
     return () => clearTimeout(timer);
   }, [roomId, currentWater, currentElec]);
 
-  const handleCalculate = async () => {
+  const handleCalculate = async (): Promise<void> => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(
+      const response = await axios.post<Calculation>(
         "http://localhost:3000/api/billing/calculate",
         {
           room_id: roomId,
@@ -60,7 +104,7 @@ const MeterReadingForm = () => {
       setCalculation(response.data);
     } catch (error) {
       console.error("Calculation error", error);
-      if (error.response) {
+      if (axios.isAxiosError(error) && error.response) {
         // Backend returns JSON with error field
         const msg = error.response.data.error || "ข้อผิดพลาดจากเซิร์ฟเวอร์";
         setError(msg);
@@ -74,13 +118,66 @@ const MeterReadingForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
-    // In a real app, this would submit to /create-invoice
-    showAlert({
-      message: "สร้างใบแจ้งหนี้สำเร็จ! (ตัวอย่าง)",
-      type: "success",
-    });
+
+    if (!roomId || !currentWater || !currentElec) {
+      showAlert({ message: "กรุณากรอกข้อมูลให้ครบถ้วน", type: "error" });
+      return;
+    }
+
+    const selectedRoom = rooms.find((r) => r.room_id === Number(roomId));
+    if (!selectedRoom?.current_contract_id) {
+      showAlert({
+        message:
+          "ห้องนี้ไม่มีสัญญาเช่าที่ใช้งานอยู่ ไม่สามารถสร้างใบแจ้งหนี้ได้",
+        type: "error",
+      });
+      return;
+    }
+
+    // Get current user from localStorage
+    const savedUser = localStorage.getItem("user");
+    const user = savedUser ? JSON.parse(savedUser) : null;
+
+    if (!user || !user.user_id) {
+      showAlert({
+        message: "ไม่พบข้อมูลผู้ใช้งาน กรุณาเข้าสู่ระบบใหม่",
+        type: "error",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await axios.post("http://localhost:3000/api/billing/create-invoice", {
+        contract_id: selectedRoom.current_contract_id,
+        room_id: roomId,
+        month_year: new Date().toISOString().slice(0, 7),
+        water_reading: Number(currentWater),
+        elec_reading: Number(currentElec),
+        recorded_by: user.user_id,
+      });
+
+      showAlert({
+        message: "บันทึกค่ามิเตอร์และสร้างใบแจ้งหนี้สำเร็จ!",
+        type: "success",
+      });
+
+      // Reset form
+      setRoomId("");
+      setCurrentWater("");
+      setCurrentElec("");
+      setCalculation(null);
+    } catch (error: any) {
+      console.error("Details:", error);
+      const msg = error.response?.data?.error || "เกิดข้อผิดพลาดในการบันทึก";
+      showAlert({ message: msg, type: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

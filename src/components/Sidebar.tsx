@@ -13,17 +13,24 @@ import {
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 
-const Sidebar = () => {
+interface NavItem {
+  name: string;
+  path: string;
+  icon: React.ReactNode;
+}
+
+const Sidebar: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     // Clear localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     // Redirect to login page
     navigate("/login");
   };
-  const navItems = [
+
+  const navItems: NavItem[] = [
     { name: "ห้องพัก", path: "/", icon: <DoorOpen size={20} /> },
     { name: "จัดการห้องพัก", path: "/rooms", icon: <DoorOpen size={20} /> },
     { name: "อาคาร", path: "/buildings", icon: <Building2 size={20} /> },

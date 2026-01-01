@@ -1,22 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, type JSX } from "react";
 import axios from "axios";
-import {
-  FileText,
-  Calendar,
-  CheckCircle,
-  AlertCircle,
-  Clock,
-} from "lucide-react";
+import { Calendar, CheckCircle, AlertCircle, Clock } from "lucide-react";
 
-const Invoices = () => {
-  const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+type InvoiceStatus = "paid" | "pending" | "overdue";
+
+interface Invoice {
+  invoice_id: number;
+  room_number: string | null;
+  tenant_name: string | null;
+  month_year: string;
+  total_amount: number | string;
+  status: InvoiceStatus;
+  issue_date: string;
+}
+
+const Invoices: React.FC = () => {
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchInvoices = async () => {
+    const fetchInvoices = async (): Promise<void> => {
       try {
-        const response = await axios.get("http://localhost:3000/api/billing");
+        const response = await axios.get<Invoice[]>(
+          "http://localhost:3000/api/billing"
+        );
         setInvoices(response.data);
         setLoading(false);
       } catch (err) {
@@ -29,7 +37,7 @@ const Invoices = () => {
     fetchInvoices();
   }, []);
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: InvoiceStatus): JSX.Element => {
     switch (status) {
       case "paid":
         return (
@@ -75,46 +83,43 @@ const Invoices = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-        <FileText className="text-blue-600" />
-        ใบแจ้งหนี้
-      </h2>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">ใบแจ้งหนี้</h1>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   เลขที่ใบแจ้งหนี้
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ห้อง
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ผู้เช่า
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   เดือน
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ยอดชำระ
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   สถานะ
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   วันที่ออก
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-slate-200 text-sm">
+            <tbody className="bg-white divide-y divide-gray-200 text-sm">
               {invoices.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="7"
-                    className="px-6 py-8 text-center text-slate-500"
+                    colSpan={7}
+                    className="px-6 py-8 text-center text-gray-500"
                   >
                     ไม่พบใบแจ้งหนี้
                   </td>
@@ -123,28 +128,28 @@ const Invoices = () => {
                 invoices.map((invoice) => (
                   <tr
                     key={invoice.invoice_id}
-                    className="hover:bg-slate-50 transition-colors"
+                    className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-6 py-4 font-mono text-slate-600">
+                    <td className="px-6 py-4 font-mono text-gray-600">
                       #{String(invoice.invoice_id).padStart(5, "0")}
                     </td>
-                    <td className="px-6 py-4 font-semibold text-slate-800">
+                    <td className="px-6 py-4 font-semibold text-gray-800">
                       {invoice.room_number
                         ? `ห้อง ${invoice.room_number}`
                         : "N/A"}
                     </td>
-                    <td className="px-6 py-4 text-slate-600">
+                    <td className="px-6 py-4 text-gray-600">
                       {invoice.tenant_name || "-"}
                     </td>
-                    <td className="px-6 py-4 text-slate-600">
+                    <td className="px-6 py-4 text-gray-600">
                       <div className="flex items-center gap-1">
-                        <Calendar size={14} className="text-slate-400" />
+                        <Calendar size={14} className="text-gray-400" />
                         {invoice.month_year}
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-bold text-slate-800">
+                    <td className="px-6 py-4 font-bold text-gray-800">
                       ฿
-                      {parseFloat(invoice.total_amount).toLocaleString(
+                      {parseFloat(String(invoice.total_amount)).toLocaleString(
                         "en-US",
                         { minimumFractionDigits: 2 }
                       )}
@@ -152,7 +157,7 @@ const Invoices = () => {
                     <td className="px-6 py-4">
                       {getStatusBadge(invoice.status)}
                     </td>
-                    <td className="px-6 py-4 text-slate-500">
+                    <td className="px-6 py-4 text-gray-500">
                       {new Date(invoice.issue_date).toLocaleDateString()}
                     </td>
                   </tr>
