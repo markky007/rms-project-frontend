@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Eye, Trash2 } from "lucide-react";
+import Dialog from "../components/Dialog";
 import contractService, {
   type Contract,
   type CreateContractData,
@@ -14,6 +16,10 @@ export default function ContractManagement() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [selectedContract, setSelectedContract] = useState<Contract | null>(
+    null
+  );
   const [editingId, setEditingId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState<
     "all" | "active" | "inactive"
@@ -101,6 +107,25 @@ export default function ContractManagement() {
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm("คุณแน่ใจหรือไม่ที่จะลบสัญญานี้? การลบจะไม่สามารถกู้คืนได้")) {
+      return;
+    }
+    try {
+      await contractService.deleteContract(id);
+      showAlert({ message: "ลบสัญญาสำเร็จ", type: "success" });
+      fetchContracts();
+    } catch (error) {
+      console.error("Error deleting contract:", error);
+      showAlert({ message: "ไม่สามารถลบสัญญาได้", type: "error" });
+    }
+  };
+
+  const handleViewDetails = (contract: Contract) => {
+    setSelectedContract(contract);
+    setShowDetails(true);
+  };
+
   const resetForm = () => {
     setFormData({
       room_id: 0,
@@ -156,12 +181,17 @@ export default function ContractManagement() {
                 <select
                   required
                   value={formData.room_id}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const roomId = parseInt(e.target.value);
+                    const selectedRoom = rooms.find(
+                      (r) => r.room_id === roomId
+                    );
                     setFormData({
                       ...formData,
-                      room_id: parseInt(e.target.value),
-                    })
-                  }
+                      room_id: roomId,
+                      rent_amount: selectedRoom ? selectedRoom.base_rent : 0,
+                    });
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value={0}>เลือกห้อง</option>
@@ -351,10 +381,24 @@ export default function ContractManagement() {
               filteredContracts.map((contract) => (
                 <tr key={contract.contract_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-gray-900">
-                    Room #{contract.room_id}
+                    <span className="font-medium">
+                      {contract.house_number
+                        ? `บ้านเลขที่ ${contract.house_number}`
+                        : `Room #${contract.room_id}`}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-700">
-                    Tenant #{contract.tenant_id}
+                    <div>
+                      <div className="font-medium">
+                        {contract.tenant_name ||
+                          `Tenant #${contract.tenant_id}`}
+                      </div>
+                      {contract.tenant_phone && (
+                        <div className="text-sm text-gray-500">
+                          {contract.tenant_phone}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-700">
                     {new Date(contract.start_date).toLocaleDateString("th-TH")}{" "}
@@ -375,14 +419,31 @@ export default function ContractManagement() {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {contract.is_active && (
+                    <div className="flex justify-end gap-2">
                       <button
-                        onClick={() => handleTerminate(contract.contract_id)}
-                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleViewDetails(contract)}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="ดูรายละเอียด"
                       >
-                        ยกเลิกสัญญา
+                        <Eye size={18} />
                       </button>
-                    )}
+                      {contract.is_active && (
+                        <button
+                          onClick={() => handleTerminate(contract.contract_id)}
+                          className="text-orange-600 hover:text-orange-900"
+                          title="ยกเลิกสัญญา"
+                        >
+                          ยกเลิก
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDelete(contract.contract_id)}
+                        className="text-red-600 hover:text-red-900"
+                        title="ลบข้อมูล"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -390,6 +451,93 @@ export default function ContractManagement() {
           </tbody>
         </table>
       </div>
+
+      {/* Details Dialog */}
+      <Dialog
+        isOpen={showDetails}
+        onClose={() => setShowDetails(false)}
+        title="รายละเอียดสัญญา"
+        size="md"
+      >
+        {selectedContract && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-gray-500">เลขที่สัญญา</label>
+                <p className="font-medium text-gray-900">
+                  #{selectedContract.contract_id}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">สถานะ</label>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    selectedContract.is_active
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {selectedContract.is_active ? "ใช้งานอยู่" : "ยกเลิกแล้ว"}
+                </span>
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">บ้านเช่า</label>
+                <p className="font-medium text-gray-900">
+                  {selectedContract.house_number
+                    ? `บ้านเลขที่ ${selectedContract.house_number}`
+                    : `Room #${selectedContract.room_id}`}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">ผู้เช่า</label>
+                <p className="font-medium text-gray-900">
+                  {selectedContract.tenant_name ||
+                    `Tenant #${selectedContract.tenant_id}`}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">
+                  วันที่เริ่มสัญญา
+                </label>
+                <p className="font-medium text-gray-900">
+                  {new Date(selectedContract.start_date).toLocaleDateString(
+                    "th-TH"
+                  )}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">วันที่สิ้นสุด</label>
+                <p className="font-medium text-gray-900">
+                  {new Date(selectedContract.end_date).toLocaleDateString(
+                    "th-TH"
+                  )}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">ค่าเช่า</label>
+                <p className="font-medium text-gray-900">
+                  ฿{Number(selectedContract.rent_amount).toLocaleString()} /
+                  เดือน
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">เงินประกัน</label>
+                <p className="font-medium text-gray-900">
+                  ฿{Number(selectedContract.deposit).toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end pt-4">
+              <button
+                onClick={() => setShowDetails(false)}
+                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                ปิด
+              </button>
+            </div>
+          </div>
+        )}
+      </Dialog>
     </div>
   );
 }

@@ -42,7 +42,7 @@ const invoiceService = {
     status?: string,
     monthYear?: string
   ): Promise<Invoice[]> => {
-    let url = "/invoices";
+    let url = "/billing";
     const params = new URLSearchParams();
 
     if (status) params.append("status", status);
@@ -58,7 +58,7 @@ const invoiceService = {
 
   // Get invoice by ID with items
   getInvoiceById: async (id: number): Promise<Invoice> => {
-    const response = await api.get(`/invoices/${id}`);
+    const response = await api.get(`/billing/${id}`);
     return response.data;
   },
 

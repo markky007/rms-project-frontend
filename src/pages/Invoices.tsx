@@ -1,43 +1,69 @@
-import React, { useEffect, useState, type JSX } from "react";
-import axios from "axios";
-import { Calendar, CheckCircle, AlertCircle, Clock } from "lucide-react";
-
-type InvoiceStatus = "paid" | "pending" | "overdue";
-
-interface Invoice {
-  invoice_id: number;
-  house_number: string | null;
-  tenant_name: string | null;
-  month_year: string;
-  total_amount: number | string;
-  status: InvoiceStatus;
-  issue_date: string;
-}
+import React, { useEffect, useState, useRef, type JSX } from "react";
+import {
+  Calendar,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Eye,
+  Download,
+  X,
+} from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
+import html2canvas from "html2canvas";
+import invoiceService, { type Invoice } from "../services/invoiceService";
 
 const Invoices: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const invoiceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchInvoices = async (): Promise<void> => {
-      try {
-        const response = await axios.get<Invoice[]>(
-          "http://localhost:3000/api/billing"
-        );
-        setInvoices(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Failed to fetch invoices", err);
-        setError("โหลดข้อมูลใบแจ้งหนี้ล้มเหลว โปรดลองใหม่อีกครั้ง");
-        setLoading(false);
-      }
-    };
-
     fetchInvoices();
   }, []);
 
-  const getStatusBadge = (status: InvoiceStatus): JSX.Element => {
+  const fetchInvoices = async () => {
+    try {
+      const data = await invoiceService.getInvoices();
+      setInvoices(data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Failed to fetch invoices", err);
+      setError("โหลดข้อมูลใบแจ้งหนี้ล้มเหลว โปรดลองใหม่อีกครั้ง");
+      setLoading(false);
+    }
+  };
+
+  const handleViewDetails = async (id: number) => {
+    try {
+      const invoice = await invoiceService.getInvoiceById(id);
+      setSelectedInvoice(invoice);
+      setIsModalOpen(true);
+    } catch (err) {
+      console.error("Failed to fetch invoice details", err);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (invoiceRef.current) {
+      try {
+        const canvas = await html2canvas(invoiceRef.current, {
+          scale: 2, // Improve resolution
+          backgroundColor: "#ffffff",
+        });
+        const link = document.createElement("a");
+        link.download = `invoice-${selectedInvoice?.invoice_id}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } catch (err) {
+        console.error("Failed to download invoice", err);
+      }
+    }
+  };
+
+  const getStatusBadge = (status: string): JSX.Element => {
     switch (status) {
       case "paid":
         return (
@@ -82,6 +108,9 @@ const Invoices: React.FC = () => {
     );
   }
 
+  // Placeholder PromptPay ID for demo usually phone or TaxID
+  const PROMPTPAY_ID = "081-234-5678";
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">ใบแจ้งหนี้</h1>
@@ -112,20 +141,23 @@ const Invoices: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   วันที่ออก
                 </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  จัดการ
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 text-sm">
               {invoices.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-6 py-8 text-center text-gray-500"
                   >
                     ไม่พบใบแจ้งหนี้
                   </td>
                 </tr>
               ) : (
-                invoices.map((invoice) => (
+                invoices.map((invoice: any) => (
                   <tr
                     key={invoice.invoice_id}
                     className="hover:bg-gray-50 transition-colors"
@@ -160,6 +192,15 @@ const Invoices: React.FC = () => {
                     <td className="px-6 py-4 text-gray-500">
                       {new Date(invoice.issue_date).toLocaleDateString()}
                     </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => handleViewDetails(invoice.invoice_id)}
+                        className="text-blue-600 hover:text-blue-800 transition-colors"
+                        title="ดูรายละเอียด"
+                      >
+                        <Eye size={20} />
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -167,6 +208,124 @@ const Invoices: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Details Modal */}
+      {isModalOpen && selectedInvoice && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white">
+              <h2 className="text-xl font-bold text-gray-800">
+                รายละเอียดใบแจ้งหนี้
+              </h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6" ref={invoiceRef}>
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  ใบแจ้งหนี้ / Invoice
+                </h3>
+                <p className="text-gray-500">
+                  เดือน: {selectedInvoice.month_year} | เลขที่: #
+                  {String(selectedInvoice.invoice_id).padStart(5, "0")}
+                </p>
+                <div className="mt-2 text-sm text-gray-500">
+                  <p>
+                    วันที่ออก:{" "}
+                    {new Date(selectedInvoice.issue_date).toLocaleDateString()}
+                  </p>
+                  {(selectedInvoice as any).house_number && (
+                    <p>บ้านเลขที่: {(selectedInvoice as any).house_number}</p>
+                  )}
+                  {(selectedInvoice as any).tenant_name && (
+                    <p>ผู้เช่า: {(selectedInvoice as any).tenant_name}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="border rounded-lg overflow-hidden mb-6">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                        รายการ
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
+                        จำนวนเงิน
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {selectedInvoice.items?.map((item, index) => (
+                      <tr key={index}>
+                        <td className="px-4 py-3 text-gray-700">
+                          {item.description}
+                        </td>
+                        <td className="px-4 py-3 text-right text-gray-900">
+                          ฿
+                          {Number(item.amount).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-gray-50 border-t-2 border-gray-200">
+                    <tr>
+                      <td className="px-4 py-3 font-bold text-gray-800">
+                        ยอดรวมทั้งสิ้น
+                      </td>
+                      <td className="px-4 py-3 text-right font-bold text-emerald-600 text-lg">
+                        ฿
+                        {Number(selectedInvoice.total_amount).toLocaleString(
+                          undefined,
+                          { minimumFractionDigits: 2 }
+                        )}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <div className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                <p className="font-semibold text-gray-700 mb-4">
+                  สแกนเพื่อชำระเงิน (PromptPay)
+                </p>
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <QRCodeCanvas
+                    value={`promptpay:${PROMPTPAY_ID}?amount=${selectedInvoice.total_amount}`}
+                    size={180}
+                    level={"H"}
+                    includeMargin={true}
+                  />
+                </div>
+                <p className="mt-4 text-sm text-gray-500">ID: {PROMPTPAY_ID}</p>
+              </div>
+            </div>
+
+            <div className="p-6 border-t bg-gray-50 flex justify-end gap-3 sticky bottom-0">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+              >
+                ปิด
+              </button>
+              <button
+                onClick={handleDownload}
+                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium flex items-center gap-2"
+              >
+                <Download size={18} />
+                ดาวน์โหลด
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

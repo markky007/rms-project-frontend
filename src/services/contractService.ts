@@ -10,6 +10,10 @@ export interface Contract {
   rent_amount: number;
   is_active: boolean;
   created_at: string;
+  // Joined fields
+  house_number?: string;
+  tenant_name?: string;
+  tenant_phone?: string;
 }
 
 export interface CreateContractData {
@@ -84,6 +88,11 @@ const contractService = {
   getActiveContracts: async (): Promise<Contract[]> => {
     const response = await api.get("/contracts?is_active=true");
     return response.data;
+  },
+
+  // Delete contract
+  deleteContract: async (id: number): Promise<void> => {
+    await api.delete(`/contracts/${id}`);
   },
 };
 
