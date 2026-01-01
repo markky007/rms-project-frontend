@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import paymentService, { type Payment } from "../services/paymentService";
+import { useAlert } from "../hooks/useAlert";
 
 export default function PaymentManagement() {
+  const { showAlert } = useAlert();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<
@@ -19,7 +21,10 @@ export default function PaymentManagement() {
       setPayments(data);
     } catch (error) {
       console.error("Error fetching payments:", error);
-      alert("ไม่สามารถโหลดข้อมูลการชำระเงินได้");
+      showAlert({
+        message: "ไม่สามารถโหลดข้อมูลการชำระเงินได้",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -32,11 +37,11 @@ export default function PaymentManagement() {
     try {
       const userId = 1; // TODO: Get from auth context
       await paymentService.approvePayment(id, userId);
-      alert("อนุมัติการชำระเงินสำเร็จ");
+      showAlert({ message: "อนุมัติการชำระเงินสำเร็จ", type: "success" });
       fetchPayments();
     } catch (error) {
       console.error("Error approving payment:", error);
-      alert("ไม่สามารถอนุมัติการชำระเงินได้");
+      showAlert({ message: "ไม่สามารถอนุมัติการชำระเงินได้", type: "error" });
     }
   };
 

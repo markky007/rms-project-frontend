@@ -10,29 +10,37 @@ import TenantManagement from "./pages/TenantManagement";
 import ContractManagement from "./pages/ContractManagement";
 import PaymentManagement from "./pages/PaymentManagement";
 import MaintenanceRequests from "./pages/MaintenanceRequests";
+import { AlertProvider } from "./hooks/useAlert";
+import AlertDialog from "./components/AlertDialog";
 import "./index.css";
 import "./login.css";
 
 export function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Layout />}>
-          <Route index element={<RoomDashboard />} />
-          <Route path="meter-reading" element={<MeterReadingForm />} />
-          <Route path="invoices" element={<Invoices />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="buildings" element={<BuildingManagement />} />
-          <Route path="tenants" element={<TenantManagement />} />
-          <Route path="contracts" element={<ContractManagement />} />
-          <Route path="payments" element={<PaymentManagement />} />
-          <Route path="maintenance" element={<MaintenanceRequests />} />
-          {/* Add more routes here */}
-          <Route path="*" element={<div className="p-4">Page Not Found</div>} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AlertProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Layout />}>
+            <Route index element={<RoomDashboard />} />
+            <Route path="meter-reading" element={<MeterReadingForm />} />
+            <Route path="invoices" element={<Invoices />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="buildings" element={<BuildingManagement />} />
+            <Route path="tenants" element={<TenantManagement />} />
+            <Route path="contracts" element={<ContractManagement />} />
+            <Route path="payments" element={<PaymentManagement />} />
+            <Route path="maintenance" element={<MaintenanceRequests />} />
+            {/* Add more routes here */}
+            <Route
+              path="*"
+              element={<div className="p-4">Page Not Found</div>}
+            />
+          </Route>
+        </Routes>
+        <AlertDialog />
+      </BrowserRouter>
+    </AlertProvider>
   );
 }
 

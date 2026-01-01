@@ -5,8 +5,10 @@ import tenantService, {
   type Tenant,
   type CreateTenantData,
 } from "../services/tenantService";
+import { useAlert } from "../hooks/useAlert";
 
 export default function TenantManagement() {
+  const { showAlert } = useAlert();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
@@ -30,7 +32,7 @@ export default function TenantManagement() {
       setTenants(data);
     } catch (error) {
       console.error("Error fetching tenants:", error);
-      alert("ไม่สามารถโหลดข้อมูลผู้เช่าได้");
+      showAlert({ message: "ไม่สามารถโหลดข้อมูลผู้เช่าได้", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -41,16 +43,16 @@ export default function TenantManagement() {
     try {
       if (editingId) {
         await tenantService.updateTenant(editingId, formData);
-        alert("อัพเดทข้อมูลผู้เช่าสำเร็จ");
+        showAlert({ message: "อัพเดทข้อมูลผู้เช่าสำเร็จ", type: "success" });
       } else {
         await tenantService.createTenant(formData);
-        alert("เพิ่มผู้เช่าสำเร็จ");
+        showAlert({ message: "เพิ่มผู้เช่าสำเร็จ", type: "success" });
       }
       handleCloseDialog();
       fetchTenants();
     } catch (error) {
       console.error("Error saving tenant:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      showAlert({ message: "เกิดข้อผิดพลาดในการบันทึกข้อมูล", type: "error" });
     }
   };
 
@@ -72,11 +74,11 @@ export default function TenantManagement() {
     }
     try {
       await tenantService.deleteTenant(id);
-      alert("ลบผู้เช่าสำเร็จ");
+      showAlert({ message: "ลบผู้เช่าสำเร็จ", type: "success" });
       fetchTenants();
     } catch (error) {
       console.error("Error deleting tenant:", error);
-      alert("ไม่สามารถลบผู้เช่าได้");
+      showAlert({ message: "ไม่สามารถลบผู้เช่าได้", type: "error" });
     }
   };
 

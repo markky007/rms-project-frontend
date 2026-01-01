@@ -5,8 +5,10 @@ import contractService, {
 } from "../services/contractService";
 import roomService, { type Room } from "../services/roomService";
 import tenantService, { type Tenant } from "../services/tenantService";
+import { useAlert } from "../hooks/useAlert";
 
 export default function ContractManagement() {
+  const { showAlert } = useAlert();
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -38,7 +40,7 @@ export default function ContractManagement() {
       setContracts(data);
     } catch (error) {
       console.error("Error fetching contracts:", error);
-      alert("ไม่สามารถโหลดข้อมูลสัญญาได้");
+      showAlert({ message: "ไม่สามารถโหลดข้อมูลสัญญาได้", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -69,10 +71,10 @@ export default function ContractManagement() {
     try {
       if (editingId) {
         await contractService.updateContract(editingId, formData);
-        alert("อัพเดทสัญญาสำเร็จ");
+        showAlert({ message: "อัพเดทสัญญาสำเร็จ", type: "success" });
       } else {
         await contractService.createContract(formData);
-        alert("สร้างสัญญาสำเร็จ");
+        showAlert({ message: "สร้างสัญญาสำเร็จ", type: "success" });
       }
       setShowForm(false);
       setEditingId(null);
@@ -81,7 +83,7 @@ export default function ContractManagement() {
       fetchRooms();
     } catch (error) {
       console.error("Error saving contract:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      showAlert({ message: "เกิดข้อผิดพลาดในการบันทึกข้อมูล", type: "error" });
     }
   };
 
@@ -91,11 +93,11 @@ export default function ContractManagement() {
     }
     try {
       await contractService.terminateContract(id);
-      alert("ยกเลิกสัญญาสำเร็จ");
+      showAlert({ message: "ยกเลิกสัญญาสำเร็จ", type: "success" });
       fetchContracts();
     } catch (error) {
       console.error("Error terminating contract:", error);
-      alert("ไม่สามารถยกเลิกสัญญาได้");
+      showAlert({ message: "ไม่สามารถยกเลิกสัญญาได้", type: "error" });
     }
   };
 

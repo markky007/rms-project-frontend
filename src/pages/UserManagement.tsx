@@ -6,8 +6,10 @@ import userService, {
   type CreateUserData,
   type UpdateUserData,
 } from "../services/userService";
+import { useAlert } from "../hooks/useAlert";
 
 export default function UserManagement() {
+  const { showAlert } = useAlert();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
@@ -29,7 +31,7 @@ export default function UserManagement() {
       setUsers(data);
     } catch (error) {
       console.error("Error fetching users:", error);
-      alert("ไม่สามารถโหลดข้อมูลผู้ใช้ได้");
+      showAlert({ message: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -44,16 +46,16 @@ export default function UserManagement() {
           delete updateData.password;
         }
         await userService.updateUser(editingId, updateData);
-        alert("อัพเดทข้อมูลผู้ใช้สำเร็จ");
+        showAlert({ message: "อัพเดทข้อมูลผู้ใช้สำเร็จ", type: "success" });
       } else {
         await userService.createUser(formData);
-        alert("เพิ่มผู้ใช้สำเร็จ");
+        showAlert({ message: "เพิ่มผู้ใช้สำเร็จ", type: "success" });
       }
       handleCloseDialog();
       fetchUsers();
     } catch (error) {
       console.error("Error saving user:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      showAlert({ message: "เกิดข้อผิดพลาดในการบันทึกข้อมูล", type: "error" });
     }
   };
 
@@ -73,11 +75,11 @@ export default function UserManagement() {
     }
     try {
       await userService.deleteUser(id);
-      alert("ลบผู้ใช้สำเร็จ");
+      showAlert({ message: "ลบผู้ใช้สำเร็จ", type: "success" });
       fetchUsers();
     } catch (error) {
       console.error("Error deleting user:", error);
-      alert("ไม่สามารถลบผู้ใช้ได้");
+      showAlert({ message: "ไม่สามารถลบผู้ใช้ได้", type: "error" });
     }
   };
 

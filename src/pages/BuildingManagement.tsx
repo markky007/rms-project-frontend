@@ -5,8 +5,10 @@ import buildingService, {
   type Building,
   type CreateBuildingData,
 } from "../services/buildingService";
+import { useAlert } from "../hooks/useAlert";
 
 export default function BuildingManagement() {
+  const { showAlert } = useAlert();
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
@@ -29,7 +31,7 @@ export default function BuildingManagement() {
       setBuildings(data);
     } catch (error) {
       console.error("Error fetching buildings:", error);
-      alert("ไม่สามารถโหลดข้อมูลอาคารได้");
+      showAlert({ message: "ไม่สามารถโหลดข้อมูลอาคารได้", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -40,16 +42,16 @@ export default function BuildingManagement() {
     try {
       if (editingId) {
         await buildingService.updateBuilding(editingId, formData);
-        alert("อัพเดทข้อมูลอาคารสำเร็จ");
+        showAlert({ message: "อัพเดทข้อมูลอาคารสำเร็จ", type: "success" });
       } else {
         await buildingService.createBuilding(formData);
-        alert("เพิ่มอาคารสำเร็จ");
+        showAlert({ message: "เพิ่มอาคารสำเร็จ", type: "success" });
       }
       handleCloseDialog();
       fetchBuildings();
     } catch (error) {
       console.error("Error saving building:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      showAlert({ message: "เกิดข้อผิดพลาดในการบันทึกข้อมูล", type: "error" });
     }
   };
 
@@ -74,11 +76,11 @@ export default function BuildingManagement() {
     }
     try {
       await buildingService.deleteBuilding(id);
-      alert("ลบอาคารสำเร็จ");
+      showAlert({ message: "ลบอาคารสำเร็จ", type: "success" });
       fetchBuildings();
     } catch (error) {
       console.error("Error deleting building:", error);
-      alert("ไม่สามารถลบอาคารได้");
+      showAlert({ message: "ไม่สามารถลบอาคารได้", type: "error" });
     }
   };
 

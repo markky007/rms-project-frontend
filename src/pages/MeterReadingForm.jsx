@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Calculator, Save } from "lucide-react";
+import { useAlert } from "../hooks/useAlert";
 
 const MeterReadingForm = () => {
+  const { showAlert } = useAlert();
   const [roomId, setRoomId] = useState("");
   const [currentWater, setCurrentWater] = useState("");
   const [currentElec, setCurrentElec] = useState("");
@@ -54,7 +56,7 @@ const MeterReadingForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // In a real app, this would submit to /create-invoice
-    alert("Invoice Created! (Mock)");
+    showAlert({ message: "Invoice Created! (Mock)", type: "success" });
   };
 
   return (

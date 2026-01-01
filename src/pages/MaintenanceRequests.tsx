@@ -4,8 +4,10 @@ import maintenanceService, {
   type CreateMaintenanceRequestData,
 } from "../services/maintenanceService";
 import roomService, { type Room } from "../services/roomService";
+import { useAlert } from "../hooks/useAlert";
 
 export default function MaintenanceRequests() {
+  const { showAlert } = useAlert();
   const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,10 @@ export default function MaintenanceRequests() {
       setRequests(data);
     } catch (error) {
       console.error("Error fetching maintenance requests:", error);
-      alert("ไม่สามารถโหลดข้อมูลการแจ้งซ่อมได้");
+      showAlert({
+        message: "ไม่สามารถโหลดข้อมูลการแจ้งซ่อมได้",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -50,13 +55,13 @@ export default function MaintenanceRequests() {
     e.preventDefault();
     try {
       await maintenanceService.createMaintenanceRequest(formData);
-      alert("สร้างรายการแจ้งซ่อมสำเร็จ");
+      showAlert({ message: "สร้างรายการแจ้งซ่อมสำเร็จ", type: "success" });
       setShowForm(false);
       setFormData({ room_id: 0, title: "", description: "" });
       fetchRequests();
     } catch (error) {
       console.error("Error creating maintenance request:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      showAlert({ message: "เกิดข้อผิดพลาดในการบันทึกข้อมูล", type: "error" });
     }
   };
 
@@ -71,17 +76,20 @@ export default function MaintenanceRequests() {
         if (costStr === null) return; // User cancelled
         cost = parseFloat(costStr);
         if (isNaN(cost) || cost < 0) {
-          alert("กรุณาใส่ค่าใช้จ่ายที่ถูกต้อง");
+          showAlert({
+            message: "กรุณาใส่ค่าใช้จ่ายที่ถูกต้อง",
+            type: "warning",
+          });
           return;
         }
       }
 
       await maintenanceService.updateMaintenanceStatus(id, status, cost);
-      alert("อัพเดทสถานะสำเร็จ");
+      showAlert({ message: "อัพเดทสถานะสำเร็จ", type: "success" });
       fetchRequests();
     } catch (error) {
       console.error("Error updating status:", error);
-      alert("ไม่สามารถอัพเดทสถานะได้");
+      showAlert({ message: "ไม่สามารถอัพเดทสถานะได้", type: "error" });
     }
   };
 
