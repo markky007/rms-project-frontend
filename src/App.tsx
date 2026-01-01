@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import RoomDashboard from "./pages/RoomDashboard";
+import RoomManagement from "./pages/RoomManagement";
 import MeterReadingForm from "./pages/MeterReadingForm";
 import Invoices from "./pages/Invoices";
 import UserManagement from "./pages/UserManagement";
@@ -23,6 +24,7 @@ export function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Layout />}>
             <Route index element={<RoomDashboard />} />
+            <Route path="rooms" element={<RoomManagement />} />
             <Route path="meter-reading" element={<MeterReadingForm />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="users" element={<UserManagement />} />

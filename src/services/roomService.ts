@@ -7,6 +7,10 @@ export interface Room {
   floor: number;
   base_rent: number;
   status: "vacant" | "occupied" | "reserved" | "maintenance";
+  // Tenant information
+  current_tenant_id?: number | null;
+  tenant_name?: string | null;
+  tenant_phone?: string | null;
 }
 
 export interface CreateRoomData {
@@ -15,6 +19,7 @@ export interface CreateRoomData {
   floor: number;
   base_rent: number;
   status?: "vacant" | "occupied" | "reserved" | "maintenance";
+  current_tenant_id?: number | null;
 }
 
 export interface UpdateRoomData {
@@ -23,6 +28,7 @@ export interface UpdateRoomData {
   floor?: number;
   base_rent?: number;
   status?: "vacant" | "occupied" | "reserved" | "maintenance";
+  current_tenant_id?: number | null;
 }
 
 const roomService = {

@@ -25,6 +25,7 @@ const Sidebar = () => {
   };
   const navItems = [
     { name: "ห้องพัก", path: "/", icon: <DoorOpen size={20} /> },
+    { name: "จัดการห้องพัก", path: "/rooms", icon: <DoorOpen size={20} /> },
     { name: "อาคาร", path: "/buildings", icon: <Building2 size={20} /> },
     { name: "ผู้เช่า", path: "/tenants", icon: <Users size={20} /> },
     { name: "สัญญา", path: "/contracts", icon: <FileText size={20} /> },

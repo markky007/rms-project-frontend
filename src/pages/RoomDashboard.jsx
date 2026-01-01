@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import {
+  Building2,
+  Users,
+  Wallet,
+  MapPin,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+} from "lucide-react";
+import roomService from "../services/roomService";
 
 const RoomDashboard = () => {
   const [rooms, setRooms] = useState([]);
@@ -11,95 +20,173 @@ const RoomDashboard = () => {
 
   const fetchRooms = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/rooms");
-      setRooms(response.data);
+      const data = await roomService.getRooms();
+      setRooms(data);
     } catch (error) {
       console.error("Failed to fetch rooms", error);
-      // Fallback data for demo if backend is empty/down
-      setRooms([
-        {
-          room_id: 1,
-          room_number: "101",
-          status: "occupied",
-          building_name: "อาคาร A",
-        },
-        {
-          room_id: 2,
-          room_number: "102",
-          status: "vacant",
-          building_name: "อาคาร A",
-        },
-        {
-          room_id: 3,
-          room_number: "103",
-          status: "maintenance",
-          building_name: "อาคาร A",
-        },
-        {
-          room_id: 4,
-          room_number: "201",
-          status: "reserved",
-          building_name: "อาคาร B",
-        },
-      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "vacant":
-        return "bg-green-100 border-green-500 text-green-700";
-      case "occupied":
-        return "bg-red-100 border-red-500 text-red-700";
-      case "reserved":
-        return "bg-yellow-100 border-yellow-500 text-yellow-700";
-      case "maintenance":
-        return "bg-gray-200 border-gray-500 text-gray-700";
-      default:
-        return "bg-white border-gray-200";
-    }
+  const statusConfig = {
+    vacant: {
+      label: "ว่าง",
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+      border: "border-emerald-200",
+      icon: CheckCircle2,
+    },
+    occupied: {
+      label: "มีผู้เช่า",
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      border: "border-blue-200",
+      icon: Users,
+    },
+    reserved: {
+      label: "จองแล้ว",
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+      border: "border-amber-200",
+      icon: Clock,
+    },
+    maintenance: {
+      label: "ซ่อมบำรุง",
+      color: "text-red-600",
+      bg: "bg-red-50",
+      border: "border-red-200",
+      icon: AlertTriangle,
+    },
   };
 
-  if (loading) return <div>กำลังโหลด...</div>;
+  const getStatusStyle = (status) => {
+    return statusConfig[status] || statusConfig.vacant;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+      </div>
+    );
+  }
+
+  // Calculate statistics
+  const stats = {
+    total: rooms.length,
+    vacant: rooms.filter((r) => r.status === "vacant").length,
+    occupied: rooms.filter((r) => r.status === "occupied").length,
+    maintenance: rooms.filter((r) => r.status === "maintenance").length,
+  };
 
   return (
-    <div>
-      <h2 className="text-3xl font-bold text-slate-800 mb-6">สถานะห้องพัก</h2>
+    <div className="space-y-6">
+      {/* Header & Stats */}
+      <div className="space-y-4">
+        <div>
+          <p className="text-gray-500 text-lg">
+            จัดการและตรวจสอบสถานะห้องพักทั้งหมดของคุณ
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {rooms.map((room) => (
-          <div
-            key={room.room_id}
-            className={`p-6 rounded-xl border-l-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer ${getStatusColor(
-              room.status
-            )}`}
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-2xl font-bold">{room.room_number}</h3>
-                <p className="text-sm font-medium opacity-80">
-                  {room.building_name}
-                </p>
-              </div>
-              <span className="px-2 py-1 text-xs font-bold uppercase tracking-wide rounded-full bg-white/50">
-                {room.status === "vacant"
-                  ? "ว่าง"
-                  : room.status === "occupied"
-                  ? "มีผู้เช่า"
-                  : room.status === "reserved"
-                  ? "จองแล้ว"
-                  : room.status === "maintenance"
-                  ? "ซ่อมบำรุง"
-                  : room.status}
-              </span>
-            </div>
-            <div className="mt-4 pt-4 border-t border-black/10 text-sm">
-              <p>ค่าเช่า: ฿{room.base_rent || "0.00"}</p>
-            </div>
+        <div className="flex gap-3">
+          <div className="bg-white px-6 py-2 rounded-xl shadow-sm border border-gray-200 flex items-center gap-2 min-w-[100px] justify-center">
+            <span className="text-gray-800 font-medium">
+              ว่าง: <span className="font-bold">{stats.vacant}</span>
+            </span>
           </div>
-        ))}
+          <div className="bg-white px-6 py-2 rounded-xl shadow-sm border border-gray-200 flex items-center gap-2 min-w-[100px] justify-center">
+            <span className="text-gray-800 font-medium">
+              มีผู้เช่า: <span className="font-bold">{stats.occupied}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+        {rooms.map((room) => {
+          const status = getStatusStyle(room.status);
+          const StatusIcon = status.icon;
+
+          return (
+            <div
+              key={room.room_id}
+              className={`rounded-2xl border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer flex flex-col h-full ${status.bg} ${status.border}`}
+            >
+              {/* Card Header */}
+              <div className="px-6 py-4 flex justify-between items-center bg-white/60 backdrop-blur-sm border-b border-black/5">
+                <span className="text-2xl font-bold text-gray-800">
+                  {room.room_number}
+                </span>
+                <div
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold bg-white shadow-sm ring-1 ring-black/5 ${status.color}`}
+                >
+                  <StatusIcon size={18} />
+                  <span>{status.label}</span>
+                </div>
+              </div>
+
+              {/* Card Body */}
+              <div className="p-6 space-y-4 flex-grow">
+                {/* Building Location */}
+                <div className="flex items-start gap-4">
+                  <div className="p-2.5 bg-white rounded-xl text-gray-500 shadow-sm shrink-0">
+                    <Building2 size={20} />
+                  </div>
+                  <div className="pt-0.5">
+                    <p className="text-xs text-gray-500 font-medium mb-0.5">
+                      อาคาร
+                    </p>
+                    <p className="text-base font-bold text-gray-800 leading-tight">
+                      {room.building_name}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1 text-gray-500">
+                      <MapPin size={12} />
+                      <span className="text-xs">ชั้น {room.floor}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tenant Info */}
+                <div className="flex items-start gap-4">
+                  <div
+                    className={`p-2.5 bg-white rounded-xl shadow-sm shrink-0 ${
+                      room.tenant_name ? "text-blue-600" : "text-gray-400"
+                    }`}
+                  >
+                    <Users size={20} />
+                  </div>
+                  <div className="pt-0.5">
+                    <p className="text-xs text-gray-500 font-medium mb-0.5">
+                      ผู้เช่า
+                    </p>
+                    <p
+                      className={`text-base font-bold leading-tight ${
+                        room.tenant_name
+                          ? "text-gray-800"
+                          : "text-gray-400 italic"
+                      }`}
+                    >
+                      {room.tenant_name || "ไม่มีผู้เช่า"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Price Footer */}
+              <div className="px-6 py-4 border-t border-black/5 bg-white/40 flex justify-between items-center">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Wallet size={16} />
+                  <span className="text-sm font-medium">ค่าเช่า</span>
+                </div>
+                <span className="text-emerald-700 text-lg font-bold">
+                  ฿{Number(room.base_rent).toLocaleString()}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

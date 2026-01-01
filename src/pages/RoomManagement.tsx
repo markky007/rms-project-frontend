@@ -1,0 +1,431 @@
+import { useState, useEffect } from "react";
+import { Plus, Filter } from "lucide-react";
+import Dialog from "../components/Dialog";
+import roomService, {
+  type Room,
+  type CreateRoomData,
+} from "../services/roomService";
+import buildingService, { type Building } from "../services/buildingService";
+import tenantService, { type Tenant } from "../services/tenantService";
+import { useAlert } from "../hooks/useAlert";
+
+export default function RoomManagement() {
+  const { showAlert } = useAlert();
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showDialog, setShowDialog] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<number | null>(null);
+  const [formData, setFormData] = useState<CreateRoomData>({
+    building_id: 0,
+    room_number: "",
+    floor: 1,
+    base_rent: 0,
+    status: "vacant",
+    current_tenant_id: null,
+  });
+
+  useEffect(() => {
+    fetchBuildings();
+    fetchRooms();
+    fetchTenants();
+  }, []);
+
+  useEffect(() => {
+    fetchRooms();
+  }, [selectedBuilding]);
+
+  const fetchTenants = async () => {
+    try {
+      const data = await tenantService.getTenants();
+      setTenants(data);
+    } catch (error) {
+      console.error("Error fetching tenants:", error);
+    }
+  };
+
+  const fetchBuildings = async () => {
+    try {
+      const data = await buildingService.getBuildings();
+      setBuildings(data);
+    } catch (error) {
+      console.error("Error fetching buildings:", error);
+      showAlert({ message: "ไม่สามารถโหลดข้อมูลอาคารได้", type: "error" });
+    }
+  };
+
+  const fetchRooms = async () => {
+    try {
+      setLoading(true);
+      const data = selectedBuilding
+        ? await roomService.getRooms(selectedBuilding)
+        : await roomService.getRooms();
+      setRooms(data);
+    } catch (error) {
+      console.error("Error fetching rooms:", error);
+      showAlert({ message: "ไม่สามารถโหลดข้อมูลห้องพักได้", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        await roomService.updateRoom(editingId, formData);
+        showAlert({ message: "อัพเดทข้อมูลห้องพักสำเร็จ", type: "success" });
+      } else {
+        await roomService.createRoom(formData);
+        showAlert({ message: "เพิ่มห้องพักสำเร็จ", type: "success" });
+      }
+      handleCloseDialog();
+      fetchRooms();
+    } catch (error: any) {
+      console.error("Error saving room:", error);
+      const errorMessage =
+        error.response?.data?.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล";
+      showAlert({ message: errorMessage, type: "error" });
+    }
+  };
+
+  const handleEdit = (room: Room) => {
+    setEditingId(room.room_id);
+    setFormData({
+      building_id: room.building_id,
+      room_number: room.room_number,
+      floor: room.floor,
+      base_rent: room.base_rent,
+      status: room.status,
+      current_tenant_id: room.current_tenant_id || null,
+    });
+    setShowDialog(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("คุณแน่ใจหรือไม่ที่จะลบห้องพักนี้?")) {
+      return;
+    }
+    try {
+      await roomService.deleteRoom(id);
+      showAlert({ message: "ลบห้องพักสำเร็จ", type: "success" });
+      fetchRooms();
+    } catch (error: any) {
+      console.error("Error deleting room:", error);
+      const errorMessage =
+        error.response?.data?.error || "ไม่สามารถลบห้องพักได้";
+      showAlert({ message: errorMessage, type: "error" });
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setShowDialog(false);
+    setEditingId(null);
+    setFormData({
+      building_id: 0,
+      room_number: "",
+      floor: 1,
+      base_rent: 0,
+      status: "vacant",
+      current_tenant_id: null,
+    });
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      vacant: { label: "ว่าง", className: "bg-green-100 text-green-800" },
+      occupied: { label: "มีผู้เช่า", className: "bg-blue-100 text-blue-800" },
+      reserved: { label: "จอง", className: "bg-yellow-100 text-yellow-800" },
+      maintenance: { label: "ซ่อมแซม", className: "bg-red-100 text-red-800" },
+    };
+
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.vacant;
+    return (
+      <span
+        className={`px-3 py-1 rounded-full text-xs font-semibold ${config.className}`}
+      >
+        {config.label}
+      </span>
+    );
+  };
+
+  if (loading) {
+    return <div className="p-8">กำลังโหลด...</div>;
+  }
+
+  return (
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">จัดการห้องพัก</h1>
+        <div className="flex gap-3">
+          <div className="flex items-center gap-2">
+            <Filter size={20} className="text-gray-600" />
+            <select
+              value={selectedBuilding || ""}
+              onChange={(e) =>
+                setSelectedBuilding(
+                  e.target.value ? Number(e.target.value) : null
+                )
+              }
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="">ทุกอาคาร</option>
+              {buildings.map((building) => (
+                <option key={building.building_id} value={building.building_id}>
+                  {building.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            onClick={() => setShowDialog(true)}
+            className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 shadow-md"
+          >
+            <Plus size={20} />
+            เพิ่มห้องพัก
+          </button>
+        </div>
+      </div>
+
+      {/* Dialog for Create/Edit */}
+      <Dialog
+        isOpen={showDialog}
+        onClose={handleCloseDialog}
+        title={editingId ? "แก้ไขข้อมูลห้องพัก" : "เพิ่มห้องพักใหม่"}
+        size="md"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                อาคาร <span className="text-red-500">*</span>
+              </label>
+              <select
+                required
+                value={formData.building_id}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    building_id: Number(e.target.value),
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value={0}>เลือกอาคาร</option>
+                {buildings.map((building) => (
+                  <option
+                    key={building.building_id}
+                    value={building.building_id}
+                  >
+                    {building.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                หมายเลขห้อง <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.room_number}
+                onChange={(e) =>
+                  setFormData({ ...formData, room_number: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                placeholder="เช่น 101, A-201"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ชั้น <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                required
+                min="1"
+                value={formData.floor}
+                onChange={(e) =>
+                  setFormData({ ...formData, floor: Number(e.target.value) })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ค่าเช่า (บาท/เดือน) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                required
+                min="0"
+                step="0.01"
+                value={formData.base_rent}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    base_rent: Number(e.target.value),
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                สถานะ
+              </label>
+              <select
+                value={formData.status}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    status: e.target.value as any,
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="vacant">ว่าง</option>
+                <option value="occupied">มีผู้เช่า</option>
+                <option value="reserved">จอง</option>
+                <option value="maintenance">ซ่อมแซม</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ผู้เช่า
+              </label>
+              <select
+                value={formData.current_tenant_id || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    current_tenant_id: e.target.value
+                      ? Number(e.target.value)
+                      : null,
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="">ไม่มีผู้เช่า</option>
+                {tenants.map((tenant) => (
+                  <option key={tenant.tenant_id} value={tenant.tenant_id}>
+                    {tenant.full_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <button
+              type="submit"
+              className="flex-1 bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+            >
+              {editingId ? "บันทึกการแก้ไข" : "เพิ่มห้องพัก"}
+            </button>
+            <button
+              type="button"
+              onClick={handleCloseDialog}
+              className="flex-1 bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </form>
+      </Dialog>
+
+      {/* Rooms Table */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                อาคาร
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                หมายเลขห้อง
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                ชั้น
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                ค่าเช่า (บาท/เดือน)
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                ผู้เช่าปัจจุบัน
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                สถานะ
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                จัดการ
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {rooms.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  ไม่พบข้อมูลห้องพัก
+                </td>
+              </tr>
+            ) : (
+              rooms.map((room) => (
+                <tr key={room.room_id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                    {(room as any).building_name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                    {room.room_number}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                    {room.floor}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                    ฿{Number(room.base_rent).toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                    {room.tenant_name ? (
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {room.tenant_name}
+                        </div>
+                        {room.tenant_phone && (
+                          <div className="text-sm text-gray-500">
+                            {room.tenant_phone}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {getStatusBadge(room.status)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => handleEdit(room)}
+                      className="text-emerald-600 hover:text-emerald-900 mr-4"
+                    >
+                      แก้ไข
+                    </button>
+                    <button
+                      onClick={() => handleDelete(room.room_id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      ลบ
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
