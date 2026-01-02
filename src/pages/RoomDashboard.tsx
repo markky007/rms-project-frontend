@@ -3,7 +3,6 @@ import {
   Building2,
   Users,
   Wallet,
-  MapPin,
   CheckCircle2,
   Clock,
   AlertTriangle,
@@ -26,6 +25,7 @@ type StatusConfigMap = Record<RoomStatus, StatusConfig>;
 const RoomDashboard: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [filterStatus, setFilterStatus] = useState<RoomStatus | "all">("all");
 
   useEffect(() => {
     fetchRooms();
@@ -77,6 +77,14 @@ const RoomDashboard: React.FC = () => {
     return statusConfig[status] || statusConfig.vacant;
   };
 
+  const handleStatusFilter = (status: RoomStatus) => {
+    if (filterStatus === status) {
+      setFilterStatus("all");
+    } else {
+      setFilterStatus(status);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
@@ -94,6 +102,11 @@ const RoomDashboard: React.FC = () => {
     reserved: rooms.filter((r) => r.status === "reserved").length,
   };
 
+  const filteredRooms =
+    filterStatus === "all"
+      ? rooms
+      : rooms.filter((room) => room.status === filterStatus);
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-gray-800">บ้านเช่า</h1>
@@ -104,32 +117,60 @@ const RoomDashboard: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex gap-4">
-          <div className="bg-white px-6 py-2 rounded-xl shadow-sm border border-gray-200 flex items-center gap-2 min-w-[100px] justify-center">
+        <div className="flex gap-4 flex-wrap">
+          <button
+            onClick={() => handleStatusFilter("vacant")}
+            className={`px-6 py-2 rounded-xl shadow-sm border flex items-center gap-2 min-w-[100px] justify-center transition-all ${
+              filterStatus === "vacant"
+                ? "bg-green-100 border-green-300 ring-2 ring-green-500 ring-offset-2"
+                : "bg-white border-gray-200 hover:bg-gray-50"
+            }`}
+          >
             <span className="text-gray-800 font-medium">
               ว่าง: <span className="font-bold">{stats.vacant}</span>
             </span>
-          </div>
-          <div className="bg-white px-6 py-2 rounded-xl shadow-sm border border-gray-200 flex items-center gap-2 min-w-[100px] justify-center">
+          </button>
+          <button
+            onClick={() => handleStatusFilter("occupied")}
+            className={`px-6 py-2 rounded-xl shadow-sm border flex items-center gap-2 min-w-[100px] justify-center transition-all ${
+              filterStatus === "occupied"
+                ? "bg-blue-100 border-blue-300 ring-2 ring-blue-500 ring-offset-2"
+                : "bg-white border-gray-200 hover:bg-gray-50"
+            }`}
+          >
             <span className="text-gray-800 font-medium">
               มีผู้เช่า: <span className="font-bold">{stats.occupied}</span>
             </span>
-          </div>
-          <div className="bg-white px-6 py-2 rounded-xl shadow-sm border border-gray-200 flex items-center gap-2 min-w-[100px] justify-center">
+          </button>
+          <button
+            onClick={() => handleStatusFilter("maintenance")}
+            className={`px-6 py-2 rounded-xl shadow-sm border flex items-center gap-2 min-w-[100px] justify-center transition-all ${
+              filterStatus === "maintenance"
+                ? "bg-red-100 border-red-300 ring-2 ring-red-500 ring-offset-2"
+                : "bg-white border-gray-200 hover:bg-gray-50"
+            }`}
+          >
             <span className="text-gray-800 font-medium">
               กำลังซ่อม: <span className="font-bold">{stats.maintenance}</span>
             </span>
-          </div>
-          <div className="bg-white px-6 py-2 rounded-xl shadow-sm border border-gray-200 flex items-center gap-2 min-w-[100px] justify-center">
+          </button>
+          <button
+            onClick={() => handleStatusFilter("reserved")}
+            className={`px-6 py-2 rounded-xl shadow-sm border flex items-center gap-2 min-w-[100px] justify-center transition-all ${
+              filterStatus === "reserved"
+                ? "bg-yellow-100 border-yellow-300 ring-2 ring-yellow-500 ring-offset-2"
+                : "bg-white border-gray-200 hover:bg-gray-50"
+            }`}
+          >
             <span className="text-gray-800 font-medium">
               จองแล้ว: <span className="font-bold">{stats.reserved}</span>
             </span>
-          </div>
+          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-        {rooms.map((room) => {
+        {filteredRooms.map((room) => {
           const status = getStatusStyle(room.status);
           const StatusIcon = status.icon;
 
