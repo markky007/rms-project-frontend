@@ -1,7 +1,35 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Calculator, Save, Building2 } from "lucide-react";
+import { Calculator, Save, Calendar } from "lucide-react";
 import { useAlert } from "../hooks/useAlert";
+
+// Thai month names
+const THAI_MONTHS = [
+  { value: "01", label: "มกราคม" },
+  { value: "02", label: "กุมภาพันธ์" },
+  { value: "03", label: "มีนาคม" },
+  { value: "04", label: "เมษายน" },
+  { value: "05", label: "พฤษภาคม" },
+  { value: "06", label: "มิถุนายน" },
+  { value: "07", label: "กรกฎาคม" },
+  { value: "08", label: "สิงหาคม" },
+  { value: "09", label: "กันยายน" },
+  { value: "10", label: "ตุลาคม" },
+  { value: "11", label: "พฤศจิกายน" },
+  { value: "12", label: "ธันวาคม" },
+];
+
+// Generate years (3 years back to current year)
+const generateYears = () => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let i = currentYear - 2; i <= currentYear; i++) {
+    years.push({ value: String(i), label: String(i + 543) }); // Convert to Buddhist Era
+  }
+  return years;
+};
+
+const YEARS = generateYears();
 
 interface Room {
   room_id: number;
@@ -50,6 +78,15 @@ const MeterReadingForm: React.FC = () => {
   const [currentWater, setCurrentWater] = useState<string>("");
   const [currentElec, setCurrentElec] = useState<string>("");
 
+  // Month/Year selection for invoice
+  const currentDate = new Date();
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    String(currentDate.getMonth() + 1).padStart(2, "0")
+  );
+  const [selectedYear, setSelectedYear] = useState<string>(
+    String(currentDate.getFullYear())
+  );
+
   const [prevReadings, setPrevReadings] = useState<PreviousReadings | null>(
     null
   );
@@ -80,14 +117,18 @@ const MeterReadingForm: React.FC = () => {
   // Fetch previous readings when room changes
   useEffect(() => {
     const fetchPreviousReadings = async () => {
-      if (!roomId) {
+      if (!roomId || !selectedMonth || !selectedYear) {
         setPrevReadings(null);
         return;
       }
 
       try {
+        const monthYear = `${selectedYear}-${selectedMonth}`;
         const response = await axios.get<PreviousReadings>(
-          `http://localhost:3000/api/billing/latest-reading/${roomId}`
+          `http://localhost:3000/api/billing/latest-reading/${roomId}`,
+          {
+            params: { month_year: monthYear },
+          }
         );
         setPrevReadings(response.data);
       } catch (error) {
@@ -97,7 +138,7 @@ const MeterReadingForm: React.FC = () => {
     };
 
     fetchPreviousReadings();
-  }, [roomId]);
+  }, [roomId, selectedMonth, selectedYear]);
 
   // Debounced calculation
   useEffect(() => {
@@ -122,7 +163,7 @@ const MeterReadingForm: React.FC = () => {
           room_id: roomId,
           current_water: Number(currentWater),
           current_elec: Number(currentElec),
-          month_year: new Date().toISOString().slice(0, 7),
+          month_year: `${selectedYear}-${selectedMonth}`,
         }
       );
       setCalculation(response.data);
@@ -179,7 +220,7 @@ const MeterReadingForm: React.FC = () => {
       await axios.post("http://localhost:3000/api/billing/create-invoice", {
         contract_id: selectedRoom.current_contract_id,
         room_id: roomId,
-        month_year: new Date().toISOString().slice(0, 7),
+        month_year: `${selectedYear}-${selectedMonth}`,
         water_reading: Number(currentWater),
         elec_reading: Number(currentElec),
         recorded_by: user.user_id,
@@ -245,6 +286,42 @@ const MeterReadingForm: React.FC = () => {
                   ))}
                 </select>
               )}
+            </div>
+
+            {/* Month/Year Selection */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                <span className="flex items-center gap-1">
+                  <Calendar size={16} className="text-blue-500" />
+                  เดือน/ปีของใบแจ้งหนี้
+                </span>
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                  required
+                >
+                  {THAI_MONTHS.map((month) => (
+                    <option key={month.value} value={month.value}>
+                      {month.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                  required
+                >
+                  {YEARS.map((year) => (
+                    <option key={year.value} value={year.value}>
+                      พ.ศ. {year.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Meter Reading Inputs - 4 fields in 2x2 grid */}
@@ -360,7 +437,14 @@ const MeterReadingForm: React.FC = () => {
 
         {/* Live Calculation Preview */}
         <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-          <h3 className="text-xl font-semibold mb-4">ตัวอย่างใบแจ้งหนี้</h3>
+          <h3 className="text-xl font-semibold mb-2">ตัวอย่างใบแจ้งหนี้</h3>
+          <p className="text-sm text-slate-500 mb-4 flex items-center gap-1">
+            <Calendar size={14} />
+            ประจำเดือน{" "}
+            {
+              THAI_MONTHS.find((m) => m.value === selectedMonth)?.label
+            } พ.ศ. {Number(selectedYear) + 543}
+          </p>
 
           {loading ? (
             <p className="text-slate-500 animate-pulse">กำลังคำนวณ...</p>

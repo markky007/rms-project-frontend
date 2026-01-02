@@ -64,7 +64,7 @@ const invoiceService = {
 
   // Create new invoice
   createInvoice: async (data: CreateInvoiceData): Promise<Invoice> => {
-    const response = await api.post("/invoices", data);
+    const response = await api.post("/billing/create-invoice", data);
     return response.data;
   },
 
@@ -73,13 +73,25 @@ const invoiceService = {
     id: number,
     status: "pending" | "paid" | "overdue" | "cancelled"
   ): Promise<Invoice> => {
-    const response = await api.patch(`/invoices/${id}/status`, { status });
+    const response = await api.patch(`/billing/${id}/status`, { status });
     return response.data;
   },
 
   // Delete invoice
   deleteInvoice: async (id: number): Promise<void> => {
-    await api.delete(`/invoices/${id}`);
+    await api.delete(`/billing/${id}`);
+  },
+
+  // Bulk update invoice status
+  bulkUpdateStatus: async (
+    invoiceIds: number[],
+    status: "pending" | "paid" | "overdue" | "cancelled"
+  ): Promise<{ message: string; updated_count: number }> => {
+    const response = await api.patch("/billing/bulk-status", {
+      invoice_ids: invoiceIds,
+      status,
+    });
+    return response.data;
   },
 
   // Get invoices by contract
