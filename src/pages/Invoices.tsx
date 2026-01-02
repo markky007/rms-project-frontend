@@ -292,7 +292,7 @@ const Invoices: React.FC = () => {
                   เลขที่ใบแจ้งหนี้
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  บ้านเลขที่
+                  บ้าน
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ผู้เช่า
@@ -342,7 +342,7 @@ const Invoices: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-800">
                       {invoice.house_number
-                        ? `บ้านเลขที่ ${invoice.house_number}`
+                        ? `${invoice.house_number}`
                         : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
@@ -450,7 +450,7 @@ const Invoices: React.FC = () => {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white">
               <h2 className="text-xl font-bold text-gray-800">
-                รายละเอียดใบแจ้งหนี้
+                รายละเอียดใบแจ้งค่าเช่าบ้าน
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -463,7 +463,7 @@ const Invoices: React.FC = () => {
             <div className="p-6" ref={invoiceRef}>
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  ใบแจ้งหนี้ / Invoice
+                  ใบแจ้งค่าเช่าบ้าน / Invoice
                 </h3>
                 <p className="text-gray-500">
                   เดือน: {selectedInvoice.month_year} | เลขที่: #
@@ -475,7 +475,7 @@ const Invoices: React.FC = () => {
                     {new Date(selectedInvoice.issue_date).toLocaleDateString()}
                   </p>
                   {(selectedInvoice as any).house_number && (
-                    <p>บ้านเลขที่: {(selectedInvoice as any).house_number}</p>
+                    <p>{(selectedInvoice as any).house_number}</p>
                   )}
                   {(selectedInvoice as any).tenant_name && (
                     <p>ผู้เช่า: {(selectedInvoice as any).tenant_name}</p>
@@ -600,6 +600,24 @@ const Invoices: React.FC = () => {
                 <div className="mt-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
                   ระบุยอดเงินอัตโนมัติ
                 </div>
+              </div>
+
+              <div className="mt-6 space-y-2 text-sm text-gray-600 border-t pt-4">
+                <p>
+                  <span className="font-semibold text-red-500">*</span>{" "}
+                  กรุณาชําระทั้งหมดไม่เกินวันที่ 5 ของเดือน
+                  หากเกินกําหนดขอเก็บเพิ่มวันละ 50 บาทจนกว่าจะจ่ายครบ
+                </p>
+                <p>
+                  <span className="font-semibold text-red-500">*</span>{" "}
+                  ห้ามนําสัตว์เลี้ยงทุกชนิดมาเลี้ยง
+                  (หากเกิดความเสียหายจะต้องรับผิดชอบให้สภาพคงเดิมหรือปรับเท่ามูลค่าของสิ่งนั้น)
+                </p>
+                <p>
+                  <span className="font-semibold text-red-500">*</span>{" "}
+                  กรณีย้ายออก กรุณาแจ้งล่วงหน้าอย่างน้อย 30 วัน
+                  มิฉะนั้นจะไม่ขอคืนเงินประกันบ้าน
+                </p>
               </div>
             </div>
 
