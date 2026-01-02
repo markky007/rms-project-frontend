@@ -11,6 +11,8 @@ import {
 import { QRCodeCanvas } from "qrcode.react";
 import html2canvas from "html2canvas";
 import invoiceService, { type Invoice } from "../services/invoiceService";
+import promptpayQr from "../payments/promptpay-qr.png";
+import { generatePromptPayPayload } from "../utils/promptpay";
 
 const Invoices: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -109,7 +111,7 @@ const Invoices: React.FC = () => {
   }
 
   // Placeholder PromptPay ID for demo usually phone or TaxID
-  const PROMPTPAY_ID = "081-234-5678";
+  const PROMPTPAY_ID = "085-399-4499";
 
   return (
     <div className="p-8">
@@ -296,15 +298,29 @@ const Invoices: React.FC = () => {
                 <p className="font-semibold text-gray-700 mb-4">
                   สแกนเพื่อชำระเงิน (PromptPay)
                 </p>
-                <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-center">
                   <QRCodeCanvas
-                    value={`promptpay:${PROMPTPAY_ID}?amount=${selectedInvoice.total_amount}`}
-                    size={180}
-                    level={"H"}
+                    value={generatePromptPayPayload(
+                      PROMPTPAY_ID,
+                      Number(selectedInvoice.total_amount)
+                    )}
+                    size={200}
+                    level={"M"}
                     includeMargin={true}
+                    imageSettings={{
+                      src: promptpayQr,
+                      x: undefined,
+                      y: undefined,
+                      height: 40,
+                      width: 40,
+                      excavate: true,
+                    }}
                   />
                 </div>
                 <p className="mt-4 text-sm text-gray-500">ID: {PROMPTPAY_ID}</p>
+                <div className="mt-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                  ระบุยอดเงินอัตโนมัติ
+                </div>
               </div>
             </div>
 

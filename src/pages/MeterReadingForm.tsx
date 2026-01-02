@@ -49,6 +49,10 @@ const MeterReadingForm: React.FC = () => {
   const [roomId, setRoomId] = useState<string>("");
   const [currentWater, setCurrentWater] = useState<string>("");
   const [currentElec, setCurrentElec] = useState<string>("");
+
+  const [prevReadings, setPrevReadings] = useState<PreviousReadings | null>(
+    null
+  );
   const [calculation, setCalculation] = useState<Calculation | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingRooms, setLoadingRooms] = useState<boolean>(true);
@@ -72,6 +76,28 @@ const MeterReadingForm: React.FC = () => {
 
     fetchRooms();
   }, [showAlert]);
+
+  // Fetch previous readings when room changes
+  useEffect(() => {
+    const fetchPreviousReadings = async () => {
+      if (!roomId) {
+        setPrevReadings(null);
+        return;
+      }
+
+      try {
+        const response = await axios.get<PreviousReadings>(
+          `http://localhost:3000/api/billing/latest-reading/${roomId}`
+        );
+        setPrevReadings(response.data);
+      } catch (error) {
+        console.error("Failed to fetch previous readings", error);
+        // Don't show alert here to avoid annoying popups if just browsing
+      }
+    };
+
+    fetchPreviousReadings();
+  }, [roomId]);
 
   // Debounced calculation
   useEffect(() => {
@@ -206,6 +232,7 @@ const MeterReadingForm: React.FC = () => {
                     setCurrentWater("");
                     setCurrentElec("");
                     setCalculation(null);
+                    setPrevReadings(null);
                   }}
                   className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
                   required
@@ -230,7 +257,7 @@ const MeterReadingForm: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    value={calculation?.prev_readings.water || ""}
+                    value={prevReadings?.water ?? ""}
                     className="w-full p-2 border border-slate-300 rounded-md bg-slate-100 text-slate-600 cursor-not-allowed"
                     placeholder="0"
                     disabled
@@ -263,7 +290,7 @@ const MeterReadingForm: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    value={calculation?.prev_readings.elec || ""}
+                    value={prevReadings?.elec ?? ""}
                     className="w-full p-2 border border-slate-300 rounded-md bg-slate-100 text-slate-600 cursor-not-allowed"
                     placeholder="0"
                     disabled
