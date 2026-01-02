@@ -6,6 +6,7 @@ import tenantService, {
   type CreateTenantData,
 } from "../services/tenantService";
 import { useAlert } from "../hooks/useAlert";
+import Pagination from "../components/Pagination";
 
 export default function TenantManagement() {
   const { showAlert } = useAlert();
@@ -20,6 +21,14 @@ export default function TenantManagement() {
     line_id: "",
     address: "",
   });
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tenants.length]);
 
   useEffect(() => {
     fetchTenants();
@@ -93,6 +102,12 @@ export default function TenantManagement() {
       address: "",
     });
   };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(tenants.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTenants = tenants.slice(startIndex, endIndex);
 
   if (loading) {
     return <div className="p-8">กำลังโหลด...</div>;
@@ -242,7 +257,7 @@ export default function TenantManagement() {
                 </td>
               </tr>
             ) : (
-              tenants.map((tenant) => (
+              paginatedTenants.map((tenant) => (
                 <tr key={tenant.tenant_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
                     {tenant.full_name}
@@ -275,6 +290,13 @@ export default function TenantManagement() {
             )}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={tenants.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

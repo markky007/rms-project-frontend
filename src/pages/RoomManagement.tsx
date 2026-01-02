@@ -7,6 +7,7 @@ import roomService, {
 } from "../services/roomService";
 import tenantService, { type Tenant } from "../services/tenantService";
 import { useAlert } from "../hooks/useAlert";
+import Pagination from "../components/Pagination";
 
 export default function RoomManagement() {
   const { showAlert } = useAlert();
@@ -25,6 +26,14 @@ export default function RoomManagement() {
     water_rate: 18.0,
     elec_rate: 7.0,
   });
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rooms.length]);
 
   useEffect(() => {
     fetchRooms();
@@ -137,6 +146,12 @@ export default function RoomManagement() {
       </span>
     );
   };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(rooms.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedRooms = rooms.slice(startIndex, endIndex);
 
   if (loading) {
     return <div className="p-8">กำลังโหลด...</div>;
@@ -369,7 +384,7 @@ export default function RoomManagement() {
                 </td>
               </tr>
             ) : (
-              rooms.map((room) => (
+              paginatedRooms.map((room) => (
                 <tr key={room.room_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
                     {room.house_number}
@@ -424,6 +439,13 @@ export default function RoomManagement() {
             )}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={rooms.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

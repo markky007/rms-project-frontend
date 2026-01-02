@@ -8,6 +8,7 @@ import contractService, {
 import roomService, { type Room } from "../services/roomService";
 import tenantService, { type Tenant } from "../services/tenantService";
 import { useAlert } from "../hooks/useAlert";
+import Pagination from "../components/Pagination";
 
 export default function ContractManagement() {
   const { showAlert } = useAlert();
@@ -32,6 +33,14 @@ export default function ContractManagement() {
     deposit: 0,
     rent_amount: 0,
   });
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
 
   useEffect(() => {
     fetchContracts();
@@ -148,6 +157,12 @@ export default function ContractManagement() {
     if (filterStatus === "inactive") return !contract.is_active;
     return true;
   });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredContracts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedContracts = filteredContracts.slice(startIndex, endIndex);
 
   if (loading) {
     return <div className="p-8">กำลังโหลด...</div>;
@@ -371,14 +386,14 @@ export default function ContractManagement() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredContracts.length === 0 ? (
+            {paginatedContracts.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
                   ไม่พบข้อมูลสัญญา
                 </td>
               </tr>
             ) : (
-              filteredContracts.map((contract) => (
+              paginatedContracts.map((contract) => (
                 <tr key={contract.contract_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-gray-900">
                     <span className="font-medium">
@@ -450,6 +465,13 @@ export default function ContractManagement() {
             )}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredContracts.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Details Dialog */}

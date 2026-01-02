@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import paymentService, { type Payment } from "../services/paymentService";
 import { useAlert } from "../hooks/useAlert";
+import Pagination from "../components/Pagination";
 
 export default function PaymentManagement() {
   const { showAlert } = useAlert();
@@ -9,6 +10,14 @@ export default function PaymentManagement() {
   const [filterStatus, setFilterStatus] = useState<
     "all" | "pending" | "approved"
   >("all");
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
 
   useEffect(() => {
     fetchPayments();
@@ -50,6 +59,12 @@ export default function PaymentManagement() {
     if (filterStatus === "approved") return payment.status === "approved";
     return true;
   });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedPayments = filteredPayments.slice(startIndex, endIndex);
 
   if (loading) {
     return <div className="p-8">กำลังโหลด...</div>;
@@ -123,14 +138,14 @@ export default function PaymentManagement() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredPayments.length === 0 ? (
+            {paginatedPayments.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
                   ไม่พบข้อมูลการชำระเงิน
                 </td>
               </tr>
             ) : (
-              filteredPayments.map((payment) => (
+              paginatedPayments.map((payment) => (
                 <tr key={payment.payment_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
                     #{payment.invoice_id}
@@ -181,6 +196,13 @@ export default function PaymentManagement() {
             )}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredPayments.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

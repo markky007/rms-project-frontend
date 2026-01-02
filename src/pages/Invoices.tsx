@@ -16,6 +16,7 @@ import invoiceService, { type Invoice } from "../services/invoiceService";
 import promptpayQr from "../payments/promptpay-qr.png";
 import { generatePromptPayPayload } from "../utils/promptpay";
 import { useAlert } from "../hooks/useAlert";
+import Pagination from "../components/Pagination";
 
 const STATUS_OPTIONS: {
   value: Invoice["status"];
@@ -44,6 +45,14 @@ const Invoices: React.FC = () => {
 
   // Delete confirmation
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [invoices.length]);
 
   useEffect(() => {
     fetchInvoices();
@@ -225,6 +234,12 @@ const Invoices: React.FC = () => {
   // Placeholder PromptPay ID for demo
   const PROMPTPAY_ID = "085-399-4499";
 
+  // Calculate pagination
+  const totalPages = Math.ceil(invoices.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedInvoices = invoices.slice(startIndex, endIndex);
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">ใบแจ้งหนี้</h1>
@@ -312,7 +327,7 @@ const Invoices: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 text-sm">
-              {invoices.length === 0 ? (
+              {paginatedInvoices.length === 0 ? (
                 <tr>
                   <td
                     colSpan={8}
@@ -322,7 +337,7 @@ const Invoices: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                invoices.map((invoice: any) => (
+                paginatedInvoices.map((invoice: any) => (
                   <tr
                     key={invoice.invoice_id}
                     className={`hover:bg-gray-50 transition-colors ${
@@ -341,9 +356,7 @@ const Invoices: React.FC = () => {
                       #{String(invoice.invoice_id).padStart(5, "0")}
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-800">
-                      {invoice.house_number
-                        ? `${invoice.house_number}`
-                        : "N/A"}
+                      {invoice.house_number ? `${invoice.house_number}` : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-gray-600">
                       {invoice.tenant_name || "-"}
@@ -412,6 +425,13 @@ const Invoices: React.FC = () => {
             </tbody>
           </table>
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={invoices.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Delete Confirmation Modal */}

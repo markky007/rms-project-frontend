@@ -5,6 +5,7 @@ import maintenanceService, {
 } from "../services/maintenanceService";
 import roomService, { type Room } from "../services/roomService";
 import { useAlert } from "../hooks/useAlert";
+import Pagination from "../components/Pagination";
 
 export default function MaintenanceRequests() {
   const { showAlert } = useAlert();
@@ -20,6 +21,14 @@ export default function MaintenanceRequests() {
     title: "",
     description: "",
   });
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
 
   useEffect(() => {
     fetchRequests();
@@ -127,6 +136,12 @@ export default function MaintenanceRequests() {
     if (filterStatus === "all") return true;
     return request.status === filterStatus;
   });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
 
   if (loading) {
     return <div className="p-8">กำลังโหลด...</div>;
@@ -296,14 +311,14 @@ export default function MaintenanceRequests() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredRequests.length === 0 ? (
+            {paginatedRequests.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                   ไม่พบข้อมูลการแจ้งซ่อม
                 </td>
               </tr>
             ) : (
-              filteredRequests.map((request) => (
+              paginatedRequests.map((request) => (
                 <tr key={request.request_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
                     Room #{request.room_id}
@@ -354,6 +369,13 @@ export default function MaintenanceRequests() {
             )}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredRequests.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

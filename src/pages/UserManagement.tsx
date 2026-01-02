@@ -7,6 +7,7 @@ import userService, {
   type UpdateUserData,
 } from "../services/userService";
 import { useAlert } from "../hooks/useAlert";
+import Pagination from "../components/Pagination";
 
 export default function UserManagement() {
   const { showAlert } = useAlert();
@@ -19,6 +20,14 @@ export default function UserManagement() {
     password: "",
     role: "staff",
   });
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [users.length]);
 
   useEffect(() => {
     fetchUsers();
@@ -100,6 +109,12 @@ export default function UserManagement() {
       </span>
     );
   };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsers = users.slice(startIndex, endIndex);
 
   if (loading) {
     return <div className="p-8">กำลังโหลด...</div>;
@@ -226,7 +241,7 @@ export default function UserManagement() {
                 </td>
               </tr>
             ) : (
-              users.map((user) => (
+              paginatedUsers.map((user) => (
                 <tr key={user.user_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
                     {user.username}
@@ -256,6 +271,13 @@ export default function UserManagement() {
             )}
           </tbody>
         </table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={users.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );
