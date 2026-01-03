@@ -246,7 +246,7 @@ const MeterReadingForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="p-8">
       <h2 className="text-3xl font-bold text-slate-800 mb-6 flex items-center gap-2">
         <Calculator className="text-blue-600" />
         บันทึกค่ามิเตอร์
