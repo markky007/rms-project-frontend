@@ -527,7 +527,18 @@ const Invoices: React.FC = () => {
                         ) {
                           const usage =
                             inv.current_water_reading - inv.prev_water_reading;
-                          return `มิเตอร์น้ำ ${inv.current_water_reading}-${inv.prev_water_reading} ใช้ไป ${usage} หน่วย`;
+                          return (
+                            <div className="text-xs text-blue-600 mt-1">
+                              <div>
+                                มิเตอร์น้ำ ก่อน:{" "}
+                                {Math.floor(inv.prev_water_reading)}
+                              </div>
+                              <div>
+                                มิเตอร์น้ำ หลัง:{" "}
+                                {Math.floor(inv.current_water_reading)}
+                              </div>
+                            </div>
+                          );
                         }
                         if (
                           item.item_type === "electric" &&
@@ -536,7 +547,18 @@ const Invoices: React.FC = () => {
                         ) {
                           const usage =
                             inv.current_elec_reading - inv.prev_elec_reading;
-                          return `มิเตอร์ไฟ ${inv.current_elec_reading}-${inv.prev_elec_reading} ใช้ไป ${usage} หน่วย`;
+                          return (
+                            <div className="text-xs text-red-600 mt-1">
+                              <div>
+                                มิเตอร์ไฟ ก่อน:{" "}
+                                {Math.floor(inv.prev_elec_reading)}
+                              </div>
+                              <div>
+                                มิเตอร์ไฟ หลัง:{" "}
+                                {Math.floor(inv.current_elec_reading)}
+                              </div>
+                            </div>
+                          );
                         }
                         return null;
                       };
@@ -558,15 +580,27 @@ const Invoices: React.FC = () => {
 
                       return (
                         <tr key={index}>
-                          <td className="px-4 py-3 text-gray-700">
-                            <div>{displayDesc}</div>
-                            {meterInfo && (
-                              <div className="text-xs text-gray-500 mt-1">
-                                {meterInfo}
-                              </div>
-                            )}
+                          <td
+                            className={`px-4 py-3 ${
+                              item.item_type === "water"
+                                ? "text-blue-600"
+                                : item.item_type === "electric"
+                                ? "text-red-600"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            <div className="font-bold">{displayDesc}</div>
+                            {meterInfo}
                           </td>
-                          <td className="px-4 py-3 text-right text-gray-900">
+                          <td
+                            className={`px-4 py-3 text-right ${
+                              item.item_type === "water"
+                                ? "text-blue-600"
+                                : item.item_type === "electric"
+                                ? "text-red-600"
+                                : "text-gray-900"
+                            }`}
+                          >
                             ฿
                             {Number(item.amount).toLocaleString(undefined, {
                               minimumFractionDigits: 2,
