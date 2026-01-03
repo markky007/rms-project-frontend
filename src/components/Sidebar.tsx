@@ -145,7 +145,7 @@ const Sidebar: React.FC = () => {
                 letterSpacing: "0.1em",
               }}
             >
-              ระบบจัดการหอพัก
+              ระบบจัดการบ้านเช่า
             </p>
           </div>
         </div>
