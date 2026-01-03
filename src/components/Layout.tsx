@@ -11,13 +11,29 @@ const Layout: React.FC = () => {
         backgroundColor: "#f8fafc",
       }}
     >
-      {/* Sidebar - Fixed width */}
-      <div style={{ width: "256px", flexShrink: 0 }}>
+      {/* Sidebar - Fixed position */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "256px",
+          height: "100vh",
+          zIndex: 50,
+        }}
+      >
         <Sidebar />
       </div>
 
-      {/* Main Content Area */}
-      <main style={{ flex: 1, overflow: "auto" }}>
+      {/* Main Content Area - offset by sidebar width */}
+      <main
+        style={{
+          flex: 1,
+          marginLeft: "256px",
+          minHeight: "100vh",
+          overflow: "auto",
+        }}
+      >
         <div style={{ padding: "32px" }}>
           <Outlet />
         </div>

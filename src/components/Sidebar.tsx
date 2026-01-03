@@ -45,6 +45,9 @@ const Sidebar: React.FC = () => {
   ];
 
   const sidebarStyle: React.CSSProperties = {
+    position: "fixed",
+    top: 0,
+    left: 0,
     height: "100vh",
     width: "256px",
     backgroundColor: "#0f172a",
@@ -52,6 +55,7 @@ const Sidebar: React.FC = () => {
     display: "flex",
     flexDirection: "column",
     boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    zIndex: 50,
   };
 
   const headerStyle: React.CSSProperties = {
