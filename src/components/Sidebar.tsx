@@ -39,8 +39,7 @@ const Sidebar: React.FC = () => {
       path: "/invoices",
       icon: <ClipboardList size={20} />,
     },
-    { name: "การชำระเงิน", path: "/payments", icon: <CreditCard size={20} /> },
-    { name: "แจ้งซ่อม", path: "/maintenance", icon: <Wrench size={20} /> },
+
     { name: "จัดการผู้ใช้", path: "/users", icon: <UserCog size={20} /> },
   ];
 

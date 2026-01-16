@@ -14,6 +14,8 @@ export default function TenantManagement() {
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState<CreateTenantData>({
     full_name: "",
     id_card: "",
@@ -78,16 +80,17 @@ export default function TenantManagement() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("คุณแน่ใจหรือไม่ที่จะลบผู้เช่านี้?")) {
-      return;
-    }
     try {
+      setIsDeleting(true);
       await tenantService.deleteTenant(id);
       showAlert({ message: "ลบผู้เช่าสำเร็จ", type: "success" });
+      setDeleteConfirmId(null);
       fetchTenants();
     } catch (error) {
       console.error("Error deleting tenant:", error);
       showAlert({ message: "ไม่สามารถลบผู้เช่าได้", type: "error" });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -279,7 +282,7 @@ export default function TenantManagement() {
                       แก้ไข
                     </button>
                     <button
-                      onClick={() => handleDelete(tenant.tenant_id)}
+                      onClick={() => setDeleteConfirmId(tenant.tenant_id)}
                       className="text-red-600 hover:text-red-900"
                     >
                       ลบ
@@ -298,6 +301,35 @@ export default function TenantManagement() {
           onPageChange={setCurrentPage}
         />
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId !== null && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-4 max-w-xs w-full">
+            <h3 className="text-base font-bold text-gray-800 mb-2">
+              ยืนยันการลบ
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              คุณแน่ใจหรือไม่ที่จะลบผู้เช่านี้?
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 font-medium"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirmId)}
+                disabled={isDeleting}
+                className="px-3 py-1.5 text-sm text-red-600 border border-gray-300 rounded-md hover:bg-gray-50 font-medium"
+              >
+                ลบ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
