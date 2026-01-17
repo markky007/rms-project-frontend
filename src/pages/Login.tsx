@@ -16,11 +16,11 @@ export default function Login() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/users/auth/login",
+        "http://45.91.134.134:1111/api/users/auth/login",
         {
           username,
           password,
-        }
+        },
       );
 
       // Store token and user info
@@ -31,7 +31,7 @@ export default function Login() {
       navigate("/");
     } catch (err: any) {
       setError(
-        err.response?.data?.error || "เข้าสู่ระบบล้มเหลว กรุณาลองใหม่อีกครั้ง"
+        err.response?.data?.error || "เข้าสู่ระบบล้มเหลว กรุณาลองใหม่อีกครั้ง",
       );
     } finally {
       setIsLoading(false);

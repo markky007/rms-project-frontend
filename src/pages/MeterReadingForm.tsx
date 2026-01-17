@@ -81,14 +81,14 @@ const MeterReadingForm: React.FC = () => {
   // Month/Year selection for invoice
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState<string>(
-    String(currentDate.getMonth() + 1).padStart(2, "0")
+    String(currentDate.getMonth() + 1).padStart(2, "0"),
   );
   const [selectedYear, setSelectedYear] = useState<string>(
-    String(currentDate.getFullYear())
+    String(currentDate.getFullYear()),
   );
 
   const [prevReadings, setPrevReadings] = useState<PreviousReadings | null>(
-    null
+    null,
   );
   const [calculation, setCalculation] = useState<Calculation | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -100,7 +100,7 @@ const MeterReadingForm: React.FC = () => {
     const fetchRooms = async (): Promise<void> => {
       try {
         const response = await axios.get<Room[]>(
-          "http://localhost:3000/api/rooms"
+          "http://45.91.134.134:1111/api/rooms",
         );
         setRooms(response.data);
       } catch (error) {
@@ -125,10 +125,10 @@ const MeterReadingForm: React.FC = () => {
       try {
         const monthYear = `${selectedYear}-${selectedMonth}`;
         const response = await axios.get<PreviousReadings>(
-          `http://localhost:3000/api/billing/latest-reading/${roomId}`,
+          `http://45.91.134.134:1111/api/billing/latest-reading/${roomId}`,
           {
             params: { month_year: monthYear },
-          }
+          },
         );
         setPrevReadings(response.data);
       } catch (error) {
@@ -158,13 +158,13 @@ const MeterReadingForm: React.FC = () => {
     setError(null);
     try {
       const response = await axios.post<Calculation>(
-        "http://localhost:3000/api/billing/calculate",
+        "http://45.91.134.134:1111/api/billing/calculate",
         {
           room_id: roomId,
           current_water: Number(currentWater),
           current_elec: Number(currentElec),
           month_year: `${selectedYear}-${selectedMonth}`,
-        }
+        },
       );
       setCalculation(response.data);
     } catch (error) {
@@ -175,7 +175,7 @@ const MeterReadingForm: React.FC = () => {
         setError(msg);
       } else {
         setError(
-          "เกิดข้อผิดพลาดในการเชื่อมต่อ: กรุณาตรวจสอบว่าเซิร์ฟเวอร์ทำงานอยู่"
+          "เกิดข้อผิดพลาดในการเชื่อมต่อ: กรุณาตรวจสอบว่าเซิร์ฟเวอร์ทำงานอยู่",
         );
       }
     } finally {
@@ -184,7 +184,7 @@ const MeterReadingForm: React.FC = () => {
   };
 
   const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
+    e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
 
@@ -217,7 +217,7 @@ const MeterReadingForm: React.FC = () => {
 
     try {
       setLoading(true);
-      await axios.post("http://localhost:3000/api/billing/create-invoice", {
+      await axios.post("http://45.91.134.134:1111/api/billing/create-invoice", {
         contract_id: selectedRoom.current_contract_id,
         room_id: roomId,
         month_year: `${selectedYear}-${selectedMonth}`,
