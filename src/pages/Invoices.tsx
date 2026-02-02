@@ -50,6 +50,10 @@ const Invoices: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // Filter state
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
+
   useEffect(() => {
     setCurrentPage(1);
   }, [invoices.length]);
@@ -103,7 +107,7 @@ const Invoices: React.FC = () => {
       setIsUpdating(true);
       await invoiceService.updateInvoiceStatus(id, status);
       setInvoices((prev) =>
-        prev.map((inv) => (inv.invoice_id === id ? { ...inv, status } : inv))
+        prev.map((inv) => (inv.invoice_id === id ? { ...inv, status } : inv)),
       );
       showAlert({ message: "อัพเดทสถานะสำเร็จ", type: "success" });
     } catch (err) {
@@ -127,8 +131,10 @@ const Invoices: React.FC = () => {
       await invoiceService.bulkUpdateStatus(ids, bulkStatus);
       setInvoices((prev) =>
         prev.map((inv) =>
-          selectedIds.has(inv.invoice_id) ? { ...inv, status: bulkStatus } : inv
-        )
+          selectedIds.has(inv.invoice_id)
+            ? { ...inv, status: bulkStatus }
+            : inv,
+        ),
       );
       setSelectedIds(new Set());
       showAlert({
@@ -173,10 +179,13 @@ const Invoices: React.FC = () => {
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.size === invoices.length) {
+    if (
+      selectedIds.size === filteredInvoices.length &&
+      filteredInvoices.length > 0
+    ) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(invoices.map((inv) => inv.invoice_id)));
+      setSelectedIds(new Set(filteredInvoices.map((inv) => inv.invoice_id)));
     }
   };
 
@@ -234,15 +243,117 @@ const Invoices: React.FC = () => {
   // Placeholder PromptPay ID for demo
   const PROMPTPAY_ID = "085-399-4499";
 
+  // Filter invoices by month and year
+  const filteredInvoices = invoices.filter((invoice) => {
+    const monthYear = invoice.month_year; // format: "MM/YYYY" or similar
+
+    if (!selectedMonth && !selectedYear) return true;
+
+    if (monthYear) {
+      const [month, year] = monthYear.split("/");
+
+      if (selectedMonth && selectedYear) {
+        return month === selectedMonth && year === selectedYear;
+      } else if (selectedMonth) {
+        return month === selectedMonth;
+      } else if (selectedYear) {
+        return year === selectedYear;
+      }
+    }
+
+    return true;
+  });
+
+  // Get unique months and years for filter options
+  const getFilterOptions = () => {
+    const months = new Set<string>();
+    const years = new Set<string>();
+
+    invoices.forEach((invoice) => {
+      if (invoice.month_year) {
+        const [month, year] = invoice.month_year.split("/");
+        if (month) months.add(month);
+        if (year) years.add(year);
+      }
+    });
+
+    return {
+      months: Array.from(months).sort((a, b) => parseInt(a) - parseInt(b)),
+      years: Array.from(years).sort((a, b) => parseInt(b) - parseInt(a)), // descending
+    };
+  };
+
+  const { months, years } = getFilterOptions();
+
   // Calculate pagination
-  const totalPages = Math.ceil(invoices.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedInvoices = invoices.slice(startIndex, endIndex);
+  const paginatedInvoices = filteredInvoices.slice(startIndex, endIndex);
 
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">ใบแจ้งหนี้</h1>
+
+      {/* Filter Controls */}
+      <div className="mb-4 p-4 bg-white rounded-lg shadow-md border border-gray-200">
+        <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">เดือน:</label>
+            <select
+              value={selectedMonth}
+              onChange={(e) => {
+                setSelectedMonth(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none min-w-[120px]"
+            >
+              <option value="">ทั้งหมด</option>
+              {months.map((month) => (
+                <option key={month} value={month}>
+                  {month}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">ปี:</label>
+            <select
+              value={selectedYear}
+              onChange={(e) => {
+                setSelectedYear(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none min-w-[120px]"
+            >
+              <option value="">ทั้งหมด</option>
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {(selectedMonth || selectedYear) && (
+            <button
+              onClick={() => {
+                setSelectedMonth("");
+                setSelectedYear("");
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 underline"
+            >
+              ล้างตัวกรอง
+            </button>
+          )}
+
+          <div className="ml-auto text-sm text-gray-600">
+            แสดง {filteredInvoices.length} จาก {invoices.length} รายการ
+          </div>
+        </div>
+      </div>
 
       {/* Bulk Action Bar */}
       {selectedIds.size > 0 && (
@@ -296,8 +407,8 @@ const Invoices: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={
-                      invoices.length > 0 &&
-                      selectedIds.size === invoices.length
+                      filteredInvoices.length > 0 &&
+                      selectedIds.size === filteredInvoices.length
                     }
                     onChange={toggleSelectAll}
                     className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -371,7 +482,7 @@ const Invoices: React.FC = () => {
                       ฿
                       {parseFloat(String(invoice.total_amount)).toLocaleString(
                         "en-US",
-                        { minimumFractionDigits: 2 }
+                        { minimumFractionDigits: 2 },
                       )}
                     </td>
                     <td className="px-6 py-4">
@@ -380,7 +491,7 @@ const Invoices: React.FC = () => {
                         onChange={(e) =>
                           handleStatusChange(
                             invoice.invoice_id,
-                            e.target.value as Invoice["status"]
+                            e.target.value as Invoice["status"],
                           )
                         }
                         disabled={isUpdating}
@@ -388,10 +499,10 @@ const Invoices: React.FC = () => {
                           invoice.status === "paid"
                             ? "border-green-300 bg-green-50 text-green-700"
                             : invoice.status === "pending"
-                            ? "border-yellow-300 bg-yellow-50 text-yellow-700"
-                            : invoice.status === "overdue"
-                            ? "border-red-300 bg-red-50 text-red-700"
-                            : "border-gray-300 bg-gray-50 text-gray-700"
+                              ? "border-yellow-300 bg-yellow-50 text-yellow-700"
+                              : invoice.status === "overdue"
+                                ? "border-red-300 bg-red-50 text-red-700"
+                                : "border-gray-300 bg-gray-50 text-gray-700"
                         }`}
                       >
                         {STATUS_OPTIONS.map((opt) => (
@@ -428,7 +539,7 @@ const Invoices: React.FC = () => {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={invoices.length}
+          totalItems={filteredInvoices.length}
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
         />
@@ -585,8 +696,8 @@ const Invoices: React.FC = () => {
                               item.item_type === "water"
                                 ? "text-blue-600"
                                 : item.item_type === "electric"
-                                ? "text-red-600"
-                                : "text-gray-700"
+                                  ? "text-red-600"
+                                  : "text-gray-700"
                             }`}
                           >
                             <div className="font-bold">{displayDesc}</div>
@@ -597,8 +708,8 @@ const Invoices: React.FC = () => {
                               item.item_type === "water"
                                 ? "text-blue-600"
                                 : item.item_type === "electric"
-                                ? "text-red-600"
-                                : "text-gray-900"
+                                  ? "text-red-600"
+                                  : "text-gray-900"
                             }`}
                           >
                             ฿
@@ -619,7 +730,7 @@ const Invoices: React.FC = () => {
                         ฿
                         {Number(selectedInvoice.total_amount).toLocaleString(
                           undefined,
-                          { minimumFractionDigits: 2 }
+                          { minimumFractionDigits: 2 },
                         )}
                       </td>
                     </tr>
@@ -635,7 +746,7 @@ const Invoices: React.FC = () => {
                   <QRCodeCanvas
                     value={generatePromptPayPayload(
                       PROMPTPAY_ID,
-                      Number(selectedInvoice.total_amount)
+                      Number(selectedInvoice.total_amount),
                     )}
                     size={200}
                     level={"M"}
