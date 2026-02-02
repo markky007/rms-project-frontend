@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import api from "../services/api";
 import { Calculator, Save, Calendar } from "lucide-react";
 import { useAlert } from "../hooks/useAlert";
 
@@ -99,9 +100,7 @@ const MeterReadingForm: React.FC = () => {
   useEffect(() => {
     const fetchRooms = async (): Promise<void> => {
       try {
-        const response = await axios.get<Room[]>(
-          "http://45.91.134.134:1111/api/rooms",
-        );
+        const response = await api.get<Room[]>("/rooms");
         setRooms(response.data);
       } catch (error) {
         console.error("Failed to fetch rooms", error);
@@ -124,8 +123,8 @@ const MeterReadingForm: React.FC = () => {
 
       try {
         const monthYear = `${selectedYear}-${selectedMonth}`;
-        const response = await axios.get<PreviousReadings>(
-          `http://45.91.134.134:1111/api/billing/latest-reading/${roomId}`,
+        const response = await api.get<PreviousReadings>(
+          `/billing/latest-reading/${roomId}`,
           {
             params: { month_year: monthYear },
           },
@@ -157,15 +156,12 @@ const MeterReadingForm: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post<Calculation>(
-        "http://45.91.134.134:1111/api/billing/calculate",
-        {
-          room_id: roomId,
-          current_water: Number(currentWater),
-          current_elec: Number(currentElec),
-          month_year: `${selectedYear}-${selectedMonth}`,
-        },
-      );
+      const response = await api.post<Calculation>("/billing/calculate", {
+        room_id: roomId,
+        current_water: Number(currentWater),
+        current_elec: Number(currentElec),
+        month_year: `${selectedYear}-${selectedMonth}`,
+      });
       setCalculation(response.data);
     } catch (error) {
       console.error("Calculation error", error);
@@ -217,7 +213,7 @@ const MeterReadingForm: React.FC = () => {
 
     try {
       setLoading(true);
-      await axios.post("http://45.91.134.134:1111/api/billing/create-invoice", {
+      await api.post("/billing/create-invoice", {
         contract_id: selectedRoom.current_contract_id,
         room_id: roomId,
         month_year: `${selectedYear}-${selectedMonth}`,
