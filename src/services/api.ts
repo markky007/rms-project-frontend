@@ -3,9 +3,9 @@ import axios from "axios";
 const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
-const baseURL = isLocal
-  ? "http://localhost:3000/api"
-  : "http://45.91.134.134:1111/api";
+const baseURL =
+  import.meta.env?.VITE_API_URL ||
+  (isLocal ? "http://localhost:3000/api" : "http://45.91.134.134:1111/api");
 
 // Create axios instance with default config
 const api = axios.create({
