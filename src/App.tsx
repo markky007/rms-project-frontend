@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import RoomDashboard from "./pages/RoomDashboard";
 import RoomManagement from "./pages/RoomManagement";
@@ -22,7 +23,14 @@ export function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Layout />}>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<RoomDashboard />} />
             <Route path="rooms" element={<RoomManagement />} />
             <Route path="meter-reading" element={<MeterReadingForm />} />
