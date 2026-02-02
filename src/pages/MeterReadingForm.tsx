@@ -346,11 +346,17 @@ const MeterReadingForm: React.FC = () => {
                   <input
                     type="number"
                     value={currentWater}
-                    onChange={(e) => setCurrentWater(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Only allow integers
+                      if (value === "" || /^\d+$/.test(value)) {
+                        setCurrentWater(value);
+                      }
+                    }}
                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
                     placeholder="0"
                     min="0"
-                    step="0.01"
+                    step="1"
                     required
                     disabled={!roomId}
                   />
@@ -379,11 +385,17 @@ const MeterReadingForm: React.FC = () => {
                   <input
                     type="number"
                     value={currentElec}
-                    onChange={(e) => setCurrentElec(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Only allow integers
+                      if (value === "" || /^\d+$/.test(value)) {
+                        setCurrentElec(value);
+                      }
+                    }}
                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
                     placeholder="0"
                     min="0"
-                    step="0.01"
+                    step="1"
                     required
                     disabled={!roomId}
                   />

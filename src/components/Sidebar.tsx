@@ -10,6 +10,7 @@ import {
   CreditCard,
   Wrench,
   UserCog,
+  Edit,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -34,6 +35,11 @@ const Sidebar: React.FC = () => {
     { name: "ผู้เช่า", path: "/tenants", icon: <Users size={20} /> },
     { name: "สัญญา", path: "/contracts", icon: <FileText size={20} /> },
     { name: "จดมิเตอร์", path: "/meter-reading", icon: <PenTool size={20} /> },
+    {
+      name: "แก้ไขมิเตอร์",
+      path: "/meter-reading-edit",
+      icon: <Edit size={20} />,
+    },
     {
       name: "ใบแจ้งหนี้",
       path: "/invoices",

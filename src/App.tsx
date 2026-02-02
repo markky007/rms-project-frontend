@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import RoomDashboard from "./pages/RoomDashboard";
 import RoomManagement from "./pages/RoomManagement";
 import MeterReadingForm from "./pages/MeterReadingForm";
+import MeterReadingEdit from "./pages/MeterReadingEdit";
 import Invoices from "./pages/Invoices";
 import UserManagement from "./pages/UserManagement";
 
@@ -34,6 +35,7 @@ export function App() {
             <Route index element={<RoomDashboard />} />
             <Route path="rooms" element={<RoomManagement />} />
             <Route path="meter-reading" element={<MeterReadingForm />} />
+            <Route path="meter-reading-edit" element={<MeterReadingEdit />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="users" element={<UserManagement />} />
 
