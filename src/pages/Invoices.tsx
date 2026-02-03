@@ -46,6 +46,14 @@ const Invoices: React.FC = () => {
   // Delete confirmation
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
+  // Late fee warning state
+  const [showLateFeeWarning, setShowLateFeeWarning] = useState(false);
+  const [lateFeeInfo, setLateFeeInfo] = useState<{
+    daysLate: number;
+    lateFee: number;
+    invoiceId: number;
+  } | null>(null);
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -77,10 +85,73 @@ const Invoices: React.FC = () => {
   const handleViewDetails = async (id: number) => {
     try {
       const invoice = await invoiceService.getInvoiceById(id);
+
+      // Check if invoice is overdue and pending - show warning instead of auto-apply
+      // BUT don't show warning if invoice already has a late_fee item
+      if (invoice.status === "pending") {
+        // Check if invoice already has late fee applied (check item_type field)
+        const hasLateFee = (invoice as any).items?.some(
+          (item: any) => item.item_type === "late_fee",
+        );
+
+        if (!hasLateFee) {
+          const lateFeeCalc = calculateLateFee(invoice);
+          if (lateFeeCalc) {
+            setLateFeeInfo({
+              daysLate: lateFeeCalc.daysLate,
+              lateFee: lateFeeCalc.lateFee,
+              invoiceId: id,
+            });
+            setShowLateFeeWarning(true);
+          } else {
+            setShowLateFeeWarning(false);
+            setLateFeeInfo(null);
+          }
+        } else {
+          // Already has late fee, don't show warning
+          setShowLateFeeWarning(false);
+          setLateFeeInfo(null);
+        }
+      } else {
+        setShowLateFeeWarning(false);
+        setLateFeeInfo(null);
+      }
+
       setSelectedInvoice(invoice);
       setIsModalOpen(true);
     } catch (err) {
       console.error("Failed to fetch invoice details", err);
+    }
+  };
+
+  // Handle late fee confirmation from modal
+  const handleConfirmLateFee = async () => {
+    if (!lateFeeInfo) return;
+
+    try {
+      setIsUpdating(true);
+      const result = await invoiceService.applyLateFee(lateFeeInfo.invoiceId);
+
+      // Reset warning state BEFORE closing modal
+      setShowLateFeeWarning(false);
+      setLateFeeInfo(null);
+
+      // Close current modal
+      setIsModalOpen(false);
+
+      // Refresh list
+      await fetchInvoices();
+
+      showAlert({
+        message: `สร้างใบแจ้งหนี้ใหม่สำเร็จ (ค่าปรับ ฿${result.late_fee.toLocaleString()})`,
+        type: "success",
+      });
+    } catch (err: any) {
+      console.error("Failed to apply late fee", err);
+      const errorMsg = err.response?.data?.error || "ไม่สามารถเพิ่มค่าปรับได้";
+      showAlert({ message: errorMsg, type: "error" });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -165,6 +236,25 @@ const Invoices: React.FC = () => {
     }
   };
 
+  // Calculate late fee details
+  const calculateLateFee = (invoice: any) => {
+    // Parse month_year format: "YYYY-MM"
+    const [year, month] = invoice.month_year.split("-");
+    const dueDate = new Date(parseInt(year), parseInt(month) - 1, 5); // 5th of the month
+    const currentDate = new Date();
+
+    if (currentDate <= dueDate) {
+      return null; // Not overdue
+    }
+
+    const timeDiff = currentDate.getTime() - dueDate.getTime();
+    const daysLate = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    const lateFee = daysLate * 50;
+    const newTotal = parseFloat(invoice.total_amount) + lateFee;
+
+    return { daysLate, lateFee, newTotal };
+  };
+
   // Selection handlers
   const toggleSelect = (id: number) => {
     setSelectedIds((prev) => {
@@ -245,12 +335,12 @@ const Invoices: React.FC = () => {
 
   // Filter invoices by month and year
   const filteredInvoices = invoices.filter((invoice) => {
-    const monthYear = invoice.month_year; // format: "MM/YYYY" or similar
+    const monthYear = invoice.month_year; // format: "YYYY-MM"
 
     if (!selectedMonth && !selectedYear) return true;
 
     if (monthYear) {
-      const [month, year] = monthYear.split("/");
+      const [year, month] = monthYear.split("-");
 
       if (selectedMonth && selectedYear) {
         return month === selectedMonth && year === selectedYear;
@@ -271,7 +361,7 @@ const Invoices: React.FC = () => {
 
     invoices.forEach((invoice) => {
       if (invoice.month_year) {
-        const [month, year] = invoice.month_year.split("/");
+        const [year, month] = invoice.month_year.split("-");
         if (month) months.add(month);
         if (year) years.add(year);
       }
@@ -364,7 +454,7 @@ const Invoices: React.FC = () => {
             </span>
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="text-blue-600 hover:text-blue-800 text-sm underline"
+              className="px-3 py-1 text-sm bg-white border border-blue-300 text-blue-600 hover:bg-blue-50 rounded-md font-medium"
             >
               ยกเลิกการเลือก
             </button>
@@ -386,13 +476,13 @@ const Invoices: React.FC = () => {
             <button
               onClick={handleBulkStatusUpdate}
               disabled={isUpdating}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+              className="flex items-center px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm min-w-[160px] justify-center"
             >
               <RefreshCw
                 size={16}
                 className={isUpdating ? "animate-spin" : ""}
               />
-              อัพเดทสถานะ
+              <span className="ml-4">อัพเดทสถานะ</span>
             </button>
           </div>
         </div>
@@ -590,6 +680,50 @@ const Invoices: React.FC = () => {
                 <X size={24} />
               </button>
             </div>
+
+            {/* Late Fee Warning Banner */}
+            {showLateFeeWarning && lateFeeInfo && (
+              <div className="mt-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="flex items-center gap-2 mb-3">
+                    <AlertCircle className="text-orange-600" size={20} />
+                    <h4 className="font-semibold text-orange-800">
+                      ใบแจ้งหนี้นี้เกินกำหนดชำระ
+                    </h4>
+                  </div>
+                  <div className="text-sm text-orange-700 space-y-1 mb-4">
+                    <p>
+                      เลยกำหนดชำระ: <strong>{lateFeeInfo.daysLate} วัน</strong>
+                    </p>
+                    <p>
+                      ค่าปรับ (50 บาท/วัน):{" "}
+                      <strong>฿{lateFeeInfo.lateFee.toLocaleString()}</strong>
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleConfirmLateFee}
+                    disabled={isUpdating}
+                    className="px-6 py-2 text-sm rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      backgroundColor: isUpdating ? "#fb923c" : "#ea580c",
+                      color: "white",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isUpdating) {
+                        e.currentTarget.style.backgroundColor = "#c2410c";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isUpdating) {
+                        e.currentTarget.style.backgroundColor = "#ea580c";
+                      }
+                    }}
+                  >
+                    {isUpdating ? "กำลังดำเนินการ..." : "ชำระค่าปรับ"}
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="p-6" ref={invoiceRef}>
               <div className="text-center mb-8">

@@ -40,7 +40,7 @@ const invoiceService = {
   // Get invoices with optional filters
   getInvoices: async (
     status?: string,
-    monthYear?: string
+    monthYear?: string,
   ): Promise<Invoice[]> => {
     let url = "/billing";
     const params = new URLSearchParams();
@@ -71,7 +71,7 @@ const invoiceService = {
   // Update invoice status
   updateInvoiceStatus: async (
     id: number,
-    status: "pending" | "paid" | "overdue" | "cancelled"
+    status: "pending" | "paid" | "overdue" | "cancelled",
   ): Promise<Invoice> => {
     const response = await api.patch(`/billing/${id}/status`, { status });
     return response.data;
@@ -85,7 +85,7 @@ const invoiceService = {
   // Bulk update invoice status
   bulkUpdateStatus: async (
     invoiceIds: number[],
-    status: "pending" | "paid" | "overdue" | "cancelled"
+    status: "pending" | "paid" | "overdue" | "cancelled",
   ): Promise<{ message: string; updated_count: number }> => {
     const response = await api.patch("/billing/bulk-status", {
       invoice_ids: invoiceIds,
@@ -97,6 +97,21 @@ const invoiceService = {
   // Get invoices by contract
   getInvoicesByContract: async (contractId: number): Promise<Invoice[]> => {
     const response = await api.get(`/contracts/${contractId}/invoices`);
+    return response.data;
+  },
+
+  // Apply late fee to invoice
+  applyLateFee: async (
+    invoiceId: number,
+  ): Promise<{
+    message: string;
+    new_invoice_id: number;
+    days_late: number;
+    late_fee: number;
+    new_total: number;
+    original_invoice_id: number;
+  }> => {
+    const response = await api.post(`/billing/${invoiceId}/apply-late-fee`);
     return response.data;
   },
 };
