@@ -240,8 +240,13 @@ const Invoices: React.FC = () => {
   const calculateLateFee = (invoice: any) => {
     // Parse month_year format: "YYYY-MM"
     const [year, month] = invoice.month_year.split("-");
-    const dueDate = new Date(parseInt(year), parseInt(month) - 1, 5); // 5th of the month
+    // Change calculation to start from next month (remove -1)
+    // For December (12), parseInt(12) creates date in January of next year
+    const dueDate = new Date(parseInt(year), parseInt(month), 5); // 5th of next month
+
+    // Reset time components to compare dates only
     const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
 
     if (currentDate <= dueDate) {
       return null; // Not overdue
