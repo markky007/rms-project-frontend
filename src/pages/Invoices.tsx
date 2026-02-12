@@ -817,7 +817,16 @@ const Invoices: React.FC = () => {
                       // Translate description to Thai
                       let displayDesc = item.description;
                       if (item.item_type === "rent") {
-                        displayDesc = "ค่าเช่าห้อง";
+                        // Check for prorated rent
+                        const proratedMatch = item.description.match(
+                          /Room Rent \(Prorated: (\d+) days @ (\d+)\/day\)/,
+                        );
+                        if (proratedMatch) {
+                          const [, days, rate] = proratedMatch;
+                          displayDesc = `ค่าเช่าห้อง (${days} วัน x ${rate} บาท)`;
+                        } else {
+                          displayDesc = "ค่าเช่าห้อง";
+                        }
                       } else if (item.item_type === "water") {
                         displayDesc = displayDesc
                           .replace("Water", "ค่าน้ำ")
