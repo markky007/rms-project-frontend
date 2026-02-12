@@ -279,13 +279,13 @@ const MeterReadingForm: React.FC = () => {
   const getMoveOutSummary = () => {
     if (!calculation) return null;
 
-    const expenses = calculation.total_amount || 0;
+    const expenses = calculation.costs.water + calculation.costs.elec || 0;
     const cleaning = Number(cleaningFee) || 0;
     const damages = Number(damageFee) || 0;
     const totalDeductions = expenses + cleaning + damages;
     const deposit = calculation.deposit || 0;
     const items = [
-      { label: "ค่าเช่า/น้ำ/ไฟ", amount: expenses },
+      { label: "ค่าน้ำ/ไฟ", amount: expenses },
       { label: "ค่าทำความสะอาด", amount: cleaning },
       { label: "ค่าความเสียหาย", amount: damages },
     ];
@@ -589,7 +589,7 @@ const MeterReadingForm: React.FC = () => {
               disabled={!calculation}
               className={`w-full mt-6 text-white py-2 px-4 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                 isMoveOut
-                  ? "bg-red-600 hover:bg-red-700"
+                  ? "bg-emerald-600 hover:bg-emerald-700"
                   : "bg-emerald-600 hover:bg-emerald-700"
               }`}
             >
@@ -689,7 +689,7 @@ const MeterReadingForm: React.FC = () => {
                     </h4>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between text-red-700">
-                        <span>ค่าน้ำ+ไฟ+เช่า</span>
+                        <span>ค่าน้ำ+ไฟ</span>
                         <span>
                           {(moveOutData?.items[0]?.amount ?? 0).toFixed(2)} ฿
                         </span>

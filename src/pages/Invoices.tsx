@@ -602,10 +602,39 @@ const Invoices: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 font-bold text-gray-800">
-                      ฿
-                      {parseFloat(String(invoice.total_amount)).toLocaleString(
-                        "en-US",
-                        { minimumFractionDigits: 2 },
+                      {invoice.invoice_type === "move_out" ? (
+                        invoice.total_amount < 0 ? (
+                          <span className="text-green-600">
+                            จ่ายคืน: ฿
+                            {Math.abs(
+                              parseFloat(String(invoice.total_amount)),
+                            ).toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                            })}
+                          </span>
+                        ) : invoice.total_amount > 0 ? (
+                          <span className="text-red-600">
+                            เก็บเพิ่ม: ฿
+                            {parseFloat(
+                              String(invoice.total_amount),
+                            ).toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                            })}
+                          </span>
+                        ) : (
+                          <span className="text-gray-500">
+                            ไม่มียอดค้างชำระ
+                          </span>
+                        )
+                      ) : (
+                        <>
+                          ฿
+                          {parseFloat(
+                            String(invoice.total_amount),
+                          ).toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </>
                       )}
                     </td>
                     <td className="px-6 py-4">
@@ -900,66 +929,86 @@ const Invoices: React.FC = () => {
                   <tfoot className="bg-gray-50 border-t-2 border-gray-200">
                     <tr>
                       <td className="px-4 py-3 font-bold text-gray-800">
-                        ยอดรวมทั้งสิ้น
+                        {selectedInvoice.invoice_type === "move_out"
+                          ? selectedInvoice.total_amount < 0
+                            ? "ยอดจ่ายคืนลูกบ้าน"
+                            : selectedInvoice.total_amount > 0
+                              ? "ยอดเรียกเก็บเพิ่ม"
+                              : "ยอดรวมสุทธิ"
+                          : "ยอดรวมทั้งสิ้น"}
                       </td>
-                      <td className="px-4 py-3 text-right font-bold text-emerald-600 text-lg">
+                      <td
+                        className={`px-4 py-3 text-right font-bold text-lg ${
+                          selectedInvoice.invoice_type === "move_out" &&
+                          selectedInvoice.total_amount < 0
+                            ? "text-green-600"
+                            : "text-emerald-600"
+                        }`}
+                      >
                         ฿
-                        {Number(selectedInvoice.total_amount).toLocaleString(
-                          undefined,
-                          { minimumFractionDigits: 2 },
-                        )}
+                        {Math.abs(
+                          Number(selectedInvoice.total_amount),
+                        ).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                        })}
                       </td>
                     </tr>
                   </tfoot>
                 </table>
               </div>
 
-              <div className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                <p className="font-semibold text-gray-700 mb-4">
-                  สแกนเพื่อชำระเงิน (PromptPay)
-                </p>
-                <div className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-center">
-                  <QRCodeCanvas
-                    value={generatePromptPayPayload(
-                      PROMPTPAY_ID,
-                      Number(selectedInvoice.total_amount),
-                    )}
-                    size={200}
-                    level={"M"}
-                    includeMargin={true}
-                    imageSettings={{
-                      src: promptpayQr,
-                      x: undefined,
-                      y: undefined,
-                      height: 40,
-                      width: 40,
-                      excavate: true,
-                    }}
-                  />
+              {selectedInvoice.invoice_type !== "move_out" && (
+                <div className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                  <p className="font-semibold text-gray-700 mb-4">
+                    สแกนเพื่อชำระเงิน (PromptPay)
+                  </p>
+                  <div className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-center">
+                    <QRCodeCanvas
+                      value={generatePromptPayPayload(
+                        PROMPTPAY_ID,
+                        Number(selectedInvoice.total_amount),
+                      )}
+                      size={200}
+                      level={"M"}
+                      includeMargin={true}
+                      imageSettings={{
+                        src: promptpayQr,
+                        x: undefined,
+                        y: undefined,
+                        height: 40,
+                        width: 40,
+                        excavate: true,
+                      }}
+                    />
+                  </div>
+                  <p className="mt-4 text-sm text-gray-500">
+                    ID: {PROMPTPAY_ID}
+                  </p>
+                  <div className="mt-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                    ระบุยอดเงินอัตโนมัติ
+                  </div>
                 </div>
-                <p className="mt-4 text-sm text-gray-500">ID: {PROMPTPAY_ID}</p>
-                <div className="mt-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                  ระบุยอดเงินอัตโนมัติ
-                </div>
-              </div>
+              )}
 
-              <div className="mt-6 space-y-2 text-sm text-gray-600 border-t pt-4">
-                <p>
-                  <span className="font-semibold text-red-500">*</span>{" "}
-                  กรุณาชําระทั้งหมดไม่เกินวันที่ 5 ของเดือน
-                  หากเกินกําหนดขอเก็บเพิ่มวันละ 50 บาทจนกว่าจะจ่ายครบ
-                </p>
-                <p>
-                  <span className="font-semibold text-red-500">*</span>{" "}
-                  ห้ามนําสัตว์เลี้ยงทุกชนิดมาเลี้ยง
-                  (หากเกิดความเสียหายจะต้องรับผิดชอบให้สภาพคงเดิมหรือปรับเท่ามูลค่าของสิ่งนั้น)
-                </p>
-                <p>
-                  <span className="font-semibold text-red-500">*</span>{" "}
-                  กรณีย้ายออก กรุณาแจ้งล่วงหน้าอย่างน้อย 30 วัน
-                  มิฉะนั้นจะไม่ขอคืนเงินประกันบ้าน
-                </p>
-              </div>
+              {selectedInvoice.invoice_type !== "move_out" && (
+                <div className="mt-6 space-y-2 text-sm text-gray-600 border-t pt-4">
+                  <p>
+                    <span className="font-semibold text-red-500">*</span>{" "}
+                    กรุณาชําระทั้งหมดไม่เกินวันที่ 5 ของเดือน
+                    หากเกินกําหนดขอเก็บเพิ่มวันละ 50 บาทจนกว่าจะจ่ายครบ
+                  </p>
+                  <p>
+                    <span className="font-semibold text-red-500">*</span>{" "}
+                    ห้ามนําสัตว์เลี้ยงทุกชนิดมาเลี้ยง
+                    (หากเกิดความเสียหายจะต้องรับผิดชอบให้สภาพคงเดิมหรือปรับเท่ามูลค่าของสิ่งนั้น)
+                  </p>
+                  <p>
+                    <span className="font-semibold text-red-500">*</span>{" "}
+                    กรณีย้ายออก กรุณาแจ้งล่วงหน้าอย่างน้อย 30 วัน
+                    มิฉะนั้นจะไม่ขอคืนเงินประกันบ้าน
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="p-6 border-t bg-gray-50 flex justify-end gap-4 sticky bottom-0">
