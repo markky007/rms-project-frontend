@@ -179,6 +179,9 @@ const MeterReadingForm: React.FC = () => {
     }
   };
 
+  const [isPartialDeposit, setIsPartialDeposit] = useState<boolean>(false);
+  const [depositAmount, setDepositAmount] = useState<string>("");
+
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
@@ -186,6 +189,14 @@ const MeterReadingForm: React.FC = () => {
 
     if (!roomId || !currentWater || !currentElec) {
       showAlert({ message: "กรุณากรอกข้อมูลให้ครบถ้วน", type: "error" });
+      return;
+    }
+
+    if (isPartialDeposit && (!depositAmount || Number(depositAmount) <= 0)) {
+      showAlert({
+        message: "กรุณากรอกจำนวนเงินค่ามัดจำที่ถูกต้อง",
+        type: "error",
+      });
       return;
     }
 
@@ -220,6 +231,7 @@ const MeterReadingForm: React.FC = () => {
         water_reading: Number(currentWater),
         elec_reading: Number(currentElec),
         recorded_by: user.user_id,
+        deposit_amount: isPartialDeposit ? Number(depositAmount) : 0,
       });
 
       showAlert({
@@ -232,6 +244,8 @@ const MeterReadingForm: React.FC = () => {
       setCurrentWater("");
       setCurrentElec("");
       setCalculation(null);
+      setIsPartialDeposit(false);
+      setDepositAmount("");
     } catch (error: any) {
       console.error("Details:", error);
       const msg = error.response?.data?.error || "เกิดข้อผิดพลาดในการบันทึก";
@@ -431,6 +445,42 @@ const MeterReadingForm: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* Partial Deposit Section */}
+            <div className="mt-4 pt-4 border-t border-slate-200">
+              <label className="flex items-center space-x-2 cursor-pointer mb-2">
+                <input
+                  type="checkbox"
+                  checked={isPartialDeposit}
+                  onChange={(e) => {
+                    setIsPartialDeposit(e.target.checked);
+                    if (!e.target.checked) setDepositAmount("");
+                  }}
+                  className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                />
+                <span className="text-sm font-medium text-slate-700">
+                  เก็บค่ามัดจำเพิ่ม (กรณีจ่ายไม่ครบ)
+                </span>
+              </label>
+
+              {isPartialDeposit && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    จำนวนเงินมัดจำเพิ่ม
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={depositAmount}
+                      onChange={(e) => setDepositAmount(e.target.value)}
+                      className="w-full p-2 pl-3 pr-8 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
+                      placeholder="ระบุจำนวนเงิน"
+                      min="0"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
 
             <button
               type="submit"
