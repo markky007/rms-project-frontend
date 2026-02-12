@@ -1,17 +1,19 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useCallback } from "react";
 import type { ReactNode } from "react";
+import toast from "react-hot-toast";
 
 export type AlertType = "success" | "error" | "warning" | "info";
 
 export interface AlertConfig {
   message: string;
   type?: AlertType;
-  duration?: number; // milliseconds, 0 = no auto-close
+  duration?: number;
 }
 
 interface AlertContextType {
   showAlert: (config: AlertConfig) => void;
   hideAlert: () => void;
+  // properties below are kept for compatibility but might always be "mocked" or unused
   alert: AlertConfig | null;
   isVisible: boolean;
 }
@@ -21,36 +23,58 @@ const AlertContext = createContext<AlertContextType | undefined>(undefined);
 export const AlertProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [alert, setAlert] = useState<AlertConfig | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
   const showAlert = useCallback((config: AlertConfig) => {
-    setAlert({
-      type: config.type || "info",
-      message: config.message,
-      duration: config.duration !== undefined ? config.duration : 3000, // default 3s
-    });
-    setIsVisible(true);
+    const message = config.message;
+    const duration = config.duration !== undefined ? config.duration : 3000;
+    const type = config.type || "info";
 
-    // Auto-close if duration is set
-    if (config.duration !== 0) {
-      const duration = config.duration !== undefined ? config.duration : 3000;
-      setTimeout(() => {
-        hideAlert();
-      }, duration);
+    const options = {
+      duration: config.duration === 0 ? Infinity : duration,
+      id: "toast-alert", // Helper ID if we want to dismiss specific one
+    };
+
+    switch (type) {
+      case "success":
+        toast.success(message, options);
+        break;
+      case "error":
+        toast.error(message, options);
+        break;
+      case "warning":
+        // react-hot-toast doesn't have warning by default, use custom icon or normal
+        toast(message, {
+          ...options,
+          icon: "⚠️",
+          style: {
+            background: "#fff3cd",
+            color: "#856404",
+            border: "1px solid #ffeeba",
+          },
+        });
+        break;
+      case "info":
+      default:
+        toast(message, {
+          ...options,
+          icon: "ℹ️",
+        });
+        break;
     }
   }, []);
 
   const hideAlert = useCallback(() => {
-    setIsVisible(false);
-    // Wait for animation to complete before clearing
-    setTimeout(() => {
-      setAlert(null);
-    }, 300);
+    toast.dismiss();
   }, []);
 
   return (
-    <AlertContext.Provider value={{ showAlert, hideAlert, alert, isVisible }}>
+    <AlertContext.Provider
+      value={{
+        showAlert,
+        hideAlert,
+        alert: null, // No longer driven by state
+        isVisible: false, // No longer driven by state
+      }}
+    >
       {children}
     </AlertContext.Provider>
   );
