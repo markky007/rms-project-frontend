@@ -17,6 +17,7 @@ export interface Invoice {
   issue_date: string;
   due_date?: string;
   created_at: string;
+  invoice_type?: "normal" | "move_out";
   items?: InvoiceItem[];
 }
 

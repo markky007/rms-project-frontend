@@ -70,6 +70,7 @@ interface Calculation {
   rates: Rates;
   costs: Costs;
   total_amount: number;
+  deposit?: number; // Add deposit field
 }
 
 const MeterReadingForm: React.FC = () => {
@@ -95,6 +96,15 @@ const MeterReadingForm: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingRooms, setLoadingRooms] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Move Out State
+  const [isMoveOut, setIsMoveOut] = useState<boolean>(false);
+  const [cleaningFee, setCleaningFee] = useState<string>("");
+  const [damageFee, setDamageFee] = useState<string>("");
+
+  // Partial Deposit State
+  const [isPartialDeposit, setIsPartialDeposit] = useState<boolean>(false);
+  const [depositAmount, setDepositAmount] = useState<string>("");
 
   // Fetch all rooms on component mount
   useEffect(() => {
@@ -179,9 +189,6 @@ const MeterReadingForm: React.FC = () => {
     }
   };
 
-  const [isPartialDeposit, setIsPartialDeposit] = useState<boolean>(false);
-  const [depositAmount, setDepositAmount] = useState<string>("");
-
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
@@ -198,6 +205,11 @@ const MeterReadingForm: React.FC = () => {
         type: "error",
       });
       return;
+    }
+
+    if (isMoveOut) {
+      // Move Out Logic: Ensure cleaning and damage fields are valid (can be 0)
+      // No specific validation needed if they can be empty (default 0)
     }
 
     const selectedRoom = rooms.find((r) => r.room_id === Number(roomId));
@@ -232,10 +244,15 @@ const MeterReadingForm: React.FC = () => {
         elec_reading: Number(currentElec),
         recorded_by: user.user_id,
         deposit_amount: isPartialDeposit ? Number(depositAmount) : 0,
+        is_move_out: isMoveOut,
+        cleaning_fee: isMoveOut ? Number(cleaningFee) : 0,
+        damage_fee: isMoveOut ? Number(damageFee) : 0,
       });
 
       showAlert({
-        message: "บันทึกค่ามิเตอร์และสร้างใบแจ้งหนี้สำเร็จ!",
+        message: isMoveOut
+          ? "บันทึกการแจ้งออกและสร้างใบรายละเอียดคืนเงินสำเร็จ!"
+          : "บันทึกค่ามิเตอร์และสร้างใบแจ้งหนี้สำเร็จ!",
         type: "success",
       });
 
@@ -246,6 +263,9 @@ const MeterReadingForm: React.FC = () => {
       setCalculation(null);
       setIsPartialDeposit(false);
       setDepositAmount("");
+      setIsMoveOut(false);
+      setCleaningFee("");
+      setDamageFee("");
     } catch (error: any) {
       console.error("Details:", error);
       const msg = error.response?.data?.error || "เกิดข้อผิดพลาดในการบันทึก";
@@ -255,17 +275,46 @@ const MeterReadingForm: React.FC = () => {
     }
   };
 
+  // Move-out Calculation Helpers
+  const getMoveOutSummary = () => {
+    if (!calculation) return null;
+
+    const expenses = calculation.total_amount || 0;
+    const cleaning = Number(cleaningFee) || 0;
+    const damages = Number(damageFee) || 0;
+    const totalDeductions = expenses + cleaning + damages;
+    const deposit = calculation.deposit || 0;
+    const items = [
+      { label: "ค่าเช่า/น้ำ/ไฟ", amount: expenses },
+      { label: "ค่าทำความสะอาด", amount: cleaning },
+      { label: "ค่าความเสียหาย", amount: damages },
+    ];
+
+    // Remaining Refund
+    // Logic: Refund = Deposit - Deductions
+    const refund = deposit - totalDeductions;
+
+    return {
+      items,
+      totalDeductions,
+      deposit,
+      refund,
+    };
+  };
+
+  const moveOutData = isMoveOut ? getMoveOutSummary() : null;
+
   return (
     <div className="p-8">
       <h2 className="text-3xl font-bold text-slate-800 mb-6 flex items-center gap-2">
         <Calculator className="text-blue-600" />
-        บันทึกค่ามิเตอร์
+        {isMoveOut ? "บันทึกแจ้งออก / คืนเงินประกัน" : "บันทึกค่ามิเตอร์"}
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Input Form */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h3 className="text-xl font-semibold mb-4">กรอกข้อมูลมิเตอร์</h3>
+          <h3 className="text-xl font-semibold mb-4">ข้อมูลการตรวจสอบ</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -284,6 +333,7 @@ const MeterReadingForm: React.FC = () => {
                     setCurrentElec("");
                     setCalculation(null);
                     setPrevReadings(null);
+                    setIsMoveOut(false);
                   }}
                   className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
                   required
@@ -303,7 +353,7 @@ const MeterReadingForm: React.FC = () => {
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 <span className="flex items-center gap-1">
                   <Calendar size={16} className="text-blue-500" />
-                  เดือน/ปีของใบแจ้งหนี้
+                  เดือน/ปีของใบแจ้งหนี้/แจ้งออก
                 </span>
               </label>
               <div className="grid grid-cols-2 gap-4">
@@ -446,35 +496,49 @@ const MeterReadingForm: React.FC = () => {
               </div>
             )}
 
-            {/* Partial Deposit Section */}
+            {/* Move Out Toggle */}
             <div className="mt-4 pt-4 border-t border-slate-200">
               <label className="flex items-center space-x-2 cursor-pointer mb-2">
                 <input
                   type="checkbox"
-                  checked={isPartialDeposit}
+                  checked={isMoveOut}
                   onChange={(e) => {
-                    setIsPartialDeposit(e.target.checked);
-                    if (!e.target.checked) setDepositAmount("");
+                    setIsMoveOut(e.target.checked);
+                    // If move out is checked, disable partial deposit
+                    if (e.target.checked) setIsPartialDeposit(false);
                   }}
-                  className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                  className="w-5 h-5 text-red-600 border-slate-300 rounded focus:ring-red-500"
                 />
-                <span className="text-sm font-medium text-slate-700">
-                  เก็บค่ามัดจำเพิ่ม (กรณีจ่ายไม่ครบ)
+                <span className="text-base font-semibold text-red-600">
+                  แจ้งย้ายออก (คำนวณเงินคืน)
                 </span>
               </label>
 
-              {isPartialDeposit && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    จำนวนเงินมัดจำเพิ่ม
-                  </label>
-                  <div className="relative">
+              {isMoveOut && (
+                <div className="bg-red-50 p-4 rounded-lg border border-red-100 space-y-3 animate-in fade-in slide-in-from-top-2">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      ค่าทำความสะอาด
+                    </label>
                     <input
                       type="number"
-                      value={depositAmount}
-                      onChange={(e) => setDepositAmount(e.target.value)}
-                      className="w-full p-2 pl-3 pr-8 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
-                      placeholder="ระบุจำนวนเงิน"
+                      value={cleaningFee}
+                      onChange={(e) => setCleaningFee(e.target.value)}
+                      className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-red-500 outline-none"
+                      placeholder="0"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      ค่าความเสียหาย
+                    </label>
+                    <input
+                      type="number"
+                      value={damageFee}
+                      onChange={(e) => setDamageFee(e.target.value)}
+                      className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-red-500 outline-none"
+                      placeholder="0"
                       min="0"
                     />
                   </div>
@@ -482,26 +546,69 @@ const MeterReadingForm: React.FC = () => {
               )}
             </div>
 
+            {/* Partial Deposit Section -- Hide if Move Out is checked */}
+            {!isMoveOut && (
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <label className="flex items-center space-x-2 cursor-pointer mb-2">
+                  <input
+                    type="checkbox"
+                    checked={isPartialDeposit}
+                    onChange={(e) => {
+                      setIsPartialDeposit(e.target.checked);
+                      if (!e.target.checked) setDepositAmount("");
+                    }}
+                    className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                  />
+                  <span className="text-sm font-medium text-slate-700">
+                    เก็บค่ามัดจำเพิ่ม (กรณีจ่ายไม่ครบ)
+                  </span>
+                </label>
+
+                {isPartialDeposit && (
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      จำนวนเงินมัดจำเพิ่ม
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={depositAmount}
+                        onChange={(e) => setDepositAmount(e.target.value)}
+                        className="w-full p-2 pl-3 pr-8 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
+                        placeholder="ระบุจำนวนเงิน"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={!calculation}
-              className="w-full mt-6 bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`w-full mt-6 text-white py-2 px-4 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                isMoveOut
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-emerald-600 hover:bg-emerald-700"
+              }`}
             >
               <Save size={18} />
-              สร้างใบแจ้งหนี้
+              {isMoveOut ? "สร้างใบสรุปยอดคืนเงิน" : "สร้างใบแจ้งหนี้"}
             </button>
           </form>
         </div>
 
         {/* Live Calculation Preview */}
         <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-          <h3 className="text-xl font-semibold mb-2">ตัวอย่างใบแจ้งหนี้</h3>
+          <h3 className="text-xl font-semibold mb-2">
+            {isMoveOut ? "รายละเอียดการคืนเงิน" : "ตัวอย่างใบแจ้งหนี้"}
+          </h3>
           <p className="text-sm text-slate-500 mb-4 flex items-center gap-1">
             <Calendar size={14} />
-            ประจำเดือน{" "}
-            {
-              THAI_MONTHS.find((m) => m.value === selectedMonth)?.label
-            } พ.ศ. {Number(selectedYear) + 543}
+            {isMoveOut ? "วันย้ายออก" : "ประจำเดือน"}{" "}
+            {THAI_MONTHS.find((m) => m.value === selectedMonth)?.label} พ.ศ.{" "}
+            {Number(selectedYear) + 543}
           </p>
 
           {loading ? (
@@ -562,14 +669,93 @@ const MeterReadingForm: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t border-slate-300">
-                <span className="text-lg font-bold text-slate-800">
-                  ยอดรวมทั้งหมด
-                </span>
-                <span className="text-2xl font-bold text-green-600">
-                  {Number(calculation.total_amount).toFixed(2)} ฿
-                </span>
-              </div>
+              {!isMoveOut && (
+                <div className="flex justify-between items-center pt-4 border-t border-slate-300">
+                  <span className="text-lg font-bold text-slate-800">
+                    ยอดรวมทั้งหมด
+                  </span>
+                  <span className="text-2xl font-bold text-green-600">
+                    {Number(calculation.total_amount).toFixed(2)} ฿
+                  </span>
+                </div>
+              )}
+
+              {/* Move-out Specific Preview */}
+              {isMoveOut && moveOutData && (
+                <div className="animate-in fade-in slide-in-from-top-2 space-y-4 pt-2 border-t border-slate-200">
+                  <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+                    <h4 className="font-semibold text-red-800 mb-2">
+                      รายการหัก
+                    </h4>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between text-red-700">
+                        <span>ค่าน้ำ+ไฟ+เช่า</span>
+                        <span>
+                          {(moveOutData?.items[0]?.amount ?? 0).toFixed(2)} ฿
+                        </span>
+                      </div>
+                      {(moveOutData?.items[1]?.amount ?? 0) > 0 && (
+                        <div className="flex justify-between text-red-700">
+                          <span>ค่าทำความสะอาด</span>
+                          <span>
+                            {(moveOutData?.items[1]?.amount ?? 0).toFixed(2)} ฿
+                          </span>
+                        </div>
+                      )}
+                      {(moveOutData?.items[2]?.amount ?? 0) > 0 && (
+                        <div className="flex justify-between text-red-700">
+                          <span>ค่าความเสียหาย</span>
+                          <span>
+                            {(moveOutData?.items[2]?.amount ?? 0).toFixed(2)} ฿
+                          </span>
+                        </div>
+                      )}
+                      <div className="border-t border-red-200 mt-2 pt-2 flex justify-between font-bold text-red-800">
+                        <span>รวมหักทั้งหมด</span>
+                        <span>
+                          {(moveOutData?.totalDeductions ?? 0).toFixed(2)} ฿
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                    <div className="flex justify-between text-sm text-green-800 mb-1">
+                      <span>เงินประกันที่วางไว้</span>
+                      <span className="font-bold">
+                        {(moveOutData?.deposit ?? 0).toFixed(2)} ฿
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm text-red-600 mb-2">
+                      <span>หักค่าใช้จ่ายทั้งหมด</span>
+                      <span>
+                        - {(moveOutData?.totalDeductions ?? 0).toFixed(2)} ฿
+                      </span>
+                    </div>
+                    <div className="border-t border-green-200 pt-2 flex justify-between items-center">
+                      <span className="font-bold text-slate-800">เหลือคืน</span>
+                      <span
+                        className={`text-xl font-bold ${moveOutData?.refund >= 0 ? "text-green-600" : "text-red-600"}`}
+                      >
+                        {(moveOutData?.refund ?? 0).toFixed(2)} ฿
+                      </span>
+                    </div>
+                    {moveOutData?.refund < 0 && (
+                      <p className="text-xs text-red-500 mt-1">
+                        * ผู้เช่าต้องจ่ายเพิ่ม{" "}
+                        {Math.abs(moveOutData?.refund ?? 0).toFixed(2)} ฿
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="bg-blue-50 p-3 rounded text-xs text-blue-800">
+                    <p>
+                      หมายเหตุ: ระบบจะสร้างใบแจ้งหนี้ที่มีรายการคืนเงิน
+                      และข้อความแจ้งให้ผู้เช่าส่งเลขบัญชีเพื่อรับเงินคืน
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-slate-400">

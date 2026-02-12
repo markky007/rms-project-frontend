@@ -61,6 +61,7 @@ const Invoices: React.FC = () => {
   // Filter state
   const [selectedMonth, setSelectedMonth] = useState<string>("");
   const [selectedYear, setSelectedYear] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<"normal" | "move_out">("normal");
 
   useEffect(() => {
     setCurrentPage(1);
@@ -338,27 +339,6 @@ const Invoices: React.FC = () => {
   // Placeholder PromptPay ID for demo
   const PROMPTPAY_ID = "085-399-4499";
 
-  // Filter invoices by month and year
-  const filteredInvoices = invoices.filter((invoice) => {
-    const monthYear = invoice.month_year; // format: "YYYY-MM"
-
-    if (!selectedMonth && !selectedYear) return true;
-
-    if (monthYear) {
-      const [year, month] = monthYear.split("-");
-
-      if (selectedMonth && selectedYear) {
-        return month === selectedMonth && year === selectedYear;
-      } else if (selectedMonth) {
-        return month === selectedMonth;
-      } else if (selectedYear) {
-        return year === selectedYear;
-      }
-    }
-
-    return true;
-  });
-
   // Get unique months and years for filter options
   const getFilterOptions = () => {
     const months = new Set<string>();
@@ -380,7 +360,24 @@ const Invoices: React.FC = () => {
 
   const { months, years } = getFilterOptions();
 
-  // Calculate pagination
+  const filteredInvoices = invoices.filter((invoice) => {
+    // 1. Month/Year Filter
+    const monthYear = invoice.month_year;
+    if (selectedMonth || selectedYear) {
+      if (monthYear) {
+        const [year, month] = monthYear.split("-");
+        if (selectedMonth && month !== selectedMonth) return false;
+        if (selectedYear && year !== selectedYear) return false;
+      }
+    }
+
+    // 2. Tab Filter
+    const type = invoice.invoice_type || "normal";
+    if (type !== activeTab) return false;
+
+    return true;
+  });
+
   const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -389,6 +386,37 @@ const Invoices: React.FC = () => {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">ใบแจ้งหนี้</h1>
+
+      <div className="flex space-x-4 mb-6 border-b border-gray-200">
+        <button
+          className={`pb-2 px-1 mr-2 ${
+            activeTab === "normal"
+              ? "border-b-2 border-blue-500 text-blue-600 font-semibold"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+          onClick={() => {
+            setActiveTab("normal");
+            setCurrentPage(1);
+            setSelectedIds(new Set()); // Clear selection when switching tabs
+          }}
+        >
+          บิลค่าเช่า
+        </button>
+        <button
+          className={`pb-2 px-1 ${
+            activeTab === "move_out"
+              ? "border-b-2 border-blue-500 text-blue-600 font-semibold"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+          onClick={() => {
+            setActiveTab("move_out");
+            setCurrentPage(1);
+            setSelectedIds(new Set());
+          }}
+        >
+          แจ้งย้ายออก
+        </button>
+      </div>
 
       {/* Filter Controls */}
       <div className="mb-4 p-4 bg-white rounded-lg shadow-md border border-gray-200">
