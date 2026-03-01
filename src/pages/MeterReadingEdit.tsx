@@ -52,7 +52,9 @@ interface MeterReading {
 }
 
 interface EditFormData {
+  prev_water_reading: string;
   water_reading: string;
+  prev_elec_reading: string;
   elec_reading: string;
 }
 
@@ -77,7 +79,9 @@ const MeterReadingEdit: React.FC = () => {
     null,
   );
   const [editForm, setEditForm] = useState<EditFormData>({
+    prev_water_reading: "",
     water_reading: "",
+    prev_elec_reading: "",
     elec_reading: "",
   });
   const [loading, setLoading] = useState<boolean>(false);
@@ -177,14 +181,21 @@ const MeterReadingEdit: React.FC = () => {
   const openEditModal = (reading: MeterReading) => {
     setEditingReading(reading);
     setEditForm({
+      prev_water_reading: String(reading.prev_water_reading),
       water_reading: String(reading.water_reading),
+      prev_elec_reading: String(reading.prev_elec_reading),
       elec_reading: String(reading.elec_reading),
     });
   };
 
   const closeEditModal = () => {
     setEditingReading(null);
-    setEditForm({ water_reading: "", elec_reading: "" });
+    setEditForm({
+      prev_water_reading: "",
+      water_reading: "",
+      prev_elec_reading: "",
+      elec_reading: "",
+    });
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -192,21 +203,23 @@ const MeterReadingEdit: React.FC = () => {
 
     if (!editingReading) return;
 
+    const prevWaterReading = Number(editForm.prev_water_reading);
+    const prevElecReading = Number(editForm.prev_elec_reading);
     const waterReading = Number(editForm.water_reading);
     const elecReading = Number(editForm.elec_reading);
 
     // Validation
-    if (waterReading < editingReading.prev_water_reading) {
+    if (waterReading < prevWaterReading) {
       showAlert({
-        message: `มิเตอร์น้ำไม่สามารถน้อยกว่าครั้งก่อน (${editingReading.prev_water_reading})`,
+        message: `มิเตอร์น้ำปัจจุบันต้องไม่น้อยกว่าครั้งก่อน (${prevWaterReading})`,
         type: "error",
       });
       return;
     }
 
-    if (elecReading < editingReading.prev_elec_reading) {
+    if (elecReading < prevElecReading) {
       showAlert({
-        message: `มิเตอร์ไฟไม่สามารถน้อยกว่าครั้งก่อน (${editingReading.prev_elec_reading})`,
+        message: `มิเตอร์ไฟปัจจุบันต้องไม่น้อยกว่าครั้งก่อน (${prevElecReading})`,
         type: "error",
       });
       return;
@@ -227,7 +240,9 @@ const MeterReadingEdit: React.FC = () => {
     try {
       setLoading(true);
       await api.patch(`/billing/meter-reading/${editingReading.reading_id}`, {
+        prev_water_reading: prevWaterReading,
         water_reading: waterReading,
+        prev_elec_reading: prevElecReading,
         elec_reading: elecReading,
         recorded_by: user.user_id,
       });
@@ -252,11 +267,13 @@ const MeterReadingEdit: React.FC = () => {
   const calculatePreview = () => {
     if (!editingReading) return null;
 
+    const prevWaterReading = Number(editForm.prev_water_reading) || 0;
+    const prevElecReading = Number(editForm.prev_elec_reading) || 0;
     const waterReading = Number(editForm.water_reading) || 0;
     const elecReading = Number(editForm.elec_reading) || 0;
 
-    const waterUsage = waterReading - editingReading.prev_water_reading;
-    const elecUsage = elecReading - editingReading.prev_elec_reading;
+    const waterUsage = Math.max(0, waterReading - prevWaterReading);
+    const elecUsage = Math.max(0, elecReading - prevElecReading);
 
     const waterCost = waterUsage * editingReading.water_rate;
     const elecCost = elecUsage * editingReading.elec_rate;
@@ -467,10 +484,16 @@ const MeterReadingEdit: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    value={editingReading.prev_water_reading}
-                    className="w-full p-2 border border-slate-300 rounded-md bg-slate-100 cursor-not-allowed"
-                    disabled
-                    readOnly
+                    value={editForm.prev_water_reading}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        prev_water_reading: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                    step="0.01"
+                    required
                   />
                 </div>
                 <div>
@@ -487,7 +510,7 @@ const MeterReadingEdit: React.FC = () => {
                       })
                     }
                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
-                    min={editingReading.prev_water_reading}
+                    min={editForm.prev_water_reading}
                     step="0.01"
                     required
                   />
@@ -500,10 +523,16 @@ const MeterReadingEdit: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    value={editingReading.prev_elec_reading}
-                    className="w-full p-2 border border-slate-300 rounded-md bg-slate-100 cursor-not-allowed"
-                    disabled
-                    readOnly
+                    value={editForm.prev_elec_reading}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        prev_elec_reading: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                    step="0.01"
+                    required
                   />
                 </div>
                 <div>
@@ -517,7 +546,7 @@ const MeterReadingEdit: React.FC = () => {
                       setEditForm({ ...editForm, elec_reading: e.target.value })
                     }
                     className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
-                    min={editingReading.prev_elec_reading}
+                    min={editForm.prev_elec_reading}
                     step="0.01"
                     required
                   />

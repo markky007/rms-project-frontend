@@ -92,6 +92,8 @@ const MeterReadingForm: React.FC = () => {
   const [prevReadings, setPrevReadings] = useState<PreviousReadings | null>(
     null,
   );
+  const [overridePrevWater, setOverridePrevWater] = useState<string>("");
+  const [overridePrevElec, setOverridePrevElec] = useState<string>("");
   const [calculation, setCalculation] = useState<Calculation | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingRooms, setLoadingRooms] = useState<boolean>(true);
@@ -140,6 +142,8 @@ const MeterReadingForm: React.FC = () => {
           },
         );
         setPrevReadings(response.data);
+        setOverridePrevWater(String(response.data.water || 0));
+        setOverridePrevElec(String(response.data.elec || 0));
       } catch (error) {
         console.error("Failed to fetch previous readings", error);
         // Don't show alert here to avoid annoying popups if just browsing
@@ -152,7 +156,13 @@ const MeterReadingForm: React.FC = () => {
   // Debounced calculation
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (roomId && currentWater && currentElec) {
+      if (
+        roomId &&
+        currentWater &&
+        currentElec &&
+        overridePrevWater &&
+        overridePrevElec
+      ) {
         handleCalculate();
       } else {
         setCalculation(null);
@@ -160,7 +170,7 @@ const MeterReadingForm: React.FC = () => {
     }, 800);
 
     return () => clearTimeout(timer);
-  }, [roomId, currentWater, currentElec]);
+  }, [roomId, currentWater, currentElec, overridePrevWater, overridePrevElec]);
 
   const handleCalculate = async (): Promise<void> => {
     setLoading(true);
@@ -171,6 +181,10 @@ const MeterReadingForm: React.FC = () => {
         current_water: Number(currentWater),
         current_elec: Number(currentElec),
         month_year: `${selectedYear}-${selectedMonth}`,
+        prev_water_reading:
+          overridePrevWater !== "" ? Number(overridePrevWater) : undefined,
+        prev_elec_reading:
+          overridePrevElec !== "" ? Number(overridePrevElec) : undefined,
       });
       setCalculation(response.data);
     } catch (error) {
@@ -247,6 +261,10 @@ const MeterReadingForm: React.FC = () => {
         is_move_out: isMoveOut,
         cleaning_fee: isMoveOut ? Number(cleaningFee) : 0,
         damage_fee: isMoveOut ? Number(damageFee) : 0,
+        prev_water_reading:
+          overridePrevWater !== "" ? Number(overridePrevWater) : undefined,
+        prev_elec_reading:
+          overridePrevElec !== "" ? Number(overridePrevElec) : undefined,
       });
 
       showAlert({
@@ -333,6 +351,8 @@ const MeterReadingForm: React.FC = () => {
                     setCurrentElec("");
                     setCalculation(null);
                     setPrevReadings(null);
+                    setOverridePrevWater("");
+                    setOverridePrevElec("");
                     setIsMoveOut(false);
                   }}
                   className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -394,11 +414,13 @@ const MeterReadingForm: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    value={prevReadings?.water ?? ""}
-                    className="w-full p-2 border border-slate-300 rounded-md bg-slate-100 text-slate-600 cursor-not-allowed"
+                    value={overridePrevWater}
+                    onChange={(e) => setOverridePrevWater(e.target.value)}
+                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                     placeholder="0"
-                    disabled
-                    readOnly
+                    min="0"
+                    step="0.01"
+                    disabled={!roomId}
                   />
                 </div>
 
@@ -433,11 +455,13 @@ const MeterReadingForm: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    value={prevReadings?.elec ?? ""}
-                    className="w-full p-2 border border-slate-300 rounded-md bg-slate-100 text-slate-600 cursor-not-allowed"
+                    value={overridePrevElec}
+                    onChange={(e) => setOverridePrevElec(e.target.value)}
+                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                     placeholder="0"
-                    disabled
-                    readOnly
+                    min="0"
+                    step="0.01"
+                    disabled={!roomId}
                   />
                 </div>
 
@@ -480,7 +504,7 @@ const MeterReadingForm: React.FC = () => {
                       {calculation.usage.water} หน่วย
                     </div>
                     <div className="text-xs text-slate-400 mt-1">
-                      ({currentWater} - {calculation.prev_readings.water})
+                      ({currentWater || 0} - {overridePrevWater || 0})
                     </div>
                   </div>
                   <div className="bg-white p-2 rounded">
@@ -489,7 +513,7 @@ const MeterReadingForm: React.FC = () => {
                       {calculation.usage.elec} หน่วย
                     </div>
                     <div className="text-xs text-slate-400 mt-1">
-                      ({currentElec} - {calculation.prev_readings.elec})
+                      ({currentElec || 0} - {overridePrevElec || 0})
                     </div>
                   </div>
                 </div>
