@@ -360,23 +360,41 @@ const Invoices: React.FC = () => {
 
   const { months, years } = getFilterOptions();
 
-  const filteredInvoices = invoices.filter((invoice) => {
-    // 1. Month/Year Filter
-    const monthYear = invoice.month_year;
-    if (selectedMonth || selectedYear) {
-      if (monthYear) {
-        const [year, month] = monthYear.split("-");
-        if (selectedMonth && month !== selectedMonth) return false;
-        if (selectedYear && year !== selectedYear) return false;
+  const filteredInvoices = invoices
+    .filter((invoice) => {
+      // 1. Month/Year Filter
+      const monthYear = invoice.month_year;
+      if (selectedMonth || selectedYear) {
+        if (monthYear) {
+          const [year, month] = monthYear.split("-");
+          if (selectedMonth && month !== selectedMonth) return false;
+          if (selectedYear && year !== selectedYear) return false;
+        }
       }
-    }
 
-    // 2. Tab Filter
-    const type = invoice.invoice_type || "normal";
-    if (type !== activeTab) return false;
+      // 2. Tab Filter
+      const type = invoice.invoice_type || "normal";
+      if (type !== activeTab) return false;
 
-    return true;
-  });
+      return true;
+    })
+    .sort((a, b) => {
+      // ใหม่ไปเก่า: วันที่ออกใบก่อน แล้วค่อย invoice_id (สอดคล้องกับลำดับเวลา)
+      const tA = a.issue_date
+        ? new Date(a.issue_date).getTime()
+        : Number.NEGATIVE_INFINITY;
+      const tB = b.issue_date
+        ? new Date(b.issue_date).getTime()
+        : Number.NEGATIVE_INFINITY;
+      if (
+        Number.isFinite(tA) &&
+        Number.isFinite(tB) &&
+        tB !== tA
+      ) {
+        return tB - tA;
+      }
+      return b.invoice_id - a.invoice_id;
+    });
 
   const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
