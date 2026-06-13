@@ -15,7 +15,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     // Base styles from DESIGN.md
     const baseInputClasses =
-      "w-full bg-white text-ink border border-border rounded-md px-3.5 py-2.5 font-sans text-sm transition-all duration-150 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:bg-surface disabled:opacity-60 disabled:cursor-not-allowed placeholder:text-muted";
+      "w-full bg-white text-ink border border-border rounded-md px-3.5 py-2.5 max-lg:py-3 max-lg:min-h-[44px] font-sans text-sm transition-all duration-150 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:bg-surface disabled:opacity-60 disabled:cursor-not-allowed placeholder:text-muted";
 
     const borderClasses = error
       ? "border-error focus:border-error focus:ring-2 focus:ring-error/20"

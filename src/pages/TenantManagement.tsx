@@ -54,7 +54,7 @@ export default function TenantManagement() {
     try {
       if (editingId) {
         await tenantService.updateTenant(editingId, formData);
-        showAlert({ message: "อัพเดทข้อมูลผู้เช่าสำเร็จ", type: "success" });
+        showAlert({ message: "อัปเดตข้อมูลผู้เช่าสำเร็จ", type: "success" });
       } else {
         await tenantService.createTenant(formData);
         showAlert({ message: "เพิ่มผู้เช่าสำเร็จ", type: "success" });
@@ -113,16 +113,24 @@ export default function TenantManagement() {
   const paginatedTenants = tenants.slice(startIndex, endIndex);
 
   if (loading) {
-    return <div className="p-8">กำลังโหลด...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] font-sans">
+        <svg className="animate-spin h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <span className="text-xs text-muted mt-2">กำลังโหลดข้อมูลผู้เช่า...</span>
+      </div>
+    );
   }
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">จัดการผู้เช่า</h1>
+    <div className="p-4 lg:p-8 font-sans">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+        <h1 className="text-xl lg:text-3xl font-bold text-gray-800">จัดการผู้เช่า</h1>
         <button
           onClick={() => setShowDialog(true)}
-          className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 shadow-md"
+          className="bg-emerald-600 text-white px-6 py-3 lg:py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-md touch-target w-full lg:w-auto"
         >
           <Plus size={20} />
           เพิ่มผู้เช่า
@@ -149,7 +157,7 @@ export default function TenantManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, full_name: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-base lg:text-sm"
                 placeholder="นายสมชาย ใจดี"
               />
             </div>
@@ -165,7 +173,7 @@ export default function TenantManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, id_card: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-base lg:text-sm"
                 placeholder="1234567890123"
               />
             </div>
@@ -179,7 +187,7 @@ export default function TenantManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-base lg:text-sm"
                 placeholder="0812345678"
               />
             </div>
@@ -193,7 +201,7 @@ export default function TenantManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, line_id: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-base lg:text-sm"
                 placeholder="lineid123"
               />
             </div>
@@ -206,23 +214,23 @@ export default function TenantManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, address: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-3 lg:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-base lg:text-sm"
                 placeholder="ที่อยู่ปัจจุบัน"
                 rows={3}
               />
             </div>
           </div>
-          <div className="flex gap-2 pt-4">
+          <div className="flex gap-2 pt-4 max-lg:flex-col">
             <button
               type="submit"
-              className="flex-1 bg-[#16a34a] text-white px-6 py-2 rounded-lg hover:bg-[#15803d] transition-colors"
+              className="flex-1 bg-[#16a34a] text-white px-6 py-3 rounded-lg hover:bg-[#15803d] transition-colors touch-target font-semibold text-sm"
             >
               {editingId ? "บันทึกการแก้ไข" : "เพิ่มผู้เช่า"}
             </button>
             <button
               type="button"
               onClick={handleCloseDialog}
-              className="flex-1 bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
+              className="flex-1 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors touch-target font-semibold text-sm"
             >
               ยกเลิก
             </button>
@@ -230,8 +238,8 @@ export default function TenantManagement() {
         </form>
       </Dialog>
 
-      {/* Tenants Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Tenants Table - Desktop */}
+      <div className="hidden lg:block bg-white rounded-lg border border-border shadow-medium overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -295,6 +303,53 @@ export default function TenantManagement() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Tenants List - Mobile */}
+      <div className="lg:hidden flex flex-col gap-3">
+        {tenants.length === 0 ? (
+          <div className="py-8 text-center text-gray-500 bg-white rounded-lg border border-border-subtle">
+            ไม่พบข้อมูลผู้เช่า
+          </div>
+        ) : (
+          paginatedTenants.map((tenant) => (
+            <div key={tenant.tenant_id} className="mobile-card flex flex-col gap-3 animate-in fade-in duration-150">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-ink text-base select-all">{tenant.full_name}</span>
+                <span className="text-xs text-muted font-sans select-all">LINE: {tenant.line_id || "-"}</span>
+              </div>
+
+              <div className="flex flex-col gap-1.5 text-xs text-gray-700 py-2 bg-surface rounded px-3">
+                <div className="select-all">🪪 บัตรประชาชน: {tenant.id_card}</div>
+                <div className="select-all">📞 เบอร์โทรศัพท์: {tenant.phone || "-"}</div>
+                {tenant.address && (
+                  <div className="border-t border-border-subtle/50 pt-1 mt-1 text-gray-500 select-all">
+                    📍 ที่อยู่: {tenant.address}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-2 border-t border-border-subtle">
+                <button
+                  onClick={() => handleEdit(tenant)}
+                  className="flex-1 min-h-[44px] rounded-lg bg-surface text-ink active:bg-border border border-border-subtle font-medium text-sm flex items-center justify-center cursor-pointer"
+                >
+                  แก้ไข
+                </button>
+                <button
+                  onClick={() => setDeleteConfirmId(tenant.tenant_id)}
+                  className="flex-1 min-h-[44px] rounded-lg bg-error-light text-error active:bg-error/20 font-medium text-sm flex items-center justify-center cursor-pointer"
+                >
+                  ลบ
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Pagination (visible for both views) */}
+      <div className="mt-4">
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -304,34 +359,34 @@ export default function TenantManagement() {
         />
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {deleteConfirmId !== null && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl p-4 max-w-xs w-full">
-            <h3 className="text-base font-bold text-gray-800 mb-2">
-              ยืนยันการลบ
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              คุณแน่ใจหรือไม่ที่จะลบผู้เช่านี้?
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setDeleteConfirmId(null)}
-                className="px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 font-medium"
-              >
-                ยกเลิก
-              </button>
-              <button
-                onClick={() => handleDelete(deleteConfirmId)}
-                disabled={isDeleting}
-                className="px-3 py-1.5 text-sm text-red-600 border border-gray-300 rounded-md hover:bg-gray-50 font-medium"
-              >
-                ลบ
-              </button>
-            </div>
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        isOpen={deleteConfirmId !== null}
+        onClose={() => setDeleteConfirmId(null)}
+        title="ยืนยันการลบ"
+        size="sm"
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-gray-600">
+            คุณแน่ใจหรือไม่ที่จะลบผู้เช่านี้ออกจากระบบ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
+          </p>
+          <div className="flex gap-2 pt-2 max-lg:flex-col">
+            <button
+              onClick={() => handleDelete(deleteConfirmId!)}
+              disabled={isDeleting}
+              className="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors touch-target font-semibold text-sm text-center"
+            >
+              {isDeleting ? "กำลังลบ..." : "ลบข้อมูล"}
+            </button>
+            <button
+              onClick={() => setDeleteConfirmId(null)}
+              className="flex-1 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors touch-target font-semibold text-sm text-center"
+            >
+              ยกเลิก
+            </button>
           </div>
         </div>
-      )}
+      </Dialog>
     </div>
   );
 }

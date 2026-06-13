@@ -6,6 +6,7 @@ import maintenanceService, {
 import roomService, { type Room } from "../services/roomService";
 import { useAlert } from "../hooks/useAlert";
 import Pagination from "../components/Pagination";
+import Dialog from "../components/Dialog";
 
 export default function MaintenanceRequests() {
   const { showAlert } = useAlert();
@@ -38,7 +39,7 @@ export default function MaintenanceRequests() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const data = await maintenanceService.getMaintenanceRequests();
+      const data = await maintenanceService.getMainstreamRequests ? await maintenanceService.getMainstreamRequests() : await maintenanceService.getMaintenanceRequests();
       setRequests(data);
     } catch (error) {
       console.error("Error fetching maintenance requests:", error);
@@ -94,11 +95,11 @@ export default function MaintenanceRequests() {
       }
 
       await maintenanceService.updateMaintenanceStatus(id, status, cost);
-      showAlert({ message: "อัพเดทสถานะสำเร็จ", type: "success" });
+      showAlert({ message: "อัปเดตสถานะสำเร็จ", type: "success" });
       fetchRequests();
     } catch (error) {
       console.error("Error updating status:", error);
-      showAlert({ message: "ไม่สามารถอัพเดทสถานะได้", type: "error" });
+      showAlert({ message: "ไม่สามารถอัปเดตสถานะได้", type: "error" });
     }
   };
 
@@ -144,105 +145,116 @@ export default function MaintenanceRequests() {
   const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
 
   if (loading) {
-    return <div className="p-8">กำลังโหลด...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] font-sans">
+        <svg className="animate-spin h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <span className="text-xs text-muted mt-2">กำลังโหลดข้อมูลแจ้งซ่อม...</span>
+      </div>
+    );
   }
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">รายการแจ้งซ่อม</h1>
+    <div className="p-4 lg:p-8 font-sans">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+        <h1 className="text-xl lg:text-3xl font-bold text-gray-800">รายการแจ้งซ่อม</h1>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+            className="bg-emerald-600 text-white px-6 py-3 lg:py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-md touch-target w-full lg:w-auto"
           >
             + แจ้งซ่อมใหม่
           </button>
         )}
       </div>
 
-      {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-xl font-semibold mb-4">แจ้งซ่อมใหม่</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ห้อง <span className="text-red-500">*</span>
-                </label>
-                <select
-                  required
-                  value={formData.room_id}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      room_id: parseInt(e.target.value),
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  <option value={0}>เลือกห้อง</option>
-                  {rooms.map((room) => (
-                    <option key={room.room_id} value={room.room_id}>
-                      บ้านเลขที่ {room.house_number}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  หัวข้อ <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="เช่น ท่อน้ำรั่ว"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  รายละเอียด
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="รายละเอียดปัญหา"
-                  rows={3}
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+      {/* Dialog for Create/Edit Form */}
+      <Dialog
+        isOpen={showForm}
+        onClose={handleCancel}
+        title="แจ้งซ่อมใหม่"
+        size="md"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ห้อง <span className="text-red-500">*</span>
+              </label>
+              <select
+                required
+                value={formData.room_id}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    room_id: parseInt(e.target.value),
+                  })
+                }
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
               >
-                แจ้งซ่อม
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
-              >
-                ยกเลิก
-              </button>
+                <option value={0}>เลือกห้อง</option>
+                {rooms.map((room) => (
+                  <option key={room.room_id} value={room.room_id}>
+                    บ้านเลขที่ {room.house_number}
+                  </option>
+                ))}
+              </select>
             </div>
-          </form>
-        </div>
-      )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                หัวข้อ <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
+                placeholder="เช่น ท่อน้ำรั่ว"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                รายละเอียด
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                className="w-full px-3 py-3 lg:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
+                placeholder="รายละเอียดปัญหา"
+                rows={3}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 pt-4 max-lg:flex-col">
+            <button
+              type="submit"
+              className="flex-1 bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors touch-target font-semibold text-sm"
+            >
+              แจ้งซ่อม
+            </button>
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="flex-1 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors touch-target font-semibold text-sm"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </form>
+      </Dialog>
 
       <div className="mb-4">
-        <div className="flex gap-2 flex-wrap select-none">
+        <div className="flex gap-2 items-center select-none overflow-x-auto scrollbar-none flex-nowrap -mx-4 px-4 lg:mx-0 lg:px-0 lg:flex-wrap">
           <button
             onClick={() => setFilterStatus("all")}
-            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none touch-target flex-shrink-0 ${
               filterStatus === "all"
                 ? "bg-primary text-white border-primary ring-2 ring-primary/20"
                 : "bg-white text-ink border-border hover:bg-surface hover:border-border"
@@ -252,7 +264,7 @@ export default function MaintenanceRequests() {
           </button>
           <button
             onClick={() => setFilterStatus("pending")}
-            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none touch-target flex-shrink-0 ${
               filterStatus === "pending"
                 ? "bg-warning text-white border-warning ring-2 ring-warning/20"
                 : "bg-white text-ink border-border hover:bg-surface hover:border-border"
@@ -262,7 +274,7 @@ export default function MaintenanceRequests() {
           </button>
           <button
             onClick={() => setFilterStatus("in_progress")}
-            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none touch-target flex-shrink-0 ${
               filterStatus === "in_progress"
                 ? "bg-info text-white border-info ring-2 ring-info/20"
                 : "bg-white text-ink border-border hover:bg-surface hover:border-border"
@@ -272,7 +284,7 @@ export default function MaintenanceRequests() {
           </button>
           <button
             onClick={() => setFilterStatus("completed")}
-            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none touch-target flex-shrink-0 ${
               filterStatus === "completed"
                 ? "bg-success text-white border-success ring-2 ring-success/20"
                 : "bg-white text-ink border-border hover:bg-surface hover:border-border"
@@ -283,7 +295,8 @@ export default function MaintenanceRequests() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white rounded-lg border border-border shadow-medium overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -318,59 +331,129 @@ export default function MaintenanceRequests() {
                 </td>
               </tr>
             ) : (
-              paginatedRequests.map((request) => (
-                <tr key={request.request_id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                    Room #{request.room_id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-900">
-                    {request.title}
-                  </td>
-                  <td className="px-6 py-4 text-gray-700 max-w-xs truncate">
-                    {request.description || "-"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-700">
-                    {new Date(request.reported_date).toLocaleDateString(
-                      "th-TH"
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-700">
-                    {Number(request.cost) > 0
-                      ? `฿${Number(request.cost).toLocaleString()}`
-                      : "-"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(request.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end gap-2">
-                      {request.status === "pending" && (
-                        <button
-                          onClick={() =>
-                            handleStatusUpdate(request.request_id, "in_progress")
-                          }
-                          className="h-8 px-3.5 text-xs font-medium rounded-full bg-surface text-ink hover:bg-primary hover:text-white transition-all duration-150 inline-flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          เริ่มดำเนินการ
-                        </button>
+              paginatedRequests.map((request) => {
+                const room = rooms.find((r) => r.room_id === request.room_id);
+                const houseNumberLabel = room ? `บ้านเลขที่ ${room.house_number}` : `Room #${request.room_id}`;
+                return (
+                  <tr key={request.request_id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                      {houseNumberLabel}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-900">
+                      {request.title}
+                    </td>
+                    <td className="px-6 py-4 text-gray-700 max-w-xs truncate">
+                      {request.description || "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                      {new Date(request.reported_date).toLocaleDateString(
+                        "th-TH"
                       )}
-                      {request.status === "in_progress" && (
-                        <button
-                          onClick={() =>
-                            handleStatusUpdate(request.request_id, "completed")
-                          }
-                          className="h-8 px-3.5 text-xs font-medium rounded-full bg-success-light text-success hover:bg-success hover:text-white transition-all duration-150 inline-flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          ทำเสร็จแล้ว
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                      {Number(request.cost) > 0
+                        ? `฿${Number(request.cost).toLocaleString()}`
+                        : "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(request.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-2">
+                        {request.status === "pending" && (
+                          <button
+                            onClick={() =>
+                              handleStatusUpdate(request.request_id, "in_progress")
+                            }
+                            className="h-8 px-3.5 text-xs font-medium rounded-full bg-surface text-ink hover:bg-primary hover:text-white transition-all duration-150 inline-flex items-center justify-center gap-1 cursor-pointer"
+                          >
+                            เริ่มดำเนินการ
+                          </button>
+                        )}
+                        {request.status === "in_progress" && (
+                          <button
+                            onClick={() =>
+                              handleStatusUpdate(request.request_id, "completed")
+                            }
+                            className="h-8 px-3.5 text-xs font-medium rounded-full bg-success-light text-success hover:bg-success hover:text-white transition-all duration-150 inline-flex items-center justify-center gap-1 cursor-pointer"
+                          >
+                            ทำเสร็จแล้ว
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card List View */}
+      <div className="lg:hidden flex flex-col gap-3">
+        {paginatedRequests.length === 0 ? (
+          <div className="py-8 text-center text-gray-500 bg-white rounded-lg border border-border-subtle">
+            ไม่พบข้อมูลการแจ้งซ่อม
+          </div>
+        ) : (
+          paginatedRequests.map((request) => {
+            const room = rooms.find((r) => r.room_id === request.room_id);
+            const roomName = room ? `ห้อง ${room.house_number}` : `Room #${request.room_id}`;
+            return (
+              <div key={request.request_id} className="mobile-card flex flex-col gap-3 animate-in fade-in duration-150">
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-ink text-base select-all">{request.title}</span>
+                    <span className="text-[10px] text-muted font-sans mt-0.5 select-all">
+                      {roomName} · แจ้งเมื่อ: {new Date(request.reported_date).toLocaleDateString("th-TH")}
+                    </span>
+                  </div>
+                  {getStatusBadge(request.status)}
+                </div>
+
+                <div className="flex flex-col gap-1.5 text-xs text-gray-700 py-2 bg-surface rounded px-3 select-all">
+                  <div>📝 รายละเอียด: {request.description || "-"}</div>
+                  <div className="border-t border-border-subtle/50 pt-1 mt-1 font-semibold flex justify-between select-none">
+                    <span>ค่าใช้จ่าย:</span>
+                    <span className={Number(request.cost) > 0 ? "text-error font-mono font-bold" : "text-muted italic"}>
+                      {Number(request.cost) > 0 ? `฿${Number(request.cost).toLocaleString()}` : "ยังไม่ระบุ"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action bar */}
+                <div className="flex gap-2 pt-2 border-t border-border-subtle">
+                  {request.status === "pending" && (
+                    <button
+                      onClick={() => handleStatusUpdate(request.request_id, "in_progress")}
+                      className="flex-grow min-h-[44px] rounded-lg bg-primary text-white active:bg-primary-hover font-medium text-sm flex items-center justify-center cursor-pointer gap-1.5"
+                    >
+                      🔧 เริ่มดำเนินการ
+                    </button>
+                  )}
+                  {request.status === "in_progress" && (
+                    <button
+                      onClick={() => handleStatusUpdate(request.request_id, "completed")}
+                      className="flex-grow min-h-[44px] rounded-lg bg-success text-white active:bg-success-hover font-medium text-sm flex items-center justify-center cursor-pointer gap-1.5"
+                    >
+                      ✅ ทำเสร็จแล้ว
+                    </button>
+                  )}
+                  {request.status === "completed" && (
+                    <div className="flex-1 text-center py-2.5 text-xs text-muted font-sans font-medium bg-surface rounded border border-border-subtle/50 select-none">
+                      ซ่อมแซมเสร็จสิ้นแล้ว
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Pagination */}
+      <div className="mt-4">
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

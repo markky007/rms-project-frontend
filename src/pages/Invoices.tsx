@@ -501,11 +501,11 @@ const Invoices: React.FC = () => {
   const paginatedInvoices = filteredInvoices.slice(startIndex, endIndex);
 
   return (
-    <div className="p-8 invoices-page-container">
+    <div className="p-4 lg:p-8 invoices-page-container font-sans">
       <div className="no-print">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">ใบแจ้งหนี้</h1>
+        <h1 className="text-xl lg:text-3xl font-bold text-gray-800 mb-4 lg:mb-6">ใบแจ้งหนี้</h1>
 
-      <div className="flex space-x-4 mb-6 border-b border-gray-200">
+      <div className="flex space-x-4 mb-6 border-b border-gray-200 overflow-x-auto whitespace-nowrap select-none scrollbar-none">
         <button
           className={`pb-2 px-1 mr-2 ${
             activeTab === "normal"
@@ -538,59 +538,61 @@ const Invoices: React.FC = () => {
 
       {/* Filter Controls */}
       <div className="mb-4 p-4 bg-white rounded-lg shadow-md border border-gray-200">
-        <div className="flex items-center gap-4 flex-wrap">
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">เดือน:</label>
-            <select
-              value={selectedMonth}
-              onChange={(e) => {
-                setSelectedMonth(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none min-w-[120px]"
-            >
-              <option value="">ทั้งหมด</option>
-              {months.map((month) => (
-                <option key={month} value={month}>
-                  {month}
-                </option>
-              ))}
-            </select>
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap flex-1">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-750">เดือน:</label>
+              <select
+                value={selectedMonth}
+                onChange={(e) => {
+                  setSelectedMonth(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none min-w-[120px] min-h-[44px] lg:min-h-0 bg-white"
+              >
+                <option value="">ทั้งหมด</option>
+                {months.map((month) => (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-750">ปี:</label>
+              <select
+                value={selectedYear}
+                onChange={(e) => {
+                  setSelectedYear(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none min-w-[120px] min-h-[44px] lg:min-h-0 bg-white"
+              >
+                <option value="">ทั้งหมด</option>
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {(selectedMonth || selectedYear) && (
+              <button
+                onClick={() => {
+                  setSelectedMonth("");
+                  setSelectedYear("");
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 underline touch-target"
+              >
+                ล้างตัวกรอง
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">ปี:</label>
-            <select
-              value={selectedYear}
-              onChange={(e) => {
-                setSelectedYear(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none min-w-[120px]"
-            >
-              <option value="">ทั้งหมด</option>
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {(selectedMonth || selectedYear) && (
-            <button
-              onClick={() => {
-                setSelectedMonth("");
-                setSelectedYear("");
-                setCurrentPage(1);
-              }}
-              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 underline"
-            >
-              ล้างตัวกรอง
-            </button>
-          )}
-
-          <div className="ml-auto text-sm text-gray-600">
+          <div className="text-sm text-gray-600 lg:ml-auto">
             แสดง {filteredInvoices.length} จาก {invoices.length} รายการ
           </div>
         </div>
@@ -598,25 +600,25 @@ const Invoices: React.FC = () => {
 
       {/* Bulk Action Bar */}
       {selectedIds.size > 0 && (
-        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-blue-700 font-medium">
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-col lg:flex-row lg:items-center justify-between gap-3 max-lg:fixed max-lg:bottom-[calc(var(--mobile-bottom-bar-height)+var(--mobile-safe-area-bottom))] max-lg:left-0 max-lg:right-0 max-lg:z-30 max-lg:rounded-none max-lg:border-x-0 max-lg:border-t max-lg:shadow-lg max-lg:pb-[calc(1rem+var(--mobile-safe-area-bottom))]">
+          <div className="flex items-center justify-between w-full lg:w-auto gap-3">
+            <span className="text-blue-700 font-medium text-sm lg:text-base">
               เลือก {selectedIds.size} รายการ
             </span>
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="px-3 py-1 text-sm bg-white border border-blue-300 text-blue-600 hover:bg-blue-50 rounded-md font-medium"
+              className="px-3 py-1.5 text-xs lg:text-sm bg-white border border-blue-300 text-blue-600 hover:bg-blue-50 rounded-md font-medium min-h-[36px] flex items-center touch-target"
             >
               ยกเลิกการเลือก
             </button>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full lg:w-auto">
             <select
               value={bulkStatus}
               onChange={(e) =>
                 setBulkStatus(e.target.value as Invoice["status"])
               }
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none min-h-[44px] lg:min-h-0 bg-white flex-1 lg:flex-none"
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -627,19 +629,20 @@ const Invoices: React.FC = () => {
             <button
               onClick={handleBulkStatusUpdate}
               disabled={isUpdating}
-              className="flex items-center px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm min-w-[160px] justify-center"
+              className="flex items-center px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm min-w-[120px] lg:min-w-[160px] justify-center min-h-[44px] lg:min-h-0 flex-1 lg:flex-none"
             >
               <RefreshCw
                 size={16}
                 className={isUpdating ? "animate-spin" : ""}
               />
-              <span className="ml-4">อัพเดทสถานะ</span>
+              <span className="ml-2 lg:ml-4">อัพเดทสถานะ</span>
             </button>
           </div>
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -813,6 +816,143 @@ const Invoices: React.FC = () => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Invoices List - Mobile */}
+      <div className="lg:hidden flex flex-col gap-3">
+        {paginatedInvoices.length === 0 ? (
+          <div className="py-8 text-center text-gray-500 bg-white rounded-lg border border-border-subtle">
+            ไม่พบใบแจ้งหนี้
+          </div>
+        ) : (
+          paginatedInvoices.map((invoice: any) => (
+            <div
+              key={invoice.invoice_id}
+              className={`mobile-card flex flex-col gap-3 ${
+                selectedIds.has(invoice.invoice_id) ? "border-blue-500 bg-blue-50/55" : ""
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(invoice.invoice_id)}
+                    onChange={() => toggleSelect(invoice.invoice_id)}
+                    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 touch-target"
+                  />
+                  <span className="font-mono text-gray-650 font-semibold select-all">
+                    #{String(invoice.invoice_id).padStart(5, "0")}
+                  </span>
+                </div>
+                <div>
+                  <select
+                    value={invoice.status}
+                    onChange={(e) =>
+                      handleStatusChange(
+                        invoice.invoice_id,
+                        e.target.value as Invoice["status"],
+                      )
+                    }
+                    disabled={isUpdating}
+                    className={`border rounded-md px-3 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none h-[36px] ${
+                      invoice.status === "paid"
+                        ? "border-green-300 bg-green-50 text-green-700"
+                        : invoice.status === "pending"
+                          ? "border-yellow-300 bg-yellow-50 text-yellow-700"
+                          : invoice.status === "overdue"
+                            ? "border-red-300 bg-red-50 text-red-700"
+                            : "border-gray-300 bg-gray-50 text-gray-700"
+                    }`}
+                  >
+                    {STATUS_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="text-sm text-gray-800">
+                <span className="font-bold text-gray-900">🏠 บ้านเลขที่: </span>
+                <span className="font-semibold">{invoice.house_number ? `${invoice.house_number}` : "N/A"}</span>
+                {invoice.tenant_name && (
+                  <span className="text-gray-600 block mt-0.5">👤 ผู้เช่า: {invoice.tenant_name}</span>
+                )}
+              </div>
+
+              <div className="flex justify-between items-center text-sm border-t border-gray-100 pt-2.5">
+                <div className="flex items-center gap-1 text-gray-550">
+                  <Calendar size={14} className="text-gray-400" />
+                  <span>{invoice.month_year}</span>
+                </div>
+                <div className="font-bold text-base text-gray-900">
+                  {invoice.invoice_type === "move_out" ? (
+                    invoice.total_amount < 0 ? (
+                      <span className="text-green-600">
+                        จ่ายคืน: ฿
+                        {Math.abs(
+                          parseFloat(String(invoice.total_amount)),
+                        ).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>
+                    ) : invoice.total_amount > 0 ? (
+                      <span className="text-red-600">
+                        เก็บเพิ่ม: ฿
+                        {parseFloat(
+                          String(invoice.total_amount),
+                        ).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500">
+                        ไม่มียอดค้างชำระ
+                      </span>
+                    )
+                  ) : (
+                    <>
+                      ฿
+                      {parseFloat(
+                        String(invoice.total_amount),
+                      ).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 border-t border-gray-100 pt-2.5">
+                <button
+                  onClick={() => handleViewDetails(invoice.invoice_id)}
+                  className="flex items-center gap-1 px-3 py-2.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer touch-target"
+                >
+                  <Eye size={16} />
+                  <span>รายละเอียด</span>
+                </button>
+                <button
+                  onClick={() => handleOpenReceipt(invoice.invoice_id)}
+                  className="flex items-center gap-1 px-3 py-2.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer touch-target"
+                >
+                  <Receipt size={16} />
+                  <span>ใบเสร็จ</span>
+                </button>
+                <button
+                  onClick={() => setDeleteConfirmId(invoice.invoice_id)}
+                  className="flex items-center gap-1 px-3 py-2.5 text-xs font-semibold rounded-lg bg-red-50 text-red-650 hover:bg-red-100 transition-colors cursor-pointer touch-target"
+                >
+                  <Trash2 size={16} />
+                  <span>ลบ</span>
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="mt-4">
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -855,15 +995,15 @@ const Invoices: React.FC = () => {
 
       {/* Details Modal */}
       {isModalOpen && selectedInvoice && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 max-lg:p-0">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto max-lg:h-full max-lg:max-h-full max-lg:rounded-none flex flex-col">
+            <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
               <h2 className="text-xl font-bold text-gray-800">
                 รายละเอียดใบแจ้งค่าเช่าบ้าน
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 p-2 touch-target"
               >
                 <X size={24} />
               </button>
@@ -871,8 +1011,8 @@ const Invoices: React.FC = () => {
 
             {/* Late Fee Warning Banner */}
             {showLateFeeWarning && lateFeeInfo && (
-              <div className="mt-6">
-                <div className="flex flex-col items-center text-center">
+              <div className="mt-6 px-6 max-lg:px-4">
+                <div className="flex flex-col items-center text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
                   <div className="flex items-center gap-2 mb-3">
                     <AlertCircle className="text-orange-600" size={20} />
                     <h4 className="font-semibold text-orange-800">
@@ -891,7 +1031,7 @@ const Invoices: React.FC = () => {
                   <button
                     onClick={handleConfirmLateFee}
                     disabled={isUpdating}
-                    className="px-6 py-2 text-sm rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 text-sm rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed w-full lg:w-auto touch-target"
                     style={{
                       backgroundColor: isUpdating ? "#fb923c" : "#ea580c",
                       color: "white",
@@ -913,7 +1053,7 @@ const Invoices: React.FC = () => {
               </div>
             )}
 
-            <div className="p-6" ref={invoiceRef}>
+            <div className="p-6 flex-1 max-lg:p-4" ref={invoiceRef}>
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
                   ใบแจ้งค่าเช่าบ้าน / Invoice
@@ -937,155 +1077,157 @@ const Invoices: React.FC = () => {
               </div>
 
               <div className="border rounded-lg overflow-hidden mb-6">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                        รายการ
-                      </th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
-                        จำนวนเงิน
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {selectedInvoice.items?.map((item, index) => {
-                      // Extract meter reading info from description for water/electricity
-                      const getMeterInfo = () => {
-                        const inv = selectedInvoice as any;
-                        if (
-                          item.item_type === "water" &&
-                          inv.prev_water_reading !== undefined &&
-                          inv.current_water_reading !== undefined
-                        ) {
-                          const usage =
-                            inv.current_water_reading - inv.prev_water_reading;
-                          return (
-                            <div className="text-xs text-blue-600 mt-1">
-                              <div>
-                                มิเตอร์น้ำ ก่อน:{" "}
-                                {Math.floor(inv.prev_water_reading)}
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[500px] lg:min-w-0">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                          รายการ
+                        </th>
+                        <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
+                          จำนวนเงิน
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {selectedInvoice.items?.map((item, index) => {
+                        // Extract meter reading info from description for water/electricity
+                        const getMeterInfo = () => {
+                          const inv = selectedInvoice as any;
+                          if (
+                            item.item_type === "water" &&
+                            inv.prev_water_reading !== undefined &&
+                            inv.current_water_reading !== undefined
+                          ) {
+                            const usage =
+                              inv.current_water_reading - inv.prev_water_reading;
+                            return (
+                              <div className="text-xs text-blue-600 mt-1">
+                                <div>
+                                  มิเตอร์น้ำ ก่อน:{" "}
+                                  {Math.floor(inv.prev_water_reading)}
+                                </div>
+                                <div>
+                                  มิเตอร์น้ำ หลัง:{" "}
+                                  {Math.floor(inv.current_water_reading)}
+                                </div>
                               </div>
-                              <div>
-                                มิเตอร์น้ำ หลัง:{" "}
-                                {Math.floor(inv.current_water_reading)}
+                            );
+                          }
+                          if (
+                            item.item_type === "electric" &&
+                            inv.prev_elec_reading !== undefined &&
+                            inv.current_elec_reading !== undefined
+                          ) {
+                            const usage =
+                              inv.current_elec_reading - inv.prev_elec_reading;
+                            return (
+                              <div className="text-xs text-red-600 mt-1">
+                                <div>
+                                  มิเตอร์ไฟ ก่อน:{" "}
+                                  {Math.floor(inv.prev_elec_reading)}
+                                </div>
+                                <div>
+                                  มิเตอร์ไฟ หลัง:{" "}
+                                  {Math.floor(inv.current_elec_reading)}
+                                </div>
                               </div>
-                            </div>
-                          );
-                        }
-                        if (
-                          item.item_type === "electric" &&
-                          inv.prev_elec_reading !== undefined &&
-                          inv.current_elec_reading !== undefined
-                        ) {
-                          const usage =
-                            inv.current_elec_reading - inv.prev_elec_reading;
-                          return (
-                            <div className="text-xs text-red-600 mt-1">
-                              <div>
-                                มิเตอร์ไฟ ก่อน:{" "}
-                                {Math.floor(inv.prev_elec_reading)}
-                              </div>
-                              <div>
-                                มิเตอร์ไฟ หลัง:{" "}
-                                {Math.floor(inv.current_elec_reading)}
-                              </div>
-                            </div>
-                          );
-                        }
-                        return null;
-                      };
-                      const meterInfo = getMeterInfo();
+                            );
+                          }
+                          return null;
+                        };
+                        const meterInfo = getMeterInfo();
 
-                      // Translate description to Thai
-                      let displayDesc = item.description;
-                      if (item.item_type === "rent") {
-                        // Check for prorated rent
-                        const proratedMatch = item.description.match(
-                          /Room Rent \(Prorated: (\d+) days @ (\d+)\/day\)/,
+                        // Translate description to Thai
+                        let displayDesc = item.description;
+                        if (item.item_type === "rent") {
+                          // Check for prorated rent
+                          const proratedMatch = item.description.match(
+                            /Room Rent \(Prorated: (\d+) days @ (\d+)\/day\)/,
+                          );
+                          if (proratedMatch) {
+                            const [, days, rate] = proratedMatch;
+                            displayDesc = `ค่าเช่าห้อง (${days} วัน x ${rate} บาท)`;
+                          } else {
+                            displayDesc = "ค่าเช่าห้อง";
+                          }
+                        } else if (item.item_type === "water") {
+                          displayDesc = displayDesc
+                            .replace("Water", "ค่าน้ำ")
+                            .replace("units", "หน่วย");
+                        } else if (item.item_type === "electric") {
+                          displayDesc = displayDesc
+                            .replace("Electricity", "ค่าไฟ")
+                            .replace("units", "หน่วย");
+                        }
+
+                        return (
+                          <tr key={index}>
+                            <td
+                              className={`px-4 py-3 ${
+                                item.item_type === "water"
+                                  ? "text-blue-600"
+                                  : item.item_type === "electric"
+                                    ? "text-red-600"
+                                    : "text-gray-700"
+                              }`}
+                            >
+                              <div className="font-bold text-sm lg:text-base">{displayDesc}</div>
+                              {meterInfo}
+                            </td>
+                            <td
+                              className={`px-4 py-3 text-right text-sm lg:text-base ${
+                                item.item_type === "water"
+                                  ? "text-blue-600"
+                                  : item.item_type === "electric"
+                                    ? "text-red-600"
+                                    : "text-gray-900"
+                              }`}
+                            >
+                              ฿
+                              {Number(item.amount).toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                              })}
+                            </td>
+                          </tr>
                         );
-                        if (proratedMatch) {
-                          const [, days, rate] = proratedMatch;
-                          displayDesc = `ค่าเช่าห้อง (${days} วัน x ${rate} บาท)`;
-                        } else {
-                          displayDesc = "ค่าเช่าห้อง";
-                        }
-                      } else if (item.item_type === "water") {
-                        displayDesc = displayDesc
-                          .replace("Water", "ค่าน้ำ")
-                          .replace("units", "หน่วย");
-                      } else if (item.item_type === "electric") {
-                        displayDesc = displayDesc
-                          .replace("Electricity", "ค่าไฟ")
-                          .replace("units", "หน่วย");
-                      }
-
-                      return (
-                        <tr key={index}>
-                          <td
-                            className={`px-4 py-3 ${
-                              item.item_type === "water"
-                                ? "text-blue-600"
-                                : item.item_type === "electric"
-                                  ? "text-red-600"
-                                  : "text-gray-700"
-                            }`}
-                          >
-                            <div className="font-bold">{displayDesc}</div>
-                            {meterInfo}
-                          </td>
-                          <td
-                            className={`px-4 py-3 text-right ${
-                              item.item_type === "water"
-                                ? "text-blue-600"
-                                : item.item_type === "electric"
-                                  ? "text-red-600"
-                                  : "text-gray-900"
-                            }`}
-                          >
-                            ฿
-                            {Number(item.amount).toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                            })}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                  <tfoot className="bg-gray-50 border-t-2 border-gray-200">
-                    <tr>
-                      <td className="px-4 py-3 font-bold text-gray-800">
-                        {selectedInvoice.invoice_type === "move_out"
-                          ? selectedInvoice.total_amount < 0
-                            ? "ยอดจ่ายคืนลูกบ้าน"
-                            : selectedInvoice.total_amount > 0
-                              ? "ยอดเรียกเก็บเพิ่ม"
-                              : "ยอดรวมสุทธิ"
-                          : "ยอดรวมทั้งสิ้น"}
-                      </td>
-                      <td
-                        className={`px-4 py-3 text-right font-bold text-lg ${
-                          selectedInvoice.invoice_type === "move_out" &&
-                          selectedInvoice.total_amount < 0
-                            ? "text-green-600"
-                            : "text-emerald-600"
-                        }`}
-                      >
-                        ฿
-                        {Math.abs(
-                          Number(selectedInvoice.total_amount),
-                        ).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
+                      })}
+                    </tbody>
+                    <tfoot className="bg-gray-50 border-t-2 border-gray-200">
+                      <tr>
+                        <td className="px-4 py-3 font-bold text-gray-800 text-sm lg:text-base">
+                          {selectedInvoice.invoice_type === "move_out"
+                            ? selectedInvoice.total_amount < 0
+                              ? "ยอดจ่ายคืนลูกบ้าน"
+                              : selectedInvoice.total_amount > 0
+                                ? "ยอดเรียกเก็บเพิ่ม"
+                                : "ยอดรวมสุทธิ"
+                            : "ยอดรวมทั้งสิ้น"}
+                        </td>
+                        <td
+                          className={`px-4 py-3 text-right font-bold text-base lg:text-lg ${
+                            selectedInvoice.invoice_type === "move_out" &&
+                            selectedInvoice.total_amount < 0
+                              ? "text-green-600"
+                              : "text-emerald-600"
+                          }`}
+                        >
+                          ฿
+                          {Math.abs(
+                            Number(selectedInvoice.total_amount),
+                          ).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
               </div>
 
               {selectedInvoice.invoice_type !== "move_out" && (
                 <div className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                  <p className="font-semibold text-gray-700 mb-4">
+                  <p className="font-semibold text-gray-700 mb-4 text-sm lg:text-base">
                     สแกนเพื่อชำระเงิน (PromptPay)
                   </p>
                   <div className="bg-white p-4 rounded-lg shadow-sm flex flex-col items-center">
@@ -1109,7 +1251,7 @@ const Invoices: React.FC = () => {
               )}
 
               {selectedInvoice.invoice_type !== "move_out" && (
-                <div className="mt-6 space-y-2 text-sm text-gray-600 border-t pt-4">
+                <div className="mt-6 space-y-2 text-xs lg:text-sm text-gray-600 border-t pt-4">
                   <p>
                     <span className="font-semibold text-red-500">*</span>{" "}
                     กรุณาชําระทั้งหมดไม่เกินวันที่ 5 ของเดือน
@@ -1129,16 +1271,16 @@ const Invoices: React.FC = () => {
               )}
             </div>
 
-            <div className="p-6 border-t bg-gray-50 flex justify-end gap-4 sticky bottom-0">
+            <div className="p-6 max-lg:p-4 border-t bg-gray-50 flex justify-end gap-4 sticky bottom-0 max-lg:pb-safe z-10">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+                className="px-4 py-3 lg:py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium touch-target flex-1 lg:flex-none text-center"
               >
                 ปิด
               </button>
               <button
                 onClick={handleDownload}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium flex items-center gap-2"
+                className="px-4 py-3 lg:py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium flex items-center justify-center gap-2 touch-target flex-1 lg:flex-none"
               >
                 <Download size={18} />
                 ดาวน์โหลด
@@ -1150,25 +1292,25 @@ const Invoices: React.FC = () => {
 
       {/* Receipt Modal */}
       {isReceiptModalOpen && receiptData && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto receipt-modal-overlay">
-          <div className="bg-slate-100 rounded-xl shadow-2xl w-full max-w-6xl flex flex-col md:flex-row max-h-[95vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 max-lg:p-0 overflow-y-auto receipt-modal-overlay">
+          <div className="bg-slate-100 rounded-xl shadow-2xl w-full max-w-6xl flex flex-col md:flex-row max-h-[95vh] max-lg:h-full max-lg:max-h-full max-lg:rounded-none overflow-hidden font-sans">
             
             {/* Left Column: Options / Editing Panel (2/5 width) */}
-            <div className="no-print receipt-options-panel w-full md:w-[35%] bg-white p-6 border-r border-slate-200 flex flex-col overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <div className="no-print receipt-options-panel w-full md:w-[35%] bg-white p-6 max-lg:p-4 border-r border-slate-200 flex flex-col overflow-y-auto max-lg:max-h-[50vh] shrink-0">
+              <div className="flex justify-between items-center mb-6 max-lg:mb-4">
+                <h3 className="text-lg max-lg:text-base font-bold text-slate-800 flex items-center gap-2">
                   <Receipt className="text-success" size={20} />
                   ตั้งค่าใบเสร็จรับเงิน
                 </h3>
                 <button 
                   onClick={() => setIsReceiptModalOpen(false)}
-                  className="p-1.5 hover:bg-slate-100 rounded-full transition text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="p-1.5 hover:bg-slate-100 rounded-full transition text-slate-400 hover:text-slate-600 cursor-pointer touch-target"
                 >
                   <X size={20} />
                 </button>
               </div>
 
-              <div className="space-y-4 flex-1">
+              <div className="space-y-4 max-lg:space-y-3 flex-1">
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
                     วันที่ออกใบเสร็จ
@@ -1177,7 +1319,7 @@ const Invoices: React.FC = () => {
                     type="date"
                     value={receiptDate}
                     onChange={(e) => setReceiptDate(e.target.value)}
-                    className="w-full p-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="w-full p-2.5 max-lg:py-3 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-h-[44px] bg-white"
                   />
                 </div>
 
@@ -1185,24 +1327,24 @@ const Invoices: React.FC = () => {
                   <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
                     ช่องทางการชำระเงิน
                   </label>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+                  <div className="flex gap-6 py-1">
+                    <label className="flex items-center gap-2.5 cursor-pointer text-sm text-slate-700 touch-target">
                       <input 
                         type="radio" 
                         name="pay_method"
                         checked={receiptPaymentMethod === "cash"}
                         onChange={() => setReceiptPaymentMethod("cash")}
-                        className="text-primary focus:ring-primary"
+                        className="text-primary focus:ring-primary w-5 h-5"
                       />
                       เงินสด
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+                    <label className="flex items-center gap-2.5 cursor-pointer text-sm text-slate-700 touch-target">
                       <input 
                         type="radio" 
                         name="pay_method"
                         checked={receiptPaymentMethod === "transfer"}
                         onChange={() => setReceiptPaymentMethod("transfer")}
-                        className="text-primary focus:ring-primary"
+                        className="text-primary focus:ring-primary w-5 h-5"
                       />
                       โอนผ่านบัญชี
                     </label>
@@ -1218,7 +1360,7 @@ const Invoices: React.FC = () => {
                     placeholder="เช่น ค่าทำความสะอาดค้างจ่าย, คืนเงินประกัน..."
                     value={receiptNotes}
                     onChange={(e) => setReceiptNotes(e.target.value)}
-                    className="w-full p-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="w-full p-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-base lg:text-sm"
                   />
                 </div>
 
@@ -1226,7 +1368,7 @@ const Invoices: React.FC = () => {
                   <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
                     รายการปรับปรุงอื่น ๆ (เช่น ค่าบริการ, ส่วนลด, คืนมัดจำ)
                   </label>
-                  <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-[220px] max-lg:max-h-[150px] overflow-y-auto pr-1">
                     {receiptAdjustments.map((adj, index) => (
                       <div key={index} className="flex gap-2 items-center">
                         <input 
@@ -1238,7 +1380,7 @@ const Invoices: React.FC = () => {
                             newAdj[index].description = e.target.value;
                             setReceiptAdjustments(newAdj);
                           }}
-                          className="flex-1 p-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                          className="flex-1 p-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-h-[40px]"
                         />
                         <input 
                           type="number" 
@@ -1249,16 +1391,16 @@ const Invoices: React.FC = () => {
                             newAdj[index].amount = Number(e.target.value);
                             setReceiptAdjustments(newAdj);
                           }}
-                          className="w-20 p-2 border border-slate-200 rounded-lg text-xs text-right focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                          className="w-20 p-2 border border-slate-200 rounded-lg text-sm text-right focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-h-[40px]"
                         />
                         <button 
                           type="button"
                           onClick={() => {
                             setReceiptAdjustments(receiptAdjustments.filter((_, i) => i !== index));
                           }}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition cursor-pointer touch-target flex items-center justify-center"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     ))}
@@ -1266,7 +1408,7 @@ const Invoices: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setReceiptAdjustments([...receiptAdjustments, { description: "", amount: 0 }])}
-                    className="mt-2 w-full py-1.5 border border-dashed border-primary/40 text-primary hover:bg-primary-light rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="mt-2 w-full py-2 border border-dashed border-primary/40 text-primary hover:bg-primary-light rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px] touch-target"
                   >
                     <Plus size={14} /> เพิ่มรายการปรับปรุง
                   </button>
@@ -1276,17 +1418,17 @@ const Invoices: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-slate-100 flex flex-col gap-3">
+              <div className="pt-6 max-lg:pt-4 border-t border-slate-100 flex flex-col gap-3 max-lg:pb-safe shrink-0">
                 <button
                   onClick={() => window.print()}
-                  className="w-full py-2.5 bg-success text-white rounded-lg hover:bg-success-hover font-semibold transition flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 lg:py-2.5 bg-success text-white rounded-lg hover:bg-success-hover font-semibold transition flex items-center justify-center gap-2 cursor-pointer touch-target"
                 >
                   <Printer size={18} />
                   พิมพ์ / ดาวน์โหลด PDF
                 </button>
                 <button
                   onClick={() => setIsReceiptModalOpen(false)}
-                  className="w-full py-2.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-semibold transition cursor-pointer"
+                  className="w-full py-3 lg:py-2.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-semibold transition cursor-pointer touch-target text-center"
                 >
                   ปิดหน้าต่าง
                 </button>

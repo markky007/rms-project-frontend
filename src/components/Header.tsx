@@ -54,22 +54,16 @@ export const Header: React.FC<HeaderProps> = ({
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <header className="h-16 bg-white border-b border-border px-6 flex items-center justify-between sticky top-0 z-sticky select-none">
+    <header className="h-[var(--header-height)] bg-white border-b border-border px-4 lg:px-6 flex items-center justify-between sticky top-0 z-sticky select-none">
       {/* Left side: Hamburger button + Breadcrumbs */}
       <div className="flex items-center gap-4">
-        {/* Mobile Hamburger Menu Toggle */}
-        <button
-          onClick={() => setIsOpenMobile(true)}
-          className="p-1 rounded text-muted hover:text-ink hover:bg-surface lg:hidden"
-          aria-label="เปิดเมนูนำทาง"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        {/* Current Page Title on Mobile */}
+        <span className="lg:hidden font-heading text-base font-bold text-ink truncate max-w-[150px] sm:max-w-[250px]">
+          {breadcrumbs[breadcrumbs.length - 1]?.label || "หน้าแรก"}
+        </span>
 
-        {/* Hierarchical Breadcrumbs */}
-        <nav className="hidden sm:flex items-center text-xs font-sans text-muted">
+        {/* Hierarchical Breadcrumbs (Desktop Only) */}
+        <nav className="hidden lg:flex items-center text-xs font-sans text-muted">
           {breadcrumbs.map((crumb, index) => {
             const isLast = index === breadcrumbs.length - 1;
 
@@ -99,11 +93,11 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Right side: Global Search + Notifications + User Avatar */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 lg:gap-4">
         {/* Global Search Trigger (Command Palette Trigger) */}
         <button
           onClick={onSearchClick}
-          className="flex items-center gap-2 px-3 py-1.5 border border-border rounded-md bg-surface hover:bg-surface/80 text-xs text-muted font-sans font-medium transition-colors cursor-pointer select-none"
+          className="flex items-center gap-2 px-2.5 py-1.5 border border-border rounded-md bg-surface hover:bg-surface/80 text-xs text-muted font-sans font-medium transition-colors cursor-pointer select-none touch-target lg:min-h-0 lg:min-w-0"
           aria-label="ค้นหา (กด ⌘K)"
         >
           <svg className="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -119,7 +113,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="relative">
           <button
             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            className="p-1.5 rounded-full text-muted hover:text-ink hover:bg-surface transition-colors relative"
+            className="p-2 rounded-full text-muted hover:text-ink hover:bg-surface transition-colors relative touch-target lg:min-h-0 lg:min-w-0"
             aria-label="การแจ้งเตือน"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -127,28 +121,40 @@ export const Header: React.FC<HeaderProps> = ({
             </svg>
             {/* Simple indicator */}
             {notifications.length > 0 && (
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-primary ring-2 ring-white animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary ring-2 ring-white animate-pulse" />
             )}
           </button>
 
           {/* Click-outside backdrop overlay to close dropdown */}
           {isNotificationsOpen && (
             <div
-              className="fixed inset-0 z-dropdown"
+              className="fixed inset-0 z-dropdown bg-black/20 lg:bg-transparent backdrop-blur-[1px] lg:backdrop-blur-none"
               onClick={() => setIsNotificationsOpen(false)}
             />
           )}
 
           {/* Notification dropdown popover */}
           {isNotificationsOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-white border border-border rounded-lg shadow-elevated z-modal overflow-hidden font-sans">
-              <div className="px-4 py-3 border-b border-border bg-surface flex justify-between items-center select-none">
-                <span className="text-xs font-bold text-ink">การแจ้งเตือน ({notifications.length})</span>
-                {notifications.length > 0 && (
-                  <span className="text-[10px] text-muted font-sans">อัปเดตเรียลไทม์</span>
-                )}
+            <div className="absolute right-0 mt-2 w-80 bg-white border border-border rounded-lg shadow-elevated z-modal overflow-hidden font-sans
+                            max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:top-auto max-lg:w-full max-lg:rounded-t-xl max-lg:rounded-b-none max-lg:border-x-0 max-lg:border-b-0 max-lg:animate-slide-up max-lg:pb-safe">
+              <div className="px-4 py-3 border-b border-border bg-surface flex justify-between items-center select-none max-lg:py-4">
+                <span className="text-xs font-bold text-ink max-lg:text-sm">การแจ้งเตือน ({notifications.length})</span>
+                <div className="flex items-center gap-2">
+                  {notifications.length > 0 && (
+                    <span className="text-[10px] text-muted font-sans max-lg:text-xs">อัปเดตเรียลไทม์</span>
+                  )}
+                  <button
+                    onClick={() => setIsNotificationsOpen(false)}
+                    className="lg:hidden p-1 text-muted hover:text-ink touch-target flex items-center justify-center"
+                    aria-label="ปิดการแจ้งเตือน"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <div className="max-h-[280px] overflow-y-auto divide-y divide-border-subtle flex flex-col">
+              <div className="max-h-[280px] max-lg:max-h-[50vh] overflow-y-auto divide-y divide-border-subtle flex flex-col">
                 {isLoadingNotifications ? (
                   <div className="py-8 text-center text-xs text-muted font-sans">
                     กำลังโหลดข้อมูลแจ้งเตือน...
@@ -162,7 +168,7 @@ export const Header: React.FC<HeaderProps> = ({
                       className="px-4 py-3 hover:bg-surface/50 transition-colors flex flex-col gap-1 text-left"
                     >
                       <div className="flex items-center gap-1.5">
-                        <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
                           item.type === "expiry"
                             ? "bg-warning"
                             : item.type === "overdue"
@@ -173,7 +179,7 @@ export const Header: React.FC<HeaderProps> = ({
                           {item.title}
                         </span>
                       </div>
-                      <p className="text-[11px] text-muted leading-relaxed pl-4 font-sans">
+                      <p className="text-[11px] text-muted leading-relaxed pl-3.5 font-sans">
                         {item.description}
                       </p>
                     </Link>
@@ -194,7 +200,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* User profile dropdown indicator / Avatar */}
         {user && (
           <div className="flex items-center gap-2 pl-2 border-l border-border select-none">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold font-sans text-sm shadow-low">
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold font-sans text-sm shadow-low flex-shrink-0">
               {user.username.charAt(0).toUpperCase()}
             </div>
             <span className="hidden md:inline text-xs font-semibold text-ink font-sans">

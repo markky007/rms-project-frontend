@@ -62,77 +62,113 @@ export default function Pagination({
   };
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 bg-white border-t border-gray-200">
-      {/* Items info */}
-      <div className="text-sm text-gray-700">
-        แสดง <span className="font-medium">{startItem}</span> ถึง{" "}
-        <span className="font-medium">{endItem}</span> จาก{" "}
-        <span className="font-medium">{totalItems}</span> รายการ
+    <>
+      {/* Desktop Pagination */}
+      <div className="hidden lg:flex items-center justify-between px-6 py-4 bg-white border-t border-gray-200">
+        {/* Items info */}
+        <div className="text-sm text-gray-700">
+          แสดง <span className="font-medium">{startItem}</span> ถึง{" "}
+          <span className="font-medium">{endItem}</span> จาก{" "}
+          <span className="font-medium">{totalItems}</span> รายการ
+        </div>
+
+        {/* Pagination controls */}
+        <div className="flex items-center gap-2">
+          {/* Previous button */}
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              currentPage === 1
+                ? "text-gray-400 bg-gray-100 cursor-not-allowed"
+                : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            <ChevronLeft size={16} />
+            ก่อนหน้า
+          </button>
+
+          {/* Page numbers */}
+          <div className="flex gap-1">
+            {getPageNumbers().map((page, index) => {
+              if (page === "...") {
+                return (
+                  <span
+                    key={`ellipsis-${index}`}
+                    className="px-3 py-2 text-sm text-gray-500"
+                  >
+                    ...
+                  </span>
+                );
+              }
+
+              const pageNum = page as number;
+              const isActive = pageNum === currentPage;
+
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => onPageChange(pageNum)}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    isActive
+                      ? "bg-emerald-600 text-white"
+                      : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Next button */}
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              currentPage === totalPages
+                ? "text-gray-400 bg-gray-100 cursor-not-allowed"
+                : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            ถัดไป
+            <ChevronRight size={16} />
+          </button>
+        </div>
       </div>
 
-      {/* Pagination controls */}
-      <div className="flex items-center gap-2">
-        {/* Previous button */}
+      {/* Mobile Pagination */}
+      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+          className={`touch-target flex items-center justify-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg transition-all border ${
             currentPage === 1
-              ? "text-gray-400 bg-gray-100 cursor-not-allowed"
-              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+              ? "text-gray-400 bg-gray-100 border-gray-100 cursor-not-allowed"
+              : "text-gray-700 bg-white border-gray-300 active:bg-gray-50"
           }`}
         >
           <ChevronLeft size={16} />
           ก่อนหน้า
         </button>
 
-        {/* Page numbers */}
-        <div className="flex gap-1">
-          {getPageNumbers().map((page, index) => {
-            if (page === "...") {
-              return (
-                <span
-                  key={`ellipsis-${index}`}
-                  className="px-3 py-2 text-sm text-gray-500"
-                >
-                  ...
-                </span>
-              );
-            }
+        <span className="text-xs font-semibold text-gray-700 font-sans select-none">
+          หน้า {currentPage} / {totalPages}
+        </span>
 
-            const pageNum = page as number;
-            const isActive = pageNum === currentPage;
-
-            return (
-              <button
-                key={pageNum}
-                onClick={() => onPageChange(pageNum)}
-                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  isActive
-                    ? "bg-emerald-600 text-white"
-                    : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                {pageNum}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Next button */}
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+          className={`touch-target flex items-center justify-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg transition-all border ${
             currentPage === totalPages
-              ? "text-gray-400 bg-gray-100 cursor-not-allowed"
-              : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+              ? "text-gray-400 bg-gray-100 border-gray-100 cursor-not-allowed"
+              : "text-gray-700 bg-white border-gray-300 active:bg-gray-50"
           }`}
         >
           ถัดไป
           <ChevronRight size={16} />
         </button>
       </div>
-    </div>
+    </>
   );
 }

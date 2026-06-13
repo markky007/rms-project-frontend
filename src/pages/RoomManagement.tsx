@@ -69,7 +69,7 @@ export default function RoomManagement() {
     try {
       if (editingId) {
         await roomService.updateRoom(editingId, formData);
-        showAlert({ message: "อัพเดทข้อมูลห้องพักสำเร็จ", type: "success" });
+        showAlert({ message: "อัปเดตข้อมูลห้องพักสำเร็จ", type: "success" });
       } else {
         await roomService.createRoom(formData);
         showAlert({ message: "เพิ่มห้องพักสำเร็จ", type: "success" });
@@ -157,22 +157,28 @@ export default function RoomManagement() {
   const paginatedRooms = rooms.slice(startIndex, endIndex);
 
   if (loading) {
-    return <div className="p-8">กำลังโหลด...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] font-sans">
+        <svg className="animate-spin h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <span className="text-xs text-muted mt-2">กำลังโหลดข้อมูลห้องพัก...</span>
+      </div>
+    );
   }
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">จัดการบ้านเช่า</h1>
-        <div className="flex gap-3">
-          <button
-            onClick={() => setShowDialog(true)}
-            className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 shadow-md"
-          >
-            <Plus size={20} />
-            เพิ่มบ้านเช่า
-          </button>
-        </div>
+    <div className="p-4 lg:p-8 font-sans">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+        <h1 className="text-xl lg:text-3xl font-bold text-gray-800">จัดการห้องพัก</h1>
+        <button
+          onClick={() => setShowDialog(true)}
+          className="bg-emerald-600 text-white px-6 py-3 lg:py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-md touch-target w-full lg:w-auto"
+        >
+          <Plus size={20} />
+          เพิ่มห้องพัก
+        </button>
       </div>
 
       {/* Dialog for Create/Edit */}
@@ -195,7 +201,7 @@ export default function RoomManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, house_number: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
                 placeholder="เช่น 123/45"
               />
             </div>
@@ -211,7 +217,7 @@ export default function RoomManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, bedrooms: Number(e.target.value) })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
               />
             </div>
             <div>
@@ -229,7 +235,7 @@ export default function RoomManagement() {
                     bathrooms: Number(e.target.value),
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
               />
             </div>
             <div>
@@ -248,7 +254,7 @@ export default function RoomManagement() {
                     base_rent: Number(e.target.value),
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
               />
             </div>
             <div>
@@ -265,7 +271,7 @@ export default function RoomManagement() {
                     water_rate: parseFloat(e.target.value),
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
               />
             </div>
             <div>
@@ -282,7 +288,7 @@ export default function RoomManagement() {
                     elec_rate: parseFloat(e.target.value),
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
               />
             </div>
             <div>
@@ -297,7 +303,7 @@ export default function RoomManagement() {
                     status: e.target.value as any,
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
               >
                 <option value="vacant">ว่าง</option>
                 <option value="occupied">มีผู้เช่า</option>
@@ -319,7 +325,7 @@ export default function RoomManagement() {
                       : null,
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
               >
                 <option value="">ไม่มีผู้เช่า</option>
                 {tenants.map((tenant) => (
@@ -330,17 +336,17 @@ export default function RoomManagement() {
               </select>
             </div>
           </div>
-          <div className="flex gap-2 pt-4">
+          <div className="flex gap-2 pt-4 max-lg:flex-col">
             <button
               type="submit"
-              className="flex-1 bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+              className="flex-1 bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors touch-target font-semibold text-sm"
             >
               {editingId ? "บันทึกการแก้ไข" : "เพิ่มบ้านเช่า"}
             </button>
             <button
               type="button"
               onClick={handleCloseDialog}
-              className="flex-1 bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
+              className="flex-1 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors touch-target font-semibold text-sm"
             >
               ยกเลิก
             </button>
@@ -348,8 +354,8 @@ export default function RoomManagement() {
         </form>
       </Dialog>
 
-      {/* Rooms Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Rooms Table - Desktop */}
+      <div className="hidden lg:block bg-white rounded-lg border border-border shadow-medium overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -382,7 +388,7 @@ export default function RoomManagement() {
           <tbody className="bg-white divide-y divide-gray-200">
             {rooms.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
                   ไม่พบข้อมูลบ้านเช่า
                 </td>
               </tr>
@@ -444,6 +450,69 @@ export default function RoomManagement() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Rooms List - Mobile */}
+      <div className="lg:hidden flex flex-col gap-3">
+        {rooms.length === 0 ? (
+          <div className="py-8 text-center text-gray-500 bg-white rounded-lg border border-border-subtle">
+            ไม่พบข้อมูลบ้านเช่า
+          </div>
+        ) : (
+          paginatedRooms.map((room) => {
+            const statusBadge = getStatusBadge(room.status);
+            return (
+              <div key={room.room_id} className="mobile-card flex flex-col gap-3 animate-in fade-in duration-150">
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-ink text-base select-all">{room.house_number}</span>
+                    <span className="text-[10px] text-muted font-sans mt-0.5">
+                      เรท น้ำ: {room.water_rate || 18.0} | ไฟ: {room.elec_rate || 7.0}
+                    </span>
+                  </div>
+                  {statusBadge}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs text-gray-700 py-2 bg-surface rounded px-3">
+                  <div>🛏 นอน: {room.bedrooms} ห้อง</div>
+                  <div>🚿 น้ำ: {room.bathrooms} ห้อง</div>
+                  <div className="col-span-2 border-t border-border-subtle/50 my-1" />
+                  <div className="col-span-2 overflow-hidden truncate">
+                    👤 ผู้เช่า: {room.tenant_name ? (
+                      <span className="font-semibold text-ink select-all">{room.tenant_name} {room.tenant_phone && `(${room.tenant_phone})`}</span>
+                    ) : (
+                      <span className="text-muted italic">ไม่มีผู้เช่า</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center py-1.5 border-t border-border-subtle select-none">
+                  <span className="text-xs text-muted">ค่าเช่ารายเดือน</span>
+                  <span className="font-mono text-sm text-primary font-bold">฿{Number(room.base_rent).toLocaleString()}</span>
+                </div>
+
+                <div className="flex gap-2 pt-2 border-t border-border-subtle">
+                  <button
+                    onClick={() => handleEdit(room)}
+                    className="flex-1 min-h-[44px] rounded-lg bg-surface text-ink active:bg-border border border-border-subtle font-medium text-sm flex items-center justify-center cursor-pointer"
+                  >
+                    แก้ไข
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirmId(room.room_id)}
+                    className="flex-1 min-h-[44px] rounded-lg bg-error-light text-error active:bg-error/20 font-medium text-sm flex items-center justify-center cursor-pointer"
+                  >
+                    ลบ
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Pagination (visible for both views) */}
+      <div className="mt-4">
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -453,34 +522,34 @@ export default function RoomManagement() {
         />
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {deleteConfirmId !== null && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl p-4 max-w-xs w-full">
-            <h3 className="text-base font-bold text-gray-800 mb-2">
-              ยืนยันการลบ
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              คุณแน่ใจหรือไม่ที่จะลบบ้านเช่านี้?
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setDeleteConfirmId(null)}
-                className="px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 font-medium"
-              >
-                ยกเลิก
-              </button>
-              <button
-                onClick={() => handleDelete(deleteConfirmId)}
-                disabled={isDeleting}
-                className="px-3 py-1.5 text-sm text-red-600 border border-gray-300 rounded-md hover:bg-gray-50 font-medium"
-              >
-                ลบ
-              </button>
-            </div>
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        isOpen={deleteConfirmId !== null}
+        onClose={() => setDeleteConfirmId(null)}
+        title="ยืนยันการลบ"
+        size="sm"
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-gray-600">
+            คุณแน่ใจหรือไม่ที่จะลบบ้านเช่านี้ออกจากระบบ? การดำเนินการนี้ไม่สามารถย้อนกลับได้
+          </p>
+          <div className="flex gap-2 pt-2 max-lg:flex-col">
+            <button
+              onClick={() => handleDelete(deleteConfirmId!)}
+              disabled={isDeleting}
+              className="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors touch-target font-semibold text-sm text-center"
+            >
+              {isDeleting ? "กำลังลบ..." : "ลบข้อมูล"}
+            </button>
+            <button
+              onClick={() => setDeleteConfirmId(null)}
+              className="flex-1 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors touch-target font-semibold text-sm text-center"
+            >
+              ยกเลิก
+            </button>
           </div>
         </div>
-      )}
+      </Dialog>
     </div>
   );
 }

@@ -21,9 +21,9 @@ export const Button: React.FC<ButtonProps> = ({
 
   // Size classes
   const sizeClasses = {
-    sm: "px-3 py-1.5 text-xs",
-    md: "px-5 py-2.5 text-sm",
-    lg: "px-6 py-3.5 text-base",
+    sm: "px-3 py-1.5 text-xs max-lg:py-2 max-lg:px-4 max-lg:text-sm",
+    md: "px-5 py-2.5 text-sm max-lg:py-3.5 max-lg:px-6 max-lg:text-sm max-lg:min-h-[44px]",
+    lg: "px-6 py-3.5 text-base max-lg:py-4 max-lg:px-8 max-lg:text-base max-lg:min-h-[48px]",
   };
 
   // Variant classes mapping to tokens

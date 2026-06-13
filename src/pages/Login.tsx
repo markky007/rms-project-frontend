@@ -113,17 +113,17 @@ export default function Login() {
 
           {/* Remember me & Forget password */}
           <div className="flex items-center justify-between text-xs select-none mt-1">
-            <label className="flex items-center gap-2 cursor-pointer text-muted hover:text-ink transition-colors font-sans">
+            <label className="flex items-center gap-2 cursor-pointer text-muted hover:text-ink transition-colors font-sans py-2.5 max-lg:py-3.5 select-none">
               <input
                 type="checkbox"
-                className="w-4 h-4 text-primary border-border rounded focus:ring-primary/20 cursor-pointer"
+                className="w-4 h-4 max-lg:w-5 max-lg:h-5 text-primary border-border rounded focus:ring-primary/20 cursor-pointer"
               />
               <span>จดจำฉัน</span>
             </label>
             <a
               href="#"
               onClick={(e) => e.preventDefault()}
-              className="text-primary hover:text-primary-hover font-medium font-sans"
+              className="text-primary hover:text-primary-hover font-medium font-sans py-2.5 max-lg:py-3.5"
             >
               ลืมรหัสผ่าน?
             </a>

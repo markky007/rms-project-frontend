@@ -10,6 +10,7 @@ import tenantService, { Tenant } from "../../services/tenantService";
 import invoiceService, { Invoice } from "../../services/invoiceService";
 import contractService from "../../services/contractService";
 import maintenanceService from "../../services/maintenanceService";
+import BottomTabBar from "../../components/BottomTabBar";
 
 export interface NotificationItem {
   id: string;
@@ -270,10 +271,13 @@ export const AppLayout: React.FC = () => {
         />
 
         {/* Page Content viewport - constrained layout */}
-        <main className="flex-grow p-4 md:p-6 lg:p-8 max-w-[1280px] w-full mx-auto">
+        <main className="flex-grow p-4 md:p-6 lg:p-8 max-w-[1280px] w-full mx-auto pb-[calc(var(--mobile-bottom-bar-height)+var(--mobile-safe-area-bottom)+16px)] lg:pb-8">
           <Outlet />
         </main>
       </div>
+
+      {/* Mobile Bottom Tab Bar */}
+      <BottomTabBar />
 
       {/* Global Command Palette Search Overlay */}
       <Dialog

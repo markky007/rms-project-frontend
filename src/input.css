@@ -24,6 +24,35 @@
   .animate-shake {
     animation: shake 0.5s ease-in-out;
   }
+
+  /* Mobile card list item */
+  .mobile-card {
+    @apply bg-white rounded-lg border border-border-subtle p-4 
+           shadow-low transition-all duration-150;
+  }
+  
+  /* Mobile touch target minimum */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* Mobile bottom safe area padding */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 }
 
 /* Print Styles for A4 Receipt */

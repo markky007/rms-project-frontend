@@ -154,25 +154,15 @@ export const SidebarV2: React.FC<SidebarV2Props> = ({
   ];
 
   const sidebarWidthClass = isCollapsed ? "w-16" : "w-64";
-  const showMobileClass = isOpenMobile ? "translate-x-0" : "-translate-x-full lg:translate-x-0";
 
   return (
     <>
-      {/* Mobile backdrop */}
-      {isOpenMobile && (
-        <div
-          className="fixed inset-0 z-sticky bg-[#000000]/40 backdrop-blur-[2px] lg:hidden"
-          onClick={() => setIsOpenMobile(false)}
-          aria-hidden="true"
-        />
-      )}
-
       {/* Main Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-sticky bg-sidebar-bg flex flex-col transition-all duration-200 select-none ${sidebarWidthClass} ${showMobileClass}`}
+        className={`fixed inset-y-0 left-0 z-sticky bg-sidebar-bg flex flex-col transition-all duration-200 select-none hidden lg:flex ${sidebarWidthClass}`}
       >
         {/* Logo area */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
+        <div className="h-[var(--header-height)] flex items-center justify-between px-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             {/* Cobalt rounded building icon */}
             <div className="w-9 h-9 rounded bg-primary flex items-center justify-center text-white flex-shrink-0">
