@@ -9,7 +9,13 @@ import {
   X,
   Trash2,
   RefreshCw,
+  Receipt,
+  Printer,
+  Plus,
 } from "lucide-react";
+import tenantService from "../services/tenantService";
+import contractService from "../services/contractService";
+import { bahtText } from "../utils/bahttext";
 import { QRCodeCanvas } from "qrcode.react";
 import html2canvas from "html2canvas";
 import invoiceService, { type Invoice } from "../services/invoiceService";
@@ -28,6 +34,30 @@ const STATUS_OPTIONS: {
   { value: "cancelled", label: "ยกเลิก", color: "gray" },
 ];
 
+const formatThaiDate = (dateStr: string) => {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const thaiMonths = [
+    "มกราคม",
+    "กุมภาพันธ์",
+    "มีนาคม",
+    "เมษายน",
+    "พฤษภาคม",
+    "มิถุนายน",
+    "กรกฎาคม",
+    "สิงหาคม",
+    "กันยายน",
+    "ตุลาคม",
+    "พฤศจิกายน",
+    "ธันวาคม",
+  ];
+  return `${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
+};
+
+const DEFAULT_RECEIPT_NOTES = `* กรุณาชําระทั้งหมดไม่เกินวันที่ 5 ของเดือน หากเกินกําหนดขอเก็บเพิ่มวันละ 50 บาทจนกว่าจะจ่ายครบ
+* ห้ามนําสัตว์เลี้ยงทุกชนิดมาเลี้ยง (หากเกิดความเสียหายจะต้องรับผิดชอบให้สภาพคงเดิมหรือปรับเท่ามูลค่าของสิ่งนั้น)
+* กรณีย้ายออก กรุณาแจ้งล่วงหน้าอย่างน้อย 30 วัน มิฉะนั้นจะไม่ขอคืนเงินประกันบ้าน`;
+
 const Invoices: React.FC = () => {
   const { showAlert } = useAlert();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -36,6 +66,19 @@ const Invoices: React.FC = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const invoiceRef = useRef<HTMLDivElement>(null);
+
+  // Receipt Modal states
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [receiptData, setReceiptData] = useState<{
+    invoice: Invoice;
+    tenant: any;
+    contract: any;
+  } | null>(null);
+  const [receiptDate, setReceiptDate] = useState<string>("");
+  const [receiptPaymentMethod, setReceiptPaymentMethod] = useState<"cash" | "transfer">("cash");
+  const [receiptNotes, setReceiptNotes] = useState<string>("");
+  const [receiptAdjustments, setReceiptAdjustments] = useState<{ description: string; amount: number }[]>([]);
+  const receiptRef = useRef<HTMLDivElement>(null);
 
   // Selection state for bulk operations
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -168,6 +211,63 @@ const Invoices: React.FC = () => {
         link.click();
       } catch (err) {
         console.error("Failed to download invoice", err);
+      }
+    }
+  };
+
+  const handleOpenReceipt = async (invoiceId: number) => {
+    try {
+      setIsUpdating(true);
+      const invoice = await invoiceService.getInvoiceById(invoiceId);
+      
+      let contract = null;
+      let tenant = null;
+      if (invoice.contract_id) {
+        try {
+          contract = await contractService.getContractById(invoice.contract_id);
+          if (contract.tenant_id) {
+            tenant = await tenantService.getTenantById(contract.tenant_id);
+          }
+        } catch (cErr) {
+          console.error("Failed to load contract/tenant details", cErr);
+        }
+      }
+      
+      setReceiptData({
+        invoice,
+        tenant,
+        contract,
+      });
+      
+      setReceiptDate(new Date().toISOString().split("T")[0]);
+      setReceiptPaymentMethod(invoice.status === "paid" ? "transfer" : "cash");
+      setReceiptAdjustments([]);
+      setReceiptNotes(DEFAULT_RECEIPT_NOTES);
+      setIsReceiptModalOpen(true);
+    } catch (err) {
+      console.error("Failed to fetch receipt data", err);
+      showAlert({ message: "ไม่สามารถออกใบเสร็จรับเงินได้เนื่องจากโหลดข้อมูลไม่สำเร็จ", type: "error" });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDownloadReceipt = async () => {
+    if (receiptRef.current && receiptData) {
+      try {
+        const canvas = await html2canvas(receiptRef.current, {
+          scale: 2,
+          backgroundColor: "#ffffff",
+          useCORS: true,
+          allowTaint: true,
+        });
+        const link = document.createElement("a");
+        link.download = `receipt-${receiptData.invoice.invoice_id}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } catch (err) {
+        console.error("Failed to download receipt", err);
+        showAlert({ message: "ดาวน์โหลดใบเสร็จไม่สำเร็จ", type: "error" });
       }
     }
   };
@@ -401,8 +501,9 @@ const Invoices: React.FC = () => {
   const paginatedInvoices = filteredInvoices.slice(startIndex, endIndex);
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">ใบแจ้งหนี้</h1>
+    <div className="p-8 invoices-page-container">
+      <div className="no-print">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">ใบแจ้งหนี้</h1>
 
       <div className="flex space-x-4 mb-6 border-b border-gray-200">
         <button
@@ -691,6 +792,13 @@ const Invoices: React.FC = () => {
                           <Eye size={16} />
                         </button>
                         <button
+                          onClick={() => handleOpenReceipt(invoice.invoice_id)}
+                          className="w-8 h-8 text-xs font-medium rounded-full bg-surface text-ink hover:bg-success hover:text-white transition-all duration-150 inline-flex items-center justify-center cursor-pointer"
+                          title="ออกใบเสร็จรับเงิน"
+                        >
+                          <Receipt size={16} />
+                        </button>
+                        <button
                           onClick={() => setDeleteConfirmId(invoice.invoice_id)}
                           className="w-8 h-8 text-xs font-medium rounded-full bg-error-light text-error hover:bg-error hover:text-white transition-all duration-150 inline-flex items-center justify-center cursor-pointer"
                           title="ลบใบแจ้งหนี้"
@@ -713,6 +821,7 @@ const Invoices: React.FC = () => {
           onPageChange={setCurrentPage}
         />
       </div>
+    </div>
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmId !== null && (
@@ -1035,6 +1144,532 @@ const Invoices: React.FC = () => {
                 ดาวน์โหลด
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Receipt Modal */}
+      {isReceiptModalOpen && receiptData && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto receipt-modal-overlay">
+          <div className="bg-slate-100 rounded-xl shadow-2xl w-full max-w-6xl flex flex-col md:flex-row max-h-[95vh] overflow-hidden">
+            
+            {/* Left Column: Options / Editing Panel (2/5 width) */}
+            <div className="no-print receipt-options-panel w-full md:w-[35%] bg-white p-6 border-r border-slate-200 flex flex-col overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <Receipt className="text-success" size={20} />
+                  ตั้งค่าใบเสร็จรับเงิน
+                </h3>
+                <button 
+                  onClick={() => setIsReceiptModalOpen(false)}
+                  className="p-1.5 hover:bg-slate-100 rounded-full transition text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-4 flex-1">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+                    วันที่ออกใบเสร็จ
+                  </label>
+                  <input 
+                    type="date"
+                    value={receiptDate}
+                    onChange={(e) => setReceiptDate(e.target.value)}
+                    className="w-full p-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+                    ช่องทางการชำระเงิน
+                  </label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+                      <input 
+                        type="radio" 
+                        name="pay_method"
+                        checked={receiptPaymentMethod === "cash"}
+                        onChange={() => setReceiptPaymentMethod("cash")}
+                        className="text-primary focus:ring-primary"
+                      />
+                      เงินสด
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+                      <input 
+                        type="radio" 
+                        name="pay_method"
+                        checked={receiptPaymentMethod === "transfer"}
+                        onChange={() => setReceiptPaymentMethod("transfer")}
+                        className="text-primary focus:ring-primary"
+                      />
+                      โอนผ่านบัญชี
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+                    หมายเหตุ / ค่าปรับปรุงอื่น ๆ (ย้ายออก, หักมัดจำ)
+                  </label>
+                  <textarea 
+                    rows={3}
+                    placeholder="เช่น ค่าทำความสะอาดค้างจ่าย, คืนเงินประกัน..."
+                    value={receiptNotes}
+                    onChange={(e) => setReceiptNotes(e.target.value)}
+                    className="w-full p-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+                    รายการปรับปรุงอื่น ๆ (เช่น ค่าบริการ, ส่วนลด, คืนมัดจำ)
+                  </label>
+                  <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                    {receiptAdjustments.map((adj, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <input 
+                          type="text" 
+                          placeholder="รายละเอียด เช่น ค่าทำความสะอาด" 
+                          value={adj.description}
+                          onChange={(e) => {
+                            const newAdj = [...receiptAdjustments];
+                            newAdj[index].description = e.target.value;
+                            setReceiptAdjustments(newAdj);
+                          }}
+                          className="flex-1 p-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                        />
+                        <input 
+                          type="number" 
+                          placeholder="บาท" 
+                          value={adj.amount === 0 ? "" : adj.amount}
+                          onChange={(e) => {
+                            const newAdj = [...receiptAdjustments];
+                            newAdj[index].amount = Number(e.target.value);
+                            setReceiptAdjustments(newAdj);
+                          }}
+                          className="w-20 p-2 border border-slate-200 rounded-lg text-xs text-right focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setReceiptAdjustments(receiptAdjustments.filter((_, i) => i !== index));
+                          }}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setReceiptAdjustments([...receiptAdjustments, { description: "", amount: 0 }])}
+                    className="mt-2 w-full py-1.5 border border-dashed border-primary/40 text-primary hover:bg-primary-light rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus size={14} /> เพิ่มรายการปรับปรุง
+                  </button>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    * ใส่เครื่องหมายลบ (-) สำหรับส่วนลดหรือการจ่ายคืนเงินประกัน
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-slate-100 flex flex-col gap-3">
+                <button
+                  onClick={() => window.print()}
+                  className="w-full py-2.5 bg-success text-white rounded-lg hover:bg-success-hover font-semibold transition flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Printer size={18} />
+                  พิมพ์ / ดาวน์โหลด PDF
+                </button>
+                <button
+                  onClick={() => setIsReceiptModalOpen(false)}
+                  className="w-full py-2.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-semibold transition cursor-pointer"
+                >
+                  ปิดหน้าต่าง
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column: PDF Preview Sheet (3/5 width) */}
+            <div className="flex-1 bg-slate-200 p-4 md:p-8 overflow-auto flex justify-start md:justify-center items-start receipt-preview-container">
+              
+              {/* Printable sheet element */}
+              <div 
+                ref={receiptRef}
+                id="print-receipt-area"
+                className="bg-white w-[750px] shadow-lg p-10 flex flex-col text-slate-800 shrink-0 mx-auto print-receipt-sheet"
+                style={{ minHeight: "950px", fontFamily: "'Inter', 'Kanit', sans-serif" }}
+              >
+                {/* Header Orange Banner */}
+                <div className="bg-[#fdecd2] border border-[#f7cb9f] rounded-[24px] p-5 flex justify-between items-center mb-6">
+                  <div className="flex-1">
+                    <h1 className="text-3xl font-extrabold text-[#b55113] tracking-wide mb-1" style={{ fontFamily: 'Kanit' }}>
+                      บ้านเช่าในสวน
+                    </h1>
+                    <p className="text-[#b55113] text-xs font-semibold">
+                      Tel. : 085-3994499 &nbsp;&nbsp; Email : sasinanwongviroj@gmail.com
+                    </p>
+                    
+                    <div className="flex gap-4 mt-3 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 bg-[#1877f2] rounded-full flex items-center justify-center text-white font-bold text-[11px]">f</div>
+                        <span className="text-[#b55113] font-bold">Facebook page :</span> 
+                        <span className="text-[#b55113] font-medium">บ้านเช่ามาบอน12</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 bg-[#06c755] rounded-full flex items-center justify-center text-white font-bold text-[8px]">LINE</div>
+                        <span className="text-[#b55113] font-bold">ID Line :</span> 
+                        <span className="text-[#b55113] font-medium">i3ai3ymind</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Logo Image */}
+                  <div className="w-20 h-20 flex items-center justify-center ml-4">
+                    <img 
+                      src="/icon.png" 
+                      alt="House Logo" 
+                      className="object-contain max-h-full"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                    <svg className="w-16 h-16 text-[#b55113] block" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 3L2 12h3v8h14v-8h3L12 3zm0 2.5l7 6.3V18H5v-6.2l7-6.3zm-3 4.5h2v3H9v-3zm4 0h2v3h-2v-3z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Document Title */}
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl font-bold text-slate-800 tracking-wide" style={{ fontFamily: 'Kanit' }}>
+                    ใบเสร็จรับเงิน / Receipt
+                  </h2>
+                  <div className="w-full h-[3px] bg-slate-800 mt-2" />
+                </div>
+
+                {/* Metadata details block */}
+                <div className="grid grid-cols-2 gap-8 text-sm mb-6 pb-2">
+                  <div className="space-y-2.5">
+                    <div className="flex">
+                      <span className="font-semibold text-slate-800 w-16" style={{ fontFamily: 'Kanit' }}>เลขที่</span>
+                      <span className="text-slate-600">
+                        {String(receiptData.invoice.invoice_id).padStart(5, "0")}
+                      </span>
+                    </div>
+                    <div className="flex">
+                      <span className="font-semibold text-slate-800 w-16" style={{ fontFamily: 'Kanit' }}>วันที่</span>
+                      <span className="text-slate-600">
+                        {formatThaiDate(receiptDate)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start">
+                      <span className="font-semibold text-slate-800 w-24 shrink-0" style={{ fontFamily: 'Kanit' }}>ชื่อลูกค้า</span>
+                      <span className="text-slate-600 font-medium">
+                        {receiptData.tenant?.full_name || receiptData.invoice.tenant_name || "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-start">
+                      <span className="font-semibold text-slate-800 w-24 shrink-0" style={{ fontFamily: 'Kanit' }}>ที่อยู่</span>
+                      <span className="text-slate-600 leading-relaxed">
+                        {receiptData.tenant?.address || "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-start">
+                      <span className="font-semibold text-slate-800 w-24 shrink-0" style={{ fontFamily: 'Kanit' }}>เลขผู้เสียภาษี</span>
+                      <span className="text-slate-600">
+                        {receiptData.tenant?.id_card || "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-start">
+                      <span className="font-semibold text-slate-800 w-24 shrink-0" style={{ fontFamily: 'Kanit' }}>เบอร์โทรศัพท์</span>
+                      <span className="text-slate-600">
+                        {receiptData.tenant?.phone || "-"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Items Table */}
+                <div className="border border-slate-800 overflow-hidden mb-6 flex-1">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-slate-900 text-white font-semibold" style={{ fontFamily: 'Kanit' }}>
+                        <th className="px-4 py-2.5 text-center border-r border-slate-700 w-[10%]">ลำดับ</th>
+                        <th className="px-4 py-2.5 text-left border-r border-slate-700 w-[50%]">รายการ</th>
+                        <th className="px-4 py-2.5 text-center border-r border-slate-700 w-[15%]">จำนวน</th>
+                        <th className="px-4 py-2.5 text-right border-r border-slate-700 w-[12.5%]">ราคา/หน่วย</th>
+                        <th className="px-4 py-2.5 text-right w-[12.5%]">ราคารวม</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {receiptData.invoice.items?.map((item, index) => {
+                        // Display item text
+                        let displayDesc = item.description;
+                        const inv = receiptData.invoice as any;
+                        let qtyText = "1";
+                        let rateValue = Number(item.amount);
+
+                        const parseDetails = () => {
+                          const match = item.description.match(/\((\d+(?:\.\d+)?)\s*units\s*@\s*(\d+(?:\.\d+)?)\/unit\)/i);
+                          if (match) {
+                            return {
+                              qty: match[1],
+                              rate: parseFloat(match[2])
+                            };
+                          }
+                          return null;
+                        };
+
+                        if (item.item_type === "rent") {
+                          const proratedMatch = item.description.match(
+                            /Room Rent \(Prorated: (\d+) days @ (\d+)\/day\)/,
+                          );
+                          if (proratedMatch) {
+                            const [, days, rate] = proratedMatch;
+                            displayDesc = `ค่าเช่าห้อง (${days} วัน)`;
+                          } else {
+                            // Extract Thai month name
+                            const [yearStr, monthStr] = receiptData.invoice.month_year.split("-");
+                            const thaiMonths = [
+                              "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                              "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+                            ];
+                            const monthName = thaiMonths[parseInt(monthStr) - 1];
+                            const thaiYear = parseInt(yearStr) + 543;
+                            displayDesc = `ค่าเช่าบ้านประจำเดือน ${monthName} ${thaiYear}`;
+                          }
+                        } else if (item.item_type === "water") {
+                          displayDesc = "ค่าน้ำ";
+                          const parsed = parseDetails();
+                          
+                          const current = Number(inv.current_water_reading);
+                          const prev = Number(inv.prev_water_reading);
+                          const waterRate = Number(inv.water_rate);
+                          
+                          if (!isNaN(current) && !isNaN(prev) && current > 0) {
+                            qtyText = `${current - prev} (${current} - ${prev})`;
+                          } else if (parsed) {
+                            qtyText = parsed.qty;
+                          }
+                          
+                          if (!isNaN(waterRate) && waterRate > 0) {
+                            rateValue = waterRate;
+                          } else if (parsed) {
+                            rateValue = parsed.rate;
+                          }
+                        } else if (item.item_type === "electric") {
+                          displayDesc = "ค่าไฟ";
+                          const parsed = parseDetails();
+                          
+                          const current = Number(inv.current_elec_reading);
+                          const prev = Number(inv.prev_elec_reading);
+                          const elecRate = Number(inv.elec_rate);
+                          
+                          if (!isNaN(current) && !isNaN(prev) && current > 0) {
+                            qtyText = `${current - prev} (${current} - ${prev})`;
+                          } else if (parsed) {
+                            qtyText = parsed.qty;
+                          }
+                          
+                          if (!isNaN(elecRate) && elecRate > 0) {
+                            rateValue = elecRate;
+                          } else if (parsed) {
+                            rateValue = parsed.rate;
+                          }
+                        }
+
+                        return (
+                          <tr key={index} className="h-10">
+                            <td className="px-4 py-2 text-center border-r border-slate-800 font-mono text-slate-600">
+                              {index + 1}
+                            </td>
+                            <td className="px-4 py-2 border-r border-slate-800 text-slate-800 font-medium">
+                              {displayDesc}
+                            </td>
+                            <td className="px-4 py-2 text-center border-r border-slate-800 font-medium">
+                              {qtyText}
+                            </td>
+                            <td className="px-4 py-2 text-right border-r border-slate-800 font-mono text-slate-700">
+                              {rateValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="px-4 py-2 text-right font-bold font-mono text-slate-800">
+                              {Number(item.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      
+                      {receiptAdjustments.map((adj, index) => {
+                        const itemIndex = (receiptData.invoice.items?.length || 0) + index;
+                        return (
+                          <tr key={`adj-${index}`} className="h-10">
+                            <td className="px-4 py-2 text-center border-r border-slate-800 font-mono text-slate-600">
+                              {itemIndex + 1}
+                            </td>
+                            <td className="px-4 py-2 border-r border-slate-800 text-slate-800 font-medium">
+                              {adj.description || "(ไม่มีรายละเอียด)"}
+                            </td>
+                            <td className="px-4 py-2 text-center border-r border-slate-800 font-medium">
+                              1
+                            </td>
+                            <td className="px-4 py-2 text-right border-r border-slate-800 font-mono text-slate-700">
+                              {adj.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="px-4 py-2 text-right font-bold font-mono text-slate-800">
+                              {adj.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      
+                      {/* Fill empty rows to make layout look exactly like a printable invoice template */}
+                      {Array.from({ length: Math.max(0, 5 - (receiptData.invoice.items?.length || 0) - receiptAdjustments.length) }).map((_, idx) => (
+                        <tr key={`empty-${idx}`} className="h-10">
+                          <td className="px-4 py-2 text-center border-r border-slate-800 font-mono text-slate-300">
+                            {(receiptData.invoice.items?.length || 0) + receiptAdjustments.length + idx + 1}
+                          </td>
+                          <td className="px-4 py-2 border-r border-slate-800 text-slate-300">-</td>
+                          <td className="px-4 py-2 text-center border-r border-slate-800 text-slate-300">-</td>
+                          <td className="px-4 py-2 text-right border-r border-slate-800 text-slate-300">-</td>
+                          <td className="px-4 py-2 text-right text-slate-300">-</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Notes and Totals Container */}
+                <div className="border border-slate-800 grid grid-cols-5 text-sm mb-6">
+                  {/* Notes Column (3/5 width) */}
+                  <div className="col-span-3 p-4 border-r border-slate-800 flex flex-col justify-between">
+                    <div>
+                      <span className="font-bold text-slate-800 block mb-1.5" style={{ fontFamily: 'Kanit' }}>หมายเหตุ</span>
+                      <p className="text-slate-600 leading-relaxed text-xs break-all whitespace-pre-line">
+                        {receiptNotes || "-"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Totals Column (2/5 width) */}
+                  <div className="col-span-2 divide-y divide-slate-800">
+                    <div className="px-4 py-3 flex justify-between items-center h-12">
+                      <span className="font-semibold text-slate-800" style={{ fontFamily: 'Kanit' }}>ราคารวม</span>
+                      <span className="font-bold font-mono">
+                        {(receiptData.invoice.items?.reduce((sum, i) => sum + Number(i.amount), 0) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div className="px-4 py-3 flex justify-between items-center h-12">
+                      <span className="font-semibold text-slate-800" style={{ fontFamily: 'Kanit' }}>ค่าปรับปรุงอื่น ๆ</span>
+                      <span className="font-bold font-mono text-slate-600">
+                        {receiptAdjustments.reduce((sum, adj) => sum + adj.amount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Grand Total Area */}
+                <div className="border border-slate-800 bg-slate-50 p-4 flex justify-between items-center mb-8">
+                  <div>
+                    <span className="font-bold text-slate-800 block text-xs mb-1" style={{ fontFamily: 'Kanit' }}>จำนวนเงินรวมทั้งสิ้น</span>
+                    <span className="text-xs font-semibold text-slate-600">
+                      ({bahtText(Math.max(0, (receiptData.invoice.items?.reduce((sum, i) => sum + Number(i.amount), 0) || 0) + receiptAdjustments.reduce((sum, adj) => sum + adj.amount, 0)))})
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-black font-mono text-slate-900">
+                      {Math.max(0, (receiptData.invoice.items?.reduce((sum, i) => sum + Number(i.amount), 0) || 0) + receiptAdjustments.reduce((sum, adj) => sum + adj.amount, 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom Segment: Paid By and Signatures */}
+                <div className="grid grid-cols-2 gap-8 text-sm mt-auto pt-6 border-t border-slate-200">
+                  {/* Payment Method Option */}
+                  <div className="space-y-4">
+                    <span className="font-bold text-slate-800 block mb-2" style={{ fontFamily: 'Kanit' }}>ชำระเงินโดย</span>
+                    <div className="space-y-3 pl-1">
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full border-2 border-slate-800 flex items-center justify-center">
+                          {receiptPaymentMethod === "cash" && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-slate-800" />
+                          )}
+                        </div>
+                        <span className="text-slate-800 font-semibold" style={{ fontFamily: 'Kanit' }}>เงินสด</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full border-2 border-slate-800 flex items-center justify-center">
+                          {receiptPaymentMethod === "transfer" && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-slate-800" />
+                          )}
+                        </div>
+                        <span className="text-slate-800 font-semibold" style={{ fontFamily: 'Kanit' }}>โอนผ่านบัญชี</span>
+                      </div>
+                    </div>
+
+                    {receiptPaymentMethod === "transfer" && (
+                      <div className="mt-4 flex flex-col items-start gap-1">
+                        <div className="bg-white p-2 border border-slate-300 rounded-lg flex flex-col items-center">
+                          <QRCodeCanvas
+                            value={generatePromptPayPayload(
+                              PROMPTPAY_ID,
+                              Math.max(0, (receiptData.invoice.items?.reduce((sum, i) => sum + Number(i.amount), 0) || 0) + receiptAdjustments.reduce((sum, adj) => sum + adj.amount, 0)),
+                            )}
+                            size={100}
+                            level={"M"}
+                            includeMargin={false}
+                          />
+                        </div>
+                        <span className="text-[10px] text-slate-500 font-bold" style={{ fontFamily: 'Kanit' }}>
+                          พร้อมเพย์: {PROMPTPAY_ID}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Signatures */}
+                  <div className="space-y-8 flex flex-col justify-end pt-4">
+                    <div className="space-y-1.5 text-right pr-2">
+                      <div className="flex justify-between items-end gap-2">
+                        <div className="border-b border-dotted border-slate-500 flex-1 min-w-[120px] h-6 text-center text-slate-500 font-medium">
+                          {receiptData.tenant?.full_name || receiptData.invoice.tenant_name}
+                        </div>
+                        <span className="font-bold text-slate-800 text-xs tracking-wider" style={{ fontFamily: 'Kanit' }}>ผู้ชำระ</span>
+                      </div>
+                      <div className="flex justify-between items-end gap-2 text-slate-500 text-xs">
+                        <span>วันที่</span>
+                        <div className="border-b border-dotted border-slate-500 flex-1 h-5 text-center">
+                          {formatThaiDate(receiptDate)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 text-right pr-2">
+                      <div className="flex justify-between items-end gap-2">
+                        <div className="border-b border-dotted border-slate-500 flex-1 min-w-[120px] h-6 text-center text-slate-850 font-semibold" style={{ fontFamily: 'Kanit' }}>
+                          ศศินันท์ วงษ์วิโรจน์
+                        </div>
+                        <span className="font-bold text-slate-800 text-xs tracking-wider" style={{ fontFamily: 'Kanit' }}>ผู้รับชำระ</span>
+                      </div>
+                      <div className="flex justify-between items-end gap-2 text-slate-500 text-xs">
+                        <span>วันที่</span>
+                        <div className="border-b border-dotted border-slate-500 flex-1 h-5 text-center">
+                          {formatThaiDate(receiptDate)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
           </div>
         </div>
       )}
