@@ -57,4 +57,21 @@
   --z-modal: 40;
   --z-toast: 50;
   --z-tooltip: 60;
+
+  /* Header Height */
+  --header-height: 64px;
 }
+
+/* Mobile overrides at <= 1024px */
+@media (max-width: 1024px) {
+  :root {
+    --mobile-bottom-bar-height: 64px;
+    --header-height: 56px;
+    --mobile-header-height: 56px;
+    --mobile-touch-target: 44px;
+    --mobile-card-padding: 16px;
+    --mobile-page-padding: 16px;
+    --mobile-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+

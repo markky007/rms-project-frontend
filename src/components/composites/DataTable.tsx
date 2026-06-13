@@ -22,6 +22,14 @@ export interface DataTableProps<T> {
   onSelectRow?: (id: string | number) => void;
   onSelectAllRows?: (checked: boolean) => void;
   rowIdAccessor?: (row: T) => string | number;
+  
+  // Mobile Card Renderer
+  mobileCardRenderer?: (
+    row: T,
+    index: number,
+    isSelected?: boolean,
+    onSelect?: () => void
+  ) => React.ReactNode;
 }
 
 export function DataTable<T>({
@@ -36,6 +44,7 @@ export function DataTable<T>({
   onSelectRow,
   onSelectAllRows,
   rowIdAccessor,
+  mobileCardRenderer,
 }: DataTableProps<T>) {
   const isSelectable = selectedIds !== undefined && onSelectRow !== undefined && onSelectAllRows !== undefined && rowIdAccessor !== undefined;
   
@@ -44,32 +53,51 @@ export function DataTable<T>({
 
   if (isLoading) {
     return (
-      <div className="w-full overflow-hidden border border-border rounded-lg bg-white">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-surface border-b border-border">
-              {isSelectable && <th className="w-12 px-4 py-3"><div className="w-4 h-4 rounded bg-border-subtle" /></th>}
-              {columns.map((col, index) => (
-                <th key={index} className="px-4 py-3 text-xs font-semibold text-muted font-sans select-none">
-                  {col.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: 5 }).map((_, rIndex) => (
-              <tr key={rIndex} className="border-b border-border border-subtle">
-                {isSelectable && <td className="px-4 py-4"><div className="w-4 h-4 rounded shimmer" /></td>}
-                {columns.map((col, cIndex) => (
-                  <td key={cIndex} className="px-4 py-4">
-                    <div className="h-4 bg-surface rounded shimmer w-2/3" />
-                  </td>
+      <>
+        {/* Desktop Loading Skeleton */}
+        <div className={`w-full overflow-hidden border border-border rounded-lg bg-white ${mobileCardRenderer ? "hidden lg:block" : ""}`}>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-surface border-b border-border">
+                {isSelectable && <th className="w-12 px-4 py-3"><div className="w-4 h-4 rounded bg-border-subtle" /></th>}
+                {columns.map((col, index) => (
+                  <th key={index} className="px-4 py-3 text-xs font-semibold text-muted font-sans select-none">
+                    {col.header}
+                  </th>
                 ))}
               </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: 5 }).map((_, rIndex) => (
+                <tr key={rIndex} className="border-b border-border border-subtle">
+                  {isSelectable && <td className="px-4 py-4"><div className="w-4 h-4 rounded shimmer" /></td>}
+                  {columns.map((col, cIndex) => (
+                    <td key={cIndex} className="px-4 py-4">
+                      <div className="h-4 bg-surface rounded shimmer w-2/3" />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Loading Skeleton */}
+        {mobileCardRenderer && (
+          <div className="lg:hidden flex flex-col gap-3 w-full">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="mobile-card h-32 flex flex-col justify-between animate-pulse">
+                <div className="flex justify-between items-center">
+                  <div className="h-4 bg-surface rounded w-1/3" />
+                  <div className="h-4 bg-surface rounded w-1/4" />
+                </div>
+                <div className="h-3 bg-surface rounded w-2/3" />
+                <div className="h-3 bg-surface rounded w-1/2" />
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        )}
+      </>
     );
   }
 
@@ -92,83 +120,101 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="w-full overflow-x-auto border border-border rounded-lg bg-white">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-surface border-b border-border select-none">
-            {isSelectable && (
-              <th className="w-12 px-4 py-3 text-center align-middle">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  ref={(input) => {
-                    if (input) input.indeterminate = someSelected;
-                  }}
-                  onChange={(e) => onSelectAllRows(e.target.checked)}
-                  className="w-4 h-4 text-primary border-border rounded focus:ring-primary/20 cursor-pointer"
-                  aria-label="เลือกทั้งหมด"
-                />
-              </th>
-            )}
-            {columns.map((col, index) => (
-              <th
-                key={index}
-                className={`px-4 py-3 text-xs font-semibold text-muted font-sans ${col.className || ""}`}
-              >
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
+    <>
+      {/* Desktop Table View */}
+      <div className={`w-full overflow-x-auto border border-border rounded-lg bg-white ${mobileCardRenderer ? "hidden lg:block" : ""}`}>
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-surface border-b border-border select-none">
+              {isSelectable && (
+                <th className="w-12 px-4 py-3 text-center align-middle">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    ref={(input) => {
+                      if (input) input.indeterminate = someSelected;
+                    }}
+                    onChange={(e) => onSelectAllRows(e.target.checked)}
+                    className="w-4 h-4 text-primary border-border rounded focus:ring-primary/20 cursor-pointer"
+                    aria-label="เลือกทั้งหมด"
+                  />
+                </th>
+              )}
+              {columns.map((col, index) => (
+                <th
+                  key={index}
+                  className={`px-4 py-3 text-xs font-semibold text-muted font-sans ${col.className || ""}`}
+                >
+                  {col.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row, rIndex) => {
+              const actualRowId = rowIdAccessor ? rowIdAccessor(row) : keyExtractor(row);
+              const isSelected = isSelectable && selectedIds.has(actualRowId);
+
+              return (
+                <tr
+                  key={keyExtractor(row)}
+                  className={`group border-b border-border-subtle transition-colors relative hover:bg-surface/50 ${
+                    rIndex % 2 === 1 ? "bg-surface/20" : "bg-white"
+                  } ${isSelected ? "bg-primary-light hover:bg-primary-light" : ""}`}
+                >
+                  {/* 2px Left edge hover indicator */}
+                  <td className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-center duration-150 pointer-events-none" />
+
+                  {isSelectable && (
+                    <td className="px-4 py-4 text-center align-middle">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => onSelectRow(actualRowId)}
+                        className="w-4 h-4 text-primary border-border rounded focus:ring-primary/20 cursor-pointer"
+                        aria-label="เลือกรายการนี้"
+                      />
+                    </td>
+                  )}
+                  {columns.map((col, cIndex) => {
+                    const val = typeof col.accessor === "function"
+                      ? col.accessor(row)
+                      : (row[col.accessor] as React.ReactNode);
+
+                    return (
+                      <td
+                        key={cIndex}
+                        className={`px-4 py-4 text-sm text-ink font-sans ${
+                          col.useMono ? "font-mono text-[13px]" : ""
+                        } ${col.className || ""}`}
+                      >
+                        {val}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card View */}
+      {mobileCardRenderer && (
+        <div className="lg:hidden flex flex-col gap-3 w-full">
           {data.map((row, rIndex) => {
-            const rowId = rIndex; // Fallback
             const actualRowId = rowIdAccessor ? rowIdAccessor(row) : keyExtractor(row);
             const isSelected = isSelectable && selectedIds.has(actualRowId);
-
+            const onSelect = isSelectable ? () => onSelectRow(actualRowId) : undefined;
             return (
-              <tr
-                key={keyExtractor(row)}
-                className={`group border-b border-border-subtle transition-colors relative hover:bg-surface/50 ${
-                  rIndex % 2 === 1 ? "bg-surface/20" : "bg-white"
-                } ${isSelected ? "bg-primary-light hover:bg-primary-light" : ""}`}
-              >
-                {/* 2px Left edge hover indicator */}
-                <td className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-center duration-150 pointer-events-none" />
-
-                {isSelectable && (
-                  <td className="px-4 py-4 text-center align-middle">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => onSelectRow(actualRowId)}
-                      className="w-4 h-4 text-primary border-border rounded focus:ring-primary/20 cursor-pointer"
-                      aria-label="เลือกรายการนี้"
-                    />
-                  </td>
-                )}
-                {columns.map((col, cIndex) => {
-                  const val = typeof col.accessor === "function"
-                    ? col.accessor(row)
-                    : (row[col.accessor] as React.ReactNode);
-
-                  return (
-                    <td
-                      key={cIndex}
-                      className={`px-4 py-4 text-sm text-ink font-sans ${
-                        col.useMono ? "font-mono text-[13px]" : ""
-                      } ${col.className || ""}`}
-                    >
-                      {val}
-                    </td>
-                  );
-                })}
-              </tr>
+              <div key={keyExtractor(row)}>
+                {mobileCardRenderer(row, rIndex, isSelected, onSelect)}
+              </div>
             );
           })}
-        </tbody>
-      </table>
-    </div>
+        </div>
+      )}
+    </>
   );
 }
 

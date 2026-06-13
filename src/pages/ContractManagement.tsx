@@ -86,7 +86,7 @@ export default function ContractManagement() {
     try {
       if (editingId) {
         await contractService.updateContract(editingId, formData);
-        showAlert({ message: "อัพเดทสัญญาสำเร็จ", type: "success" });
+        showAlert({ message: "อัปเดตสัญญาสำเร็จ", type: "success" });
       } else {
         await contractService.createContract(formData);
         showAlert({ message: "สร้างสัญญาสำเร็จ", type: "success" });
@@ -108,8 +108,9 @@ export default function ContractManagement() {
     }
     try {
       await contractService.terminateContract(id);
-      showAlert({ message: "ยกเลิกสัญญาสำเร็จ", type: "success" });
+      showAlert({ message: "ยกเลิกสัญญาเช่าสำเร็จ", type: "success" });
       fetchContracts();
+      fetchRooms();
     } catch (error) {
       console.error("Error terminating contract:", error);
       showAlert({ message: "ไม่สามารถยกเลิกสัญญาได้", type: "error" });
@@ -117,13 +118,18 @@ export default function ContractManagement() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("คุณแน่ใจหรือไม่ที่จะลบสัญญานี้? การลบจะไม่สามารถกู้คืนได้")) {
+    if (
+      !confirm(
+        "คุณแน่ใจหรือไม่ที่จะลบข้อมูลสัญญานี้? การกระทำนี้ไม่สามารถกู้คืนได้"
+      )
+    ) {
       return;
     }
     try {
       await contractService.deleteContract(id);
       showAlert({ message: "ลบสัญญาสำเร็จ", type: "success" });
       fetchContracts();
+      fetchRooms();
     } catch (error) {
       console.error("Error deleting contract:", error);
       showAlert({ message: "ไม่สามารถลบสัญญาได้", type: "error" });
@@ -165,172 +171,181 @@ export default function ContractManagement() {
   const paginatedContracts = filteredContracts.slice(startIndex, endIndex);
 
   if (loading) {
-    return <div className="p-8">กำลังโหลด...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] font-sans">
+        <svg className="animate-spin h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <span className="text-xs text-muted mt-2">กำลังโหลดข้อมูลสัญญาเช่า...</span>
+      </div>
+    );
   }
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">จัดการสัญญาเช่า</h1>
+    <div className="p-4 lg:p-8 font-sans">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+        <h1 className="text-xl lg:text-3xl font-bold text-gray-800">จัดการสัญญาเช่า</h1>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+            className="bg-emerald-600 text-white px-6 py-3 lg:py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-md touch-target w-full lg:w-auto"
           >
             + สร้างสัญญาใหม่
           </button>
         )}
       </div>
 
-      {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-xl font-semibold mb-4">
-            {editingId ? "แก้ไขสัญญา" : "สร้างสัญญาใหม่"}
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ห้อง <span className="text-red-500">*</span>
-                </label>
-                <select
-                  required
-                  value={formData.room_id}
-                  onChange={(e) => {
-                    const roomId = parseInt(e.target.value);
-                    const selectedRoom = rooms.find(
-                      (r) => r.room_id === roomId
-                    );
-                    setFormData({
-                      ...formData,
-                      room_id: roomId,
-                      rent_amount: selectedRoom ? selectedRoom.base_rent : 0,
-                    });
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  <option value={0}>เลือกห้อง</option>
-                  {rooms.map((room) => (
-                    <option key={room.room_id} value={room.room_id}>
-                      บ้านเลขที่ {room.house_number}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ผู้เช่า <span className="text-red-500">*</span>
-                </label>
-                <select
-                  required
-                  value={formData.tenant_id}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      tenant_id: parseInt(e.target.value),
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  <option value={0}>เลือกผู้เช่า</option>
-                  {tenants.map((tenant) => (
-                    <option key={tenant.tenant_id} value={tenant.tenant_id}>
-                      {tenant.full_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  วันที่เริ่มสัญญา <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={formData.start_date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, start_date: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  วันที่สิ้นสุดสัญญา <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={formData.end_date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, end_date: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ค่ามัดจำ (บาท) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  value={formData.deposit}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      deposit: parseFloat(e.target.value),
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="0.00"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ค่าเช่า (บาท/เดือน) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  value={formData.rent_amount}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      rent_amount: parseFloat(e.target.value),
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="0.00"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+      {/* Dialog for Create/Edit (instead of inline form) */}
+      <Dialog
+        isOpen={showForm}
+        onClose={handleCancel}
+        title={editingId ? "แก้ไขสัญญา" : "สร้างสัญญาใหม่"}
+        size="lg"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ห้อง <span className="text-red-500">*</span>
+              </label>
+              <select
+                required
+                value={formData.room_id}
+                onChange={(e) => {
+                  const roomId = parseInt(e.target.value);
+                  const selectedRoom = rooms.find(
+                    (r) => r.room_id === roomId
+                  );
+                  setFormData({
+                    ...formData,
+                    room_id: roomId,
+                    rent_amount: selectedRoom ? selectedRoom.base_rent : 0,
+                  });
+                }}
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
               >
-                {editingId ? "บันทึกการแก้ไข" : "สร้างสัญญา"}
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
-              >
-                ยกเลิก
-              </button>
+                <option value={0}>เลือกห้อง</option>
+                {rooms.map((room) => (
+                  <option key={room.room_id} value={room.room_id}>
+                    บ้านเลขที่ {room.house_number}
+                  </option>
+                ))}
+              </select>
             </div>
-          </form>
-        </div>
-      )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ผู้เช่า <span className="text-red-500">*</span>
+              </label>
+              <select
+                required
+                value={formData.tenant_id}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    tenant_id: parseInt(e.target.value),
+                  })
+                }
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
+              >
+                <option value={0}>เลือกผู้เช่า</option>
+                {tenants.map((tenant) => (
+                  <option key={tenant.tenant_id} value={tenant.tenant_id}>
+                    {tenant.full_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                วันที่เริ่มสัญญา <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                required
+                value={formData.start_date}
+                onChange={(e) =>
+                  setFormData({ ...formData, start_date: e.target.value })
+                }
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                วันที่สิ้นสุดสัญญา <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                required
+                value={formData.end_date}
+                onChange={(e) =>
+                  setFormData({ ...formData, end_date: e.target.value })
+                }
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ค่ามัดจำ (บาท) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                required
+                step="0.01"
+                value={formData.deposit}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    deposit: parseFloat(e.target.value),
+                  })
+                }
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ค่าเช่า (บาท/เดือน) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                required
+                step="0.01"
+                value={formData.rent_amount}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    rent_amount: parseFloat(e.target.value),
+                  })
+                }
+                className="w-full px-3 py-3 lg:py-2 min-h-[44px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base lg:text-sm"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 pt-4 max-lg:flex-col">
+            <button
+              type="submit"
+              className="flex-grow bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors touch-target font-semibold text-sm"
+            >
+              {editingId ? "บันทึกการแก้ไข" : "สร้างสัญญา"}
+            </button>
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="flex-grow bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors touch-target font-semibold text-sm"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </form>
+      </Dialog>
 
       <div className="mb-4">
-        <div className="flex gap-2 flex-wrap select-none">
+        <div className="flex gap-2 items-center select-none overflow-x-auto scrollbar-none flex-nowrap -mx-4 px-4 lg:mx-0 lg:px-0 lg:flex-wrap">
           <button
             onClick={() => setFilterStatus("all")}
-            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none touch-target flex-shrink-0 ${
               filterStatus === "all"
                 ? "bg-primary text-white border-primary ring-2 ring-primary/20"
                 : "bg-white text-ink border-border hover:bg-surface hover:border-border"
@@ -340,7 +355,7 @@ export default function ContractManagement() {
           </button>
           <button
             onClick={() => setFilterStatus("active")}
-            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none touch-target flex-shrink-0 ${
               filterStatus === "active"
                 ? "bg-success-light text-success border-success/30 ring-2 ring-success/20"
                 : "bg-white text-ink border-border hover:bg-surface hover:border-border"
@@ -350,7 +365,7 @@ export default function ContractManagement() {
           </button>
           <button
             onClick={() => setFilterStatus("inactive")}
-            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none touch-target flex-shrink-0 ${
               filterStatus === "inactive"
                 ? "bg-surface text-muted border-border/80 ring-2 ring-border/20"
                 : "bg-white text-ink border-border hover:bg-surface hover:border-border"
@@ -361,7 +376,8 @@ export default function ContractManagement() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Contracts Table - Desktop */}
+      <div className="hidden lg:block bg-white rounded-lg border border-border shadow-medium overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -465,6 +481,79 @@ export default function ContractManagement() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Contracts List - Mobile */}
+      <div className="lg:hidden flex flex-col gap-3">
+        {paginatedContracts.length === 0 ? (
+          <div className="py-8 text-center text-gray-500 bg-white rounded-lg border border-border-subtle">
+            ไม่พบข้อมูลสัญญา
+          </div>
+        ) : (
+          paginatedContracts.map((contract) => (
+            <div key={contract.contract_id} className="mobile-card flex flex-col gap-3 animate-in fade-in duration-150">
+              <div className="flex justify-between items-start">
+                <div className="flex flex-col">
+                  <span className="font-bold text-ink text-base select-all">
+                    {contract.house_number
+                      ? `ห้อง ${contract.house_number}`
+                      : `Room #${contract.room_id}`}
+                  </span>
+                  <span className="text-[10px] text-muted font-sans mt-0.5">
+                    เริ่ม: {new Date(contract.start_date).toLocaleDateString("th-TH")} - สิ้นสุด: {new Date(contract.end_date).toLocaleDateString("th-TH")}
+                  </span>
+                </div>
+                {contract.is_active ? (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                    ใช้งานอยู่
+                  </span>
+                ) : (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                    ยกเลิกแล้ว
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs text-gray-700 py-2 bg-surface rounded px-3">
+                <div className="overflow-hidden truncate">👤 ผู้เช่า: <span className="font-semibold text-ink select-all">{contract.tenant_name || `Tenant #${contract.tenant_id}`}</span></div>
+                <div className="overflow-hidden truncate">📞 เบอร์โทร: <span className="select-all">{contract.tenant_phone || "-"}</span></div>
+                <div className="col-span-2 border-t border-border-subtle/50 my-1" />
+                <div className="col-span-2 flex justify-between select-none">
+                  <span>💵 มัดจำ: ฿{Number(contract.deposit).toLocaleString()}</span>
+                  <span className="font-bold text-primary">ค่าเช่า: ฿{Number(contract.rent_amount).toLocaleString()}/ด.</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2 border-t border-border-subtle">
+                <button
+                  onClick={() => handleViewDetails(contract)}
+                  className="flex-1 min-h-[44px] rounded-lg bg-surface text-ink active:bg-border border border-border-subtle font-medium text-sm flex items-center justify-center cursor-pointer gap-1.5"
+                >
+                  👁 รายละเอียด
+                </button>
+                {contract.is_active && (
+                  <button
+                    onClick={() => handleTerminate(contract.contract_id)}
+                    className="flex-1 min-h-[44px] rounded-lg bg-warning-light text-warning active:bg-warning/20 font-medium text-sm flex items-center justify-center cursor-pointer gap-1.5"
+                  >
+                    ยกเลิกสัญญา
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDelete(contract.contract_id)}
+                  className="p-2.5 min-h-[44px] min-w-[44px] rounded-lg bg-error-light text-error active:bg-error/20 border border-error/10 flex items-center justify-center cursor-pointer"
+                  aria-label="ลบข้อมูลสัญญา"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Pagination */}
+      <div className="mt-4">
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -483,76 +572,78 @@ export default function ContractManagement() {
       >
         {selectedContract && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 max-lg:grid-cols-1">
               <div>
-                <label className="text-sm text-gray-500">เลขที่สัญญา</label>
-                <p className="font-medium text-gray-900">
+                <label className="text-xs text-gray-500">เลขที่สัญญา</label>
+                <p className="font-medium text-gray-900 select-all">
                   #{selectedContract.contract_id}
                 </p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">สถานะ</label>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    selectedContract.is_active
-                      ? "bg-green-100 text-green-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {selectedContract.is_active ? "ใช้งานอยู่" : "ยกเลิกแล้ว"}
-                </span>
+                <label className="text-xs text-gray-500">สถานะ</label>
+                <p className="mt-1">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      selectedContract.is_active
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {selectedContract.is_active ? "ใช้งานอยู่" : "ยกเลิกแล้ว"}
+                  </span>
+                </p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">บ้านเช่า</label>
-                <p className="font-medium text-gray-900">
+                <label className="text-xs text-gray-500">บ้านเช่า</label>
+                <p className="font-medium text-gray-900 select-all">
                   {selectedContract.house_number
                     ? `บ้านเลขที่ ${selectedContract.house_number}`
                     : `Room #${selectedContract.room_id}`}
                 </p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">ผู้เช่า</label>
-                <p className="font-medium text-gray-900">
+                <label className="text-xs text-gray-500">ผู้เช่า</label>
+                <p className="font-medium text-gray-900 select-all">
                   {selectedContract.tenant_name ||
                     `Tenant #${selectedContract.tenant_id}`}
                 </p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">
+                <label className="text-xs text-gray-500">
                   วันที่เริ่มสัญญา
                 </label>
-                <p className="font-medium text-gray-900">
+                <p className="font-medium text-gray-900 select-all">
                   {new Date(selectedContract.start_date).toLocaleDateString(
                     "th-TH"
                   )}
                 </p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">วันที่สิ้นสุด</label>
-                <p className="font-medium text-gray-900">
+                <label className="text-xs text-gray-500">วันที่สิ้นสุด</label>
+                <p className="font-medium text-gray-900 select-all">
                   {new Date(selectedContract.end_date).toLocaleDateString(
                     "th-TH"
                   )}
                 </p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">ค่าเช่า</label>
-                <p className="font-medium text-gray-900">
+                <label className="text-xs text-gray-500">ค่าเช่า</label>
+                <p className="font-medium text-gray-900 select-all">
                   ฿{Number(selectedContract.rent_amount).toLocaleString()} /
                   เดือน
                 </p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">เงินประกัน</label>
-                <p className="font-medium text-gray-900">
+                <label className="text-xs text-gray-500">เงินประกัน</label>
+                <p className="font-medium text-gray-900 select-all">
                   ฿{Number(selectedContract.deposit).toLocaleString()}
                 </p>
               </div>
             </div>
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-end pt-4 max-lg:pt-2">
               <button
                 onClick={() => setShowDetails(false)}
-                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                className="bg-gray-200 text-gray-800 px-6 py-3 lg:py-2 rounded-lg hover:bg-gray-300 transition-colors w-full lg:w-auto touch-target font-semibold text-sm"
               >
                 ปิด
               </button>

@@ -43,7 +43,15 @@ export const SidebarV2: React.FC<SidebarV2Props> = ({
     {
       label: "อสังหาริมทรัพย์",
       items: [
-
+        {
+          name: "สถานะห้องพัก",
+          path: "/room-status",
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+            </svg>
+          ),
+        },
         {
           name: "ห้องพัก",
           path: "/rooms",
@@ -110,15 +118,6 @@ export const SidebarV2: React.FC<SidebarV2Props> = ({
             </svg>
           ),
         },
-        {
-          name: "รับชำระเงิน",
-          path: "/payments",
-          icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
-          ),
-        },
       ],
     },
     {
@@ -154,25 +153,15 @@ export const SidebarV2: React.FC<SidebarV2Props> = ({
   ];
 
   const sidebarWidthClass = isCollapsed ? "w-16" : "w-64";
-  const showMobileClass = isOpenMobile ? "translate-x-0" : "-translate-x-full lg:translate-x-0";
 
   return (
     <>
-      {/* Mobile backdrop */}
-      {isOpenMobile && (
-        <div
-          className="fixed inset-0 z-sticky bg-[#000000]/40 backdrop-blur-[2px] lg:hidden"
-          onClick={() => setIsOpenMobile(false)}
-          aria-hidden="true"
-        />
-      )}
-
       {/* Main Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-sticky bg-sidebar-bg flex flex-col transition-all duration-200 select-none ${sidebarWidthClass} ${showMobileClass}`}
+        className={`fixed inset-y-0 left-0 z-sticky bg-sidebar-bg flex flex-col transition-all duration-200 select-none hidden lg:flex ${sidebarWidthClass}`}
       >
         {/* Logo area */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
+        <div className="h-[var(--header-height)] flex items-center justify-between px-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             {/* Cobalt rounded building icon */}
             <div className="w-9 h-9 rounded bg-primary flex items-center justify-center text-white flex-shrink-0">

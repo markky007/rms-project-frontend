@@ -109,19 +109,19 @@ export const RoomDashboard: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 font-sans">
       <PageHeader
-        title="ภาพรวมบ้านเช่า"
+        title="สถานะห้องพัก"
         description="ตรวจสอบสถานะและข้อมูลการเช่าบ้านพักทั้งหมดในระบบแบบเรียลไทม์"
       />
 
       {/* Filter toolbar */}
-      <div className="flex gap-2 flex-wrap items-center select-none pb-2 border-b border-border-subtle">
+      <div className="flex gap-2 items-center select-none pb-2 border-b border-border-subtle overflow-x-auto scrollbar-none flex-nowrap -mx-4 px-4 lg:mx-0 lg:px-0 lg:flex-wrap">
         {filters.map((f) => {
           const isActive = filterStatus === f.status;
           return (
             <button
               key={f.status}
               onClick={() => setFilterStatus(f.status)}
-              className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer flex items-center gap-1.5 select-none ${
+              className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer flex items-center gap-1.5 select-none touch-target flex-shrink-0 ${
                 isActive
                   ? f.activeClass
                   : "bg-white text-ink border-border hover:bg-surface hover:border-border"

@@ -92,12 +92,12 @@ export const Dialog: React.FC<DialogProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-modal flex items-center justify-center p-4"
+      className="fixed inset-0 z-modal flex items-center justify-center p-4 max-lg:p-0 max-lg:items-end"
       onKeyDown={handleTabKey}
     >
       {/* Backdrop overlay - oklch(0 0 0 / 0.40) + blur(4px) */}
       <div
-        className="fixed inset-0 bg-[#000000]/40 backdrop-blur-[4px] transition-opacity duration-200"
+        className="fixed inset-0 bg-[#000000]/40 backdrop-blur-[4px] transition-opacity duration-200 max-lg:backdrop-blur-[2px]"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -109,19 +109,45 @@ export const Dialog: React.FC<DialogProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className={`relative w-full bg-white rounded-lg shadow-elevated overflow-hidden transform transition-all duration-200 ease-out-quart focus:outline-none ${sizeWidths[size]}`}
+        className={`relative w-full bg-white rounded-lg shadow-elevated overflow-hidden transform transition-all duration-200 ease-out-quart focus:outline-none ${sizeWidths[size]} 
+                    max-lg:fixed max-lg:inset-0 max-lg:h-full max-lg:max-w-none max-lg:rounded-none max-lg:flex max-lg:flex-col max-lg:animate-slide-up`}
       >
         {/* Header section */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2
-            id="modal-title"
-            className="font-heading text-lg font-semibold text-ink"
-          >
-            {title}
-          </h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border max-lg:px-4 max-lg:py-3.5 max-lg:bg-surface max-lg:sticky max-lg:top-0 max-lg:z-10">
+          <div className="flex items-center gap-2">
+            {/* Back button (Mobile only) */}
+            <button
+              onClick={onClose}
+              className="lg:hidden p-1 -ml-1 text-muted hover:text-ink hover:bg-black/5 rounded-full touch-target flex items-center justify-center"
+              aria-label="ย้อนกลับ"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <h2
+              id="modal-title"
+              className="font-heading text-base lg:text-lg font-semibold text-ink"
+            >
+              {title}
+            </h2>
+          </div>
+          
+          {/* Close button (Desktop only) */}
           <button
             onClick={onClose}
-            className="text-muted hover:bg-surface hover:text-ink rounded-full p-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-primary/20"
+            className="hidden lg:flex text-muted hover:bg-surface hover:text-ink rounded-full p-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-primary/20"
             aria-label="ปิดกล่องข้อความ"
           >
             <svg
@@ -142,7 +168,7 @@ export const Dialog: React.FC<DialogProps> = ({
         </div>
 
         {/* Body content */}
-        <div className="px-6 py-5 max-h-[80vh] overflow-y-auto font-sans text-sm text-ink leading-relaxed">
+        <div className="px-6 py-5 max-h-[80vh] overflow-y-auto font-sans text-sm text-ink leading-relaxed max-lg:flex-1 max-lg:max-h-none max-lg:overflow-y-auto max-lg:px-4 max-lg:py-4 max-lg:pb-safe">
           {children}
         </div>
       </div>

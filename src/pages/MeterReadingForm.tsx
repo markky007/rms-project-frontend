@@ -286,60 +286,29 @@ const MeterReadingForm: React.FC = () => {
       setDamageFee("");
     } catch (error: any) {
       console.error("Details:", error);
-      const msg = error.response?.data?.error || "เกิดข้อผิดพลาดในการบันทึก";
+      const msg = error.response?.data?.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล";
       showAlert({ message: msg, type: "error" });
-    } finally {
-      setLoading(false);
     }
   };
 
-  // Move-out Calculation Helpers
-  const getMoveOutSummary = () => {
-    if (!calculation) return null;
-
-    const expenses = calculation.costs.water + calculation.costs.elec || 0;
-    const cleaning = Number(cleaningFee) || 0;
-    const damages = Number(damageFee) || 0;
-    const totalDeductions = expenses + cleaning + damages;
-    const deposit = calculation.deposit || 0;
-    const items = [
-      { label: "ค่าน้ำ/ไฟ", amount: expenses },
-      { label: "ค่าทำความสะอาด", amount: cleaning },
-      { label: "ค่าความเสียหาย", amount: damages },
-    ];
-
-    // Remaining Refund
-    // Logic: Refund = Deposit - Deductions
-    const refund = deposit - totalDeductions;
-
-    return {
-      items,
-      totalDeductions,
-      deposit,
-      refund,
-    };
-  };
-
-  const moveOutData = isMoveOut ? getMoveOutSummary() : null;
-
   return (
-    <div className="p-8">
-      <h2 className="text-3xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+    <div className="p-4 lg:p-8 font-sans">
+      <h2 className="text-xl lg:text-3xl font-bold text-slate-800 mb-4 lg:mb-6 flex items-center gap-2">
         <Calculator className="text-blue-600" />
         {isMoveOut ? "บันทึกแจ้งออก / คืนเงินประกัน" : "บันทึกค่ามิเตอร์"}
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 pb-24 lg:pb-0">
         {/* Input Form */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h3 className="text-xl font-semibold mb-4">ข้อมูลการตรวจสอบ</h3>
+        <div className="bg-white p-4 lg:p-6 rounded-xl shadow-sm border border-slate-200">
+          <h3 className="text-lg lg:text-xl font-semibold mb-4 text-slate-800">ข้อมูลการตรวจสอบ</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 เลือกห้อง
               </label>
               {loadingRooms ? (
-                <div className="w-full p-2 border border-slate-300 rounded-md bg-slate-50 text-slate-400">
+                <div className="w-full p-2.5 border border-slate-300 rounded-md bg-slate-50 text-slate-400 min-h-[44px] flex items-center">
                   กำลังโหลดข้อมูลห้อง...
                 </div>
               ) : (
@@ -355,7 +324,7 @@ const MeterReadingForm: React.FC = () => {
                     setOverridePrevElec("");
                     setIsMoveOut(false);
                   }}
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none min-h-[44px] bg-white text-base lg:text-sm"
                   required
                 >
                   <option value="">-- เลือกห้อง --</option>
@@ -380,7 +349,7 @@ const MeterReadingForm: React.FC = () => {
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none min-h-[44px] bg-white text-base lg:text-sm"
                   required
                 >
                   {THAI_MONTHS.map((month) => (
@@ -392,7 +361,7 @@ const MeterReadingForm: React.FC = () => {
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none min-h-[44px] bg-white text-base lg:text-sm"
                   required
                 >
                   {YEARS.map((year) => (
@@ -404,9 +373,9 @@ const MeterReadingForm: React.FC = () => {
               </div>
             </div>
 
-            {/* Meter Reading Inputs - 4 fields in 2x2 grid */}
+            {/* Meter Reading Inputs - 4 fields in 2x2 grid on desktop, 1 col on mobile */}
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Previous Water Reading */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -416,7 +385,7 @@ const MeterReadingForm: React.FC = () => {
                     type="number"
                     value={overridePrevWater}
                     onChange={(e) => setOverridePrevWater(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none min-h-[44px] text-base lg:text-sm bg-white"
                     placeholder="0"
                     min="0"
                     step="0.01"
@@ -434,12 +403,11 @@ const MeterReadingForm: React.FC = () => {
                     value={currentWater}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Only allow integers
                       if (value === "" || /^\d+$/.test(value)) {
                         setCurrentWater(value);
                       }
                     }}
-                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="w-full p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none min-h-[44px] text-base lg:text-sm bg-white"
                     placeholder="0"
                     min="0"
                     step="1"
@@ -457,7 +425,7 @@ const MeterReadingForm: React.FC = () => {
                     type="number"
                     value={overridePrevElec}
                     onChange={(e) => setOverridePrevElec(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none min-h-[44px] text-base lg:text-sm bg-white"
                     placeholder="0"
                     min="0"
                     step="0.01"
@@ -475,12 +443,11 @@ const MeterReadingForm: React.FC = () => {
                     value={currentElec}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Only allow integers
                       if (value === "" || /^\d+$/.test(value)) {
                         setCurrentElec(value);
                       }
                     }}
-                    className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="w-full p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none min-h-[44px] text-base lg:text-sm bg-white"
                     placeholder="0"
                     min="0"
                     step="1"
@@ -522,13 +489,12 @@ const MeterReadingForm: React.FC = () => {
 
             {/* Move Out Toggle */}
             <div className="mt-4 pt-4 border-t border-slate-200">
-              <label className="flex items-center space-x-2 cursor-pointer mb-2">
+              <label className="flex items-center space-x-3 cursor-pointer mb-2 touch-target">
                 <input
                   type="checkbox"
                   checked={isMoveOut}
                   onChange={(e) => {
                     setIsMoveOut(e.target.checked);
-                    // If move out is checked, disable partial deposit
                     if (e.target.checked) setIsPartialDeposit(false);
                   }}
                   className="w-5 h-5 text-red-600 border-slate-300 rounded focus:ring-red-500"
@@ -548,7 +514,7 @@ const MeterReadingForm: React.FC = () => {
                       type="number"
                       value={cleaningFee}
                       onChange={(e) => setCleaningFee(e.target.value)}
-                      className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-red-500 outline-none"
+                      className="w-full p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-red-500 outline-none min-h-[44px] bg-white text-base lg:text-sm"
                       placeholder="0"
                       min="0"
                     />
@@ -561,7 +527,7 @@ const MeterReadingForm: React.FC = () => {
                       type="number"
                       value={damageFee}
                       onChange={(e) => setDamageFee(e.target.value)}
-                      className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-red-500 outline-none"
+                      className="w-full p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-red-500 outline-none min-h-[44px] bg-white text-base lg:text-sm"
                       placeholder="0"
                       min="0"
                     />
@@ -573,7 +539,7 @@ const MeterReadingForm: React.FC = () => {
             {/* Partial Deposit Section -- Hide if Move Out is checked */}
             {!isMoveOut && (
               <div className="mt-4 pt-4 border-t border-slate-200">
-                <label className="flex items-center space-x-2 cursor-pointer mb-2">
+                <label className="flex items-center space-x-3 cursor-pointer mb-2 touch-target">
                   <input
                     type="checkbox"
                     checked={isPartialDeposit}
@@ -581,7 +547,7 @@ const MeterReadingForm: React.FC = () => {
                       setIsPartialDeposit(e.target.checked);
                       if (!e.target.checked) setDepositAmount("");
                     }}
-                    className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                    className="w-5 h-5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
                   />
                   <span className="text-sm font-medium text-slate-700">
                     เก็บค่ามัดจำเพิ่ม (กรณีจ่ายไม่ครบ)
@@ -598,7 +564,7 @@ const MeterReadingForm: React.FC = () => {
                         type="number"
                         value={depositAmount}
                         onChange={(e) => setDepositAmount(e.target.value)}
-                        className="w-full p-2 pl-3 pr-8 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none"
+                        className="w-full p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none min-h-[44px] bg-white text-base lg:text-sm"
                         placeholder="ระบุจำนวนเงิน"
                         min="0"
                       />
@@ -611,11 +577,7 @@ const MeterReadingForm: React.FC = () => {
             <button
               type="submit"
               disabled={!calculation}
-              className={`w-full mt-6 text-white py-2 px-4 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-                isMoveOut
-                  ? "bg-emerald-600 hover:bg-emerald-700"
-                  : "bg-emerald-600 hover:bg-emerald-700"
-              }`}
+              className="w-full mt-6 text-white py-3 lg:py-2.5 px-4 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] font-semibold text-base lg:text-sm bg-emerald-600 hover:bg-emerald-700"
             >
               <Save size={18} />
               {isMoveOut ? "สร้างใบสรุปยอดคืนเงิน" : "สร้างใบแจ้งหนี้"}
@@ -624,8 +586,8 @@ const MeterReadingForm: React.FC = () => {
         </div>
 
         {/* Live Calculation Preview */}
-        <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-          <h3 className="text-xl font-semibold mb-2">
+        <div className="bg-slate-50 p-4 lg:p-6 rounded-xl border border-slate-200">
+          <h3 className="text-lg lg:text-xl font-semibold mb-2 text-slate-800">
             {isMoveOut ? "รายละเอียดการคืนเงิน" : "ตัวอย่างใบแจ้งหนี้"}
           </h3>
           <p className="text-sm text-slate-500 mb-4 flex items-center gap-1">
@@ -638,9 +600,9 @@ const MeterReadingForm: React.FC = () => {
           {loading ? (
             <p className="text-slate-500 animate-pulse">กำลังคำนวณ...</p>
           ) : error ? (
-            <div className="h-full flex flex-col items-center justify-center text-red-500 p-4 bg-red-50 rounded-lg border border-red-100">
-              <p className="font-medium">การคำนวณล้มเหลว</p>
-              <p className="text-sm">{error}</p>
+            <div className="h-full flex flex-col items-center justify-center text-red-500 p-4 bg-red-50 rounded-lg border border-red-100 min-h-[200px]">
+              <p className="font-semibold text-base mb-1">การคำนวณล้มเหลว</p>
+              <p className="text-sm text-center">{error}</p>
             </div>
           ) : calculation ? (
             <div className="space-y-4">
@@ -660,7 +622,7 @@ const MeterReadingForm: React.FC = () => {
                     หน่วยที่ใช้ ({calculation.usage.water} x{" "}
                     {calculation.rates.water})
                   </span>
-                  <span>{Number(calculation.costs.water).toFixed(2)} ฿</span>
+                  <span className="font-mono">{Number(calculation.costs.water).toFixed(2)} ฿</span>
                 </div>
               </div>
 
@@ -680,7 +642,7 @@ const MeterReadingForm: React.FC = () => {
                     หน่วยที่ใช้ ({calculation.usage.elec} x{" "}
                     {calculation.rates.elec})
                   </span>
-                  <span>{Number(calculation.costs.elec).toFixed(2)} ฿</span>
+                  <span className="font-mono">{Number(calculation.costs.elec).toFixed(2)} ฿</span>
                 </div>
               </div>
 
@@ -695,10 +657,10 @@ const MeterReadingForm: React.FC = () => {
 
               {!isMoveOut && (
                 <div className="flex justify-between items-center pt-4 border-t border-slate-300">
-                  <span className="text-lg font-bold text-slate-800">
+                  <span className="text-base lg:text-lg font-bold text-slate-800">
                     ยอดรวมทั้งหมด
                   </span>
-                  <span className="text-2xl font-bold text-green-600">
+                  <span className="text-xl lg:text-2xl font-bold text-green-600 font-mono">
                     {Number(calculation.total_amount).toFixed(2)} ฿
                   </span>
                 </div>
@@ -711,17 +673,17 @@ const MeterReadingForm: React.FC = () => {
                     <h4 className="font-semibold text-red-800 mb-2">
                       รายการหัก
                     </h4>
-                    <div className="space-y-1 text-sm">
+                    <div className="space-y-1.5 text-sm">
                       <div className="flex justify-between text-red-700">
                         <span>ค่าน้ำ+ไฟ</span>
-                        <span>
+                        <span className="font-mono">
                           {(moveOutData?.items[0]?.amount ?? 0).toFixed(2)} ฿
                         </span>
                       </div>
                       {(moveOutData?.items[1]?.amount ?? 0) > 0 && (
                         <div className="flex justify-between text-red-700">
                           <span>ค่าทำความสะอาด</span>
-                          <span>
+                          <span className="font-mono">
                             {(moveOutData?.items[1]?.amount ?? 0).toFixed(2)} ฿
                           </span>
                         </div>
@@ -729,37 +691,37 @@ const MeterReadingForm: React.FC = () => {
                       {(moveOutData?.items[2]?.amount ?? 0) > 0 && (
                         <div className="flex justify-between text-red-700">
                           <span>ค่าความเสียหาย</span>
-                          <span>
+                          <span className="font-mono">
                             {(moveOutData?.items[2]?.amount ?? 0).toFixed(2)} ฿
                           </span>
                         </div>
                       )}
                       <div className="border-t border-red-200 mt-2 pt-2 flex justify-between font-bold text-red-800">
                         <span>รวมหักทั้งหมด</span>
-                        <span>
+                        <span className="font-mono">
                           {(moveOutData?.totalDeductions ?? 0).toFixed(2)} ฿
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-100 font-sans">
                     <div className="flex justify-between text-sm text-green-800 mb-1">
                       <span>เงินประกันที่วางไว้</span>
-                      <span className="font-bold">
+                      <span className="font-bold font-mono">
                         {(moveOutData?.deposit ?? 0).toFixed(2)} ฿
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm text-red-600 mb-2">
+                    <div className="flex justify-between text-sm text-red-650 mb-2">
                       <span>หักค่าใช้จ่ายทั้งหมด</span>
-                      <span>
+                      <span className="font-semibold font-mono">
                         - {(moveOutData?.totalDeductions ?? 0).toFixed(2)} ฿
                       </span>
                     </div>
                     <div className="border-t border-green-200 pt-2 flex justify-between items-center">
                       <span className="font-bold text-slate-800">เหลือคืน</span>
                       <span
-                        className={`text-xl font-bold ${moveOutData?.refund >= 0 ? "text-green-600" : "text-red-600"}`}
+                        className={`text-xl font-bold font-mono ${moveOutData?.refund >= 0 ? "text-green-600" : "text-red-600"}`}
                       >
                         {(moveOutData?.refund ?? 0).toFixed(2)} ฿
                       </span>
@@ -782,13 +744,40 @@ const MeterReadingForm: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-slate-400">
+            <div className="flex flex-col items-center justify-center text-slate-400 min-h-[200px]">
               <Calculator size={48} className="mb-2 opacity-20" />
               <p>กรอกข้อมูลเพื่อดูยอดชำระ</p>
             </div>
           )}
         </div>
       </div>
+
+      {/* Mobile Sticky Summary Bar */}
+      {calculation && (
+        <div className="lg:hidden fixed bottom-[calc(var(--mobile-bottom-bar-height)+var(--mobile-safe-area-bottom))] left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] flex items-center justify-between z-40">
+          <div className="flex flex-col">
+            <span className="text-xs text-slate-500 font-medium">
+              {isMoveOut ? "ยอดเหลือคืน" : "ยอดรวมทั้งหมด"}
+            </span>
+            <span className={`text-lg font-bold font-mono ${isMoveOut && moveOutData && moveOutData.refund < 0 ? "text-red-600" : "text-green-600"}`}>
+              {isMoveOut && moveOutData 
+                ? `${Number(moveOutData.refund).toFixed(2)} ฿` 
+                : `${Number(calculation.total_amount).toFixed(2)} ฿`}
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              const formEl = document.querySelector("form");
+              if (formEl) formEl.requestSubmit();
+            }}
+            disabled={loading}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center gap-1.5 transition min-h-[40px]"
+          >
+            <Save size={16} />
+            {isMoveOut ? "ส่งออก" : "สร้างใบแจ้งหนี้"}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

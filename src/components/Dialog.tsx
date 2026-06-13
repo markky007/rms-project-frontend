@@ -51,24 +51,50 @@ export default function Dialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 max-lg:p-0 max-lg:items-end max-lg:backdrop-blur-[2px]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="dialog-title"
     >
       <div
-        className={`bg-white rounded-lg shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200`}
+        className={`bg-white rounded-lg shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200
+                    max-lg:fixed max-lg:inset-0 max-lg:h-full max-lg:max-w-none max-lg:rounded-none max-lg:max-h-none max-lg:animate-slide-up`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 id="dialog-title" className="text-xl font-semibold text-gray-900">
-            {title}
-          </h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 max-lg:p-4 max-lg:bg-surface max-lg:sticky max-lg:top-0 max-lg:z-10">
+          <div className="flex items-center gap-2">
+            {/* Back button (Mobile only) */}
+            <button
+              onClick={onClose}
+              className="lg:hidden p-1 -ml-1 text-gray-500 hover:text-gray-800 hover:bg-black/5 rounded-full touch-target flex items-center justify-center"
+              aria-label="ย้อนกลับ"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <h2 id="dialog-title" className="text-base lg:text-xl font-semibold text-gray-900">
+              {title}
+            </h2>
+          </div>
+          
+          {/* Close button (Desktop only) */}
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
+            className="hidden lg:flex text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
             aria-label="Close dialog"
           >
             <X size={24} />
@@ -76,7 +102,7 @@ export default function Dialog({
         </div>
 
         {/* Body - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-6">{children}</div>
+        <div className="flex-1 overflow-y-auto p-6 max-lg:p-4 max-lg:pb-safe">{children}</div>
       </div>
     </div>
   );
