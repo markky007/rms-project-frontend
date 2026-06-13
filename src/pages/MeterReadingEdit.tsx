@@ -432,9 +432,9 @@ const MeterReadingEdit: React.FC = () => {
                     <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => openEditModal(reading)}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition"
+                        className="inline-flex items-center justify-center gap-1 h-8 px-3.5 bg-surface text-ink text-xs font-medium rounded-full hover:bg-primary hover:text-white transition-all duration-150 cursor-pointer"
                       >
-                        <Edit size={14} />
+                        <Edit size={12} />
                         แก้ไข
                       </button>
                     </td>

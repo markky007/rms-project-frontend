@@ -682,20 +682,20 @@ const Invoices: React.FC = () => {
                       </select>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end items-center gap-2">
                         <button
                           onClick={() => handleViewDetails(invoice.invoice_id)}
-                          className="text-blue-600 hover:text-blue-800 transition-colors p-1"
+                          className="w-8 h-8 text-xs font-medium rounded-full bg-surface text-ink hover:bg-primary hover:text-white transition-all duration-150 inline-flex items-center justify-center cursor-pointer"
                           title="ดูรายละเอียด"
                         >
-                          <Eye size={18} />
+                          <Eye size={16} />
                         </button>
                         <button
                           onClick={() => setDeleteConfirmId(invoice.invoice_id)}
-                          className="text-red-500 hover:text-red-700 transition-colors p-1"
+                          className="w-8 h-8 text-xs font-medium rounded-full bg-error-light text-error hover:bg-error hover:text-white transition-all duration-150 inline-flex items-center justify-center cursor-pointer"
                           title="ลบใบแจ้งหนี้"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>

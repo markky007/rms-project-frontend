@@ -253,18 +253,20 @@ export default function UserManagement() {
                     {new Date(user.created_at).toLocaleDateString("th-TH")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleEdit(user)}
-                      className="text-green-600 hover:text-green-900 mr-4"
-                    >
-                      แก้ไข
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user.user_id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      ลบ
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => handleEdit(user)}
+                        className="h-8 px-3.5 text-xs font-medium rounded-full bg-surface text-ink hover:bg-primary hover:text-white transition-all duration-150 inline-flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        แก้ไข
+                      </button>
+                      <button
+                        onClick={() => handleDelete(user.user_id)}
+                        className="h-8 px-3.5 text-xs font-medium rounded-full bg-error-light text-error hover:bg-error hover:text-white transition-all duration-150 inline-flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        ลบ
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

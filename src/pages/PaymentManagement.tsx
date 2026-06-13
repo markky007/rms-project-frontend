@@ -182,14 +182,16 @@ export default function PaymentManagement() {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {payment.status === "pending" && (
-                      <button
-                        onClick={() => handleApprove(payment.payment_id)}
-                        className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700"
-                      >
-                        อนุมัติ
-                      </button>
-                    )}
+                    <div className="flex justify-end">
+                      {payment.status === "pending" && (
+                        <button
+                          onClick={() => handleApprove(payment.payment_id)}
+                          className="h-8 px-3.5 text-xs font-medium rounded-full bg-success-light text-success hover:bg-success hover:text-white transition-all duration-150 cursor-pointer"
+                        >
+                          อนุมัติ
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

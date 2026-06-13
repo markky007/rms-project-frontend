@@ -343,26 +343,28 @@ export default function MaintenanceRequests() {
                     {getStatusBadge(request.status)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {request.status === "pending" && (
-                      <button
-                        onClick={() =>
-                          handleStatusUpdate(request.request_id, "in_progress")
-                        }
-                        className="text-blue-600 hover:text-blue-900 mr-2"
-                      >
-                        เริ่มดำเนินการ
-                      </button>
-                    )}
-                    {request.status === "in_progress" && (
-                      <button
-                        onClick={() =>
-                          handleStatusUpdate(request.request_id, "completed")
-                        }
-                        className="text-green-600 hover:text-green-900"
-                      >
-                        ทำเสร็จแล้ว
-                      </button>
-                    )}
+                    <div className="flex justify-end gap-2">
+                      {request.status === "pending" && (
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(request.request_id, "in_progress")
+                          }
+                          className="h-8 px-3.5 text-xs font-medium rounded-full bg-surface text-ink hover:bg-primary hover:text-white transition-all duration-150 inline-flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          เริ่มดำเนินการ
+                        </button>
+                      )}
+                      {request.status === "in_progress" && (
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(request.request_id, "completed")
+                          }
+                          className="h-8 px-3.5 text-xs font-medium rounded-full bg-success-light text-success hover:bg-success hover:text-white transition-all duration-150 inline-flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          ทำเสร็จแล้ว
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
