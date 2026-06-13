@@ -1300,11 +1300,11 @@ const Invoices: React.FC = () => {
               <div 
                 ref={receiptRef}
                 id="print-receipt-area"
-                className="bg-white w-[750px] shadow-lg p-10 flex flex-col text-slate-800 shrink-0 mx-auto print-receipt-sheet"
-                style={{ minHeight: "950px", fontFamily: "'Inter', 'Kanit', sans-serif" }}
+                className="bg-white w-[750px] shadow-lg p-8 flex flex-col text-slate-800 shrink-0 mx-auto print-receipt-sheet"
+                style={{ minHeight: "297mm", fontFamily: "'Inter', 'Kanit', sans-serif" }}
               >
                 {/* Header Orange Banner */}
-                <div className="bg-[#fdecd2] border border-[#f7cb9f] rounded-[24px] p-5 flex justify-between items-center mb-6">
+                <div className="bg-[#fdecd2] border border-[#f7cb9f] rounded-[24px] p-4 flex justify-between items-center mb-4">
                   <div className="flex-1">
                     <h1 className="text-3xl font-extrabold text-[#b55113] tracking-wide mb-1" style={{ fontFamily: 'Kanit' }}>
                       บ้านเช่าในสวน
@@ -1344,7 +1344,7 @@ const Invoices: React.FC = () => {
                 </div>
 
                 {/* Document Title */}
-                <div className="text-center mb-6">
+                <div className="text-center mb-4">
                   <h2 className="text-2xl font-bold text-slate-800 tracking-wide" style={{ fontFamily: 'Kanit' }}>
                     ใบเสร็จรับเงิน / Receipt
                   </h2>
@@ -1352,7 +1352,7 @@ const Invoices: React.FC = () => {
                 </div>
 
                 {/* Metadata details block */}
-                <div className="grid grid-cols-2 gap-8 text-sm mb-6 pb-2">
+                <div className="grid grid-cols-2 gap-8 text-sm mb-4 pb-1">
                   <div className="space-y-2.5">
                     <div className="flex">
                       <span className="font-semibold text-slate-800 w-16" style={{ fontFamily: 'Kanit' }}>เลขที่</span>
@@ -1397,7 +1397,7 @@ const Invoices: React.FC = () => {
                 </div>
 
                 {/* Items Table */}
-                <div className="border border-slate-800 overflow-hidden mb-6 flex-1">
+                <div className="border border-slate-800 overflow-hidden mb-4">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-slate-900 text-white font-semibold" style={{ fontFamily: 'Kanit' }}>
@@ -1546,7 +1546,7 @@ const Invoices: React.FC = () => {
                 </div>
 
                 {/* Notes and Totals Container */}
-                <div className="border border-slate-800 grid grid-cols-5 text-sm mb-6">
+                <div className="border border-slate-800 grid grid-cols-5 text-sm mb-4">
                   {/* Notes Column (3/5 width) */}
                   <div className="col-span-3 p-4 border-r border-slate-800 flex flex-col justify-between">
                     <div>
@@ -1575,7 +1575,7 @@ const Invoices: React.FC = () => {
                 </div>
 
                 {/* Grand Total Area */}
-                <div className="border border-slate-800 bg-slate-50 p-4 flex justify-between items-center mb-8">
+                <div className="border border-slate-800 bg-slate-50 p-3 flex justify-between items-center mb-5">
                   <div>
                     <span className="font-bold text-slate-800 block text-xs mb-1" style={{ fontFamily: 'Kanit' }}>จำนวนเงินรวมทั้งสิ้น</span>
                     <span className="text-xs font-semibold text-slate-600">
@@ -1590,7 +1590,7 @@ const Invoices: React.FC = () => {
                 </div>
 
                 {/* Bottom Segment: Paid By and Signatures */}
-                <div className="grid grid-cols-2 gap-8 text-sm mt-auto pt-6 border-t border-slate-200">
+                <div className="grid grid-cols-2 gap-8 text-sm mt-auto pt-4 border-t border-slate-200">
                   {/* Payment Method Option */}
                   <div className="space-y-4">
                     <span className="font-bold text-slate-800 block mb-2" style={{ fontFamily: 'Kanit' }}>ชำระเงินโดย</span>
