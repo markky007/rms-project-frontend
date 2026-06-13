@@ -143,8 +143,9 @@ export const Dashboard: React.FC = () => {
     .filter((inv) => inv.month_year === thisMonth)
     .reduce((sum, inv) => sum + Number(inv.total_amount || 0), 0);
 
+  // Outstanding = invoices still awaiting payment (status "pending" only)
   const outstanding = invoices
-    .filter((inv) => inv.status === "pending" || inv.status === "overdue")
+    .filter((inv) => inv.status === "pending")
     .reduce((sum, inv) => sum + Number(inv.total_amount || 0), 0);
 
   // ── Room occupancy ──
