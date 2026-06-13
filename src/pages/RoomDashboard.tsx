@@ -109,7 +109,7 @@ export const RoomDashboard: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 font-sans">
       <PageHeader
-        title="ภาพรวมบ้านเช่า"
+        title="สถานะห้องพัก"
         description="ตรวจสอบสถานะและข้อมูลการเช่าบ้านพักทั้งหมดในระบบแบบเรียลไทม์"
       />
 

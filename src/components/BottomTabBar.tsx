@@ -61,7 +61,7 @@ export const BottomTabBar: React.FC = () => {
 
   // Check if any route inside More menu is currently active
   const isMoreActive = () => {
-    const morePaths = ["/tenants", "/contracts", "/meter-reading", "/meter-reading-edit", "/payments", "/users"];
+    const morePaths = ["/room-status", "/tenants", "/contracts", "/meter-reading", "/meter-reading-edit", "/users"];
     return morePaths.some((p) => location.pathname.startsWith(p));
   };
 

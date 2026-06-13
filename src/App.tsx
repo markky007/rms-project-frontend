@@ -3,6 +3,7 @@ import { AuthProvider } from "./app/providers/AuthContext";
 import AppLayout from "./app/layouts/AppLayout";
 import AuthLayout from "./app/layouts/AuthLayout";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 import RoomDashboard from "./pages/RoomDashboard";
 import RoomManagement from "./pages/RoomManagement";
 import MeterReadingForm from "./pages/MeterReadingForm";
@@ -33,7 +34,8 @@ export function App() {
 
             {/* Protected App Routes */}
             <Route element={<AppLayout />}>
-              <Route index element={<RoomDashboard />} />
+              <Route index element={<Dashboard />} />
+              <Route path="room-status" element={<RoomDashboard />} />
               <Route path="buildings" element={<BuildingsPage />} />
               <Route path="rooms" element={<RoomManagement />} />
               <Route path="meter-reading" element={<MeterReadingForm />} />
