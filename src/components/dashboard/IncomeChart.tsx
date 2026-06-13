@@ -55,8 +55,8 @@ export const IncomeChart: React.FC<IncomeChartProps> = ({ data }) => {
   }
 
   return (
-    <div className="w-full h-[260px]">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full">
+      <ResponsiveContainer width="100%" height={260} minWidth={0}>
         <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border-subtle)" />
           <XAxis
