@@ -54,7 +54,7 @@ const userService = {
     username: string,
     password: string
   ): Promise<{ token: string; user: User }> => {
-    const response = await api.post("/auth/login", { username, password });
+    const response = await api.post("/users/auth/login", { username, password });
     return response.data;
   },
 };

@@ -1,0 +1,60 @@
+:root {
+  /* Color System - Core Palette */
+  --color-primary: oklch(42% 0.120 255);        /* Ledger Cobalt */
+  --color-primary-hover: oklch(34% 0.120 255);
+  --color-primary-active: oklch(30% 0.110 255);
+  --color-primary-light: oklch(42% 0.120 255 / 0.15);
+  --color-accent: oklch(60% 0.160 75);          /* Amber Signal */
+  --color-accent-hover: oklch(52% 0.140 75);
+
+  /* Neutrals */
+  --color-bg: oklch(100% 0.000 0);               /* Pure White */
+  --color-surface: oklch(96% 0.005 250);        /* Cool Paper */
+  --color-surface-raised: oklch(100% 0.000 0);   /* Pure White */
+  --color-border: oklch(90% 0.008 250);         /* Cool Slate */
+  --color-border-subtle: oklch(94% 0.005 250);  /* Cool Slate Subtle */
+  --color-ink: oklch(18% 0.015 250);            /* Graphite Primary Text */
+  --color-muted: oklch(55% 0.010 250);          /* Pencil Gray */
+
+  /* Semantics */
+  --color-success: oklch(50% 0.140 155);        /* Ledger Green */
+  --color-success-light: oklch(50% 0.140 155 / 0.15);
+  --color-warning: oklch(60% 0.160 75);          /* Amber */
+  --color-warning-light: oklch(60% 0.160 75 / 0.15);
+  --color-error: oklch(50% 0.200 25);           /* Alert Red */
+  --color-error-light: oklch(50% 0.200 25 / 0.15);
+  --color-info: oklch(52% 0.140 255);           /* Info Blue */
+  --color-info-light: oklch(52% 0.140 255 / 0.15);
+
+  /* SidebarSpecific */
+  --color-sidebar-bg: oklch(18% 0.015 250);
+
+  /* Rounded Corners */
+  --rounded-sm: 6px;
+  --rounded-md: 10px;
+  --rounded-lg: 14px;
+  --rounded-full: 9999px;
+
+  /* Spacing Scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-section: 64px;
+
+  /* Shadow Vocabulary */
+  --shadow-low: 0 1px 3px oklch(0 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.04);
+  --shadow-medium: 0 4px 12px oklch(0 0 0 / 0.08), 0 2px 4px oklch(0 0 0 / 0.04);
+  --shadow-elevated: 0 8px 24px oklch(0 0 0 / 0.12), 0 4px 8px oklch(0 0 0 / 0.06);
+  --shadow-focus: 0 0 0 3px oklch(42% 0.120 255 / 0.25);
+
+  /* Z-Index Hierarchy */
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-modal-backdrop: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+  --z-tooltip: 60;
+}

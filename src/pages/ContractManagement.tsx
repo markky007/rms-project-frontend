@@ -327,33 +327,33 @@ export default function ContractManagement() {
       )}
 
       <div className="mb-4">
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap select-none">
           <button
             onClick={() => setFilterStatus("all")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "all"
-                ? "bg-emerald-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-primary text-white border-primary ring-2 ring-primary/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             ทั้งหมด
           </button>
           <button
             onClick={() => setFilterStatus("active")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "active"
-                ? "bg-green-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-success-light text-success border-success/30 ring-2 ring-success/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             ใช้งานอยู่
           </button>
           <button
             onClick={() => setFilterStatus("inactive")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "inactive"
-                ? "bg-gray-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-surface text-muted border-border/80 ring-2 ring-border/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             ยกเลิกแล้ว

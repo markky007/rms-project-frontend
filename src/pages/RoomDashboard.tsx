@@ -1,28 +1,17 @@
 import React, { useEffect, useState } from "react";
-import {
-  Building2,
-  Users,
-  Wallet,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-} from "lucide-react";
-import roomService, {
-  type Room,
-  type RoomStatus,
-} from "../services/roomService";
+import roomService, { Room, RoomStatus } from "../services/roomService";
+import PageHeader from "../components/patterns/PageHeader";
+import Badge from "../components/primitives/Badge";
+import Card from "../components/composites/Card";
+import EmptyState from "../components/patterns/EmptyState";
 
-interface StatusConfig {
+interface StatusMeta {
   label: string;
-  color: string;
-  bg: string;
-  border: string;
-  icon: React.ComponentType<{ size?: number }>;
+  variant: "success" | "info" | "warning" | "error";
+  count: number;
 }
 
-type StatusConfigMap = Record<RoomStatus, StatusConfig>;
-
-const RoomDashboard: React.FC = () => {
+export const RoomDashboard: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [filterStatus, setFilterStatus] = useState<RoomStatus | "all">("all");
@@ -42,53 +31,30 @@ const RoomDashboard: React.FC = () => {
     }
   };
 
-  const statusConfig: StatusConfigMap = {
-    vacant: {
-      label: "ว่าง",
-      color: "text-green-700",
-      bg: "bg-green-100",
-      border: "border-green-200",
-      icon: CheckCircle2,
-    },
-    occupied: {
-      label: "มีผู้เช่า",
-      color: "text-blue-700",
-      bg: "bg-blue-100",
-      border: "border-blue-200",
-      icon: Users,
-    },
-    reserved: {
-      label: "จองแล้ว",
-      color: "text-yellow-700",
-      bg: "bg-yellow-100",
-      border: "border-yellow-200",
-      icon: Clock,
-    },
-    maintenance: {
-      label: "ซ่อมบำรุง",
-      color: "text-red-700",
-      bg: "bg-red-100",
-      border: "border-red-200",
-      icon: AlertTriangle,
-    },
-  };
-
-  const getStatusStyle = (status: RoomStatus): StatusConfig => {
-    return statusConfig[status] || statusConfig.vacant;
-  };
-
-  const handleStatusFilter = (status: RoomStatus) => {
-    if (filterStatus === status) {
-      setFilterStatus("all");
-    } else {
-      setFilterStatus(status);
-    }
+  const statusMap: Record<RoomStatus, { label: string; variant: "success" | "info" | "warning" | "error" }> = {
+    vacant: { label: "ว่าง", variant: "success" },
+    occupied: { label: "มีผู้เช่า", variant: "info" },
+    reserved: { label: "จองแล้ว", variant: "warning" },
+    maintenance: { label: "ซ่อมบำรุง", variant: "error" },
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+      <div className="flex flex-col items-center justify-center min-h-[400px] font-sans">
+        <svg
+          className="animate-spin h-8 w-8 text-primary"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+        <span className="text-xs text-muted mt-2">กำลังโหลดข้อมูลห้องพัก...</span>
       </div>
     );
   }
@@ -102,153 +68,158 @@ const RoomDashboard: React.FC = () => {
     reserved: rooms.filter((r) => r.status === "reserved").length,
   };
 
+  const filters: { label: string; status: RoomStatus | "all"; count: number; activeClass: string }[] = [
+    {
+      label: "ทั้งหมด",
+      status: "all",
+      count: stats.total,
+      activeClass: "bg-primary text-white border-primary ring-2 ring-primary/20",
+    },
+    {
+      label: "ห้องว่าง",
+      status: "vacant",
+      count: stats.vacant,
+      activeClass: "bg-success-light text-success border-success/30 ring-2 ring-success/20",
+    },
+    {
+      label: "มีผู้เช่า",
+      status: "occupied",
+      count: stats.occupied,
+      activeClass: "bg-info-light text-info border-info/30 ring-2 ring-info/20",
+    },
+    {
+      label: "จองแล้ว",
+      status: "reserved",
+      count: stats.reserved,
+      activeClass: "bg-warning text-white border-warning ring-2 ring-warning/20",
+    },
+    {
+      label: "ซ่อมบำรุง",
+      status: "maintenance",
+      count: stats.maintenance,
+      activeClass: "bg-error text-white border-error ring-2 ring-error/20",
+    },
+  ];
+
   const filteredRooms =
     filterStatus === "all"
       ? rooms
       : rooms.filter((room) => room.status === filterStatus);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">บ้านเช่า</h1>
-      <div className="space-y-4">
-        <div>
-          <p className="text-gray-500 text-lg">
-            จัดการและตรวจสอบสถานะบ้านเช่าทั้งหมดของคุณ
-          </p>
-        </div>
+    <div className="flex flex-col gap-6 font-sans">
+      <PageHeader
+        title="ภาพรวมบ้านเช่า"
+        description="ตรวจสอบสถานะและข้อมูลการเช่าบ้านพักทั้งหมดในระบบแบบเรียลไทม์"
+      />
 
-        <div className="flex gap-4 flex-wrap">
-          <button
-            onClick={() => handleStatusFilter("vacant")}
-            className={`px-6 py-2 rounded-xl shadow-sm border flex items-center gap-2 min-w-[100px] justify-center transition-all ${
-              filterStatus === "vacant"
-                ? "bg-green-100 border-green-300 ring-2 ring-green-500 ring-offset-2"
-                : "bg-white border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            <span className="text-gray-800 font-medium">
-              ว่าง: <span className="font-bold">{stats.vacant}</span>
-            </span>
-          </button>
-          <button
-            onClick={() => handleStatusFilter("occupied")}
-            className={`px-6 py-2 rounded-xl shadow-sm border flex items-center gap-2 min-w-[100px] justify-center transition-all ${
-              filterStatus === "occupied"
-                ? "bg-blue-100 border-blue-300 ring-2 ring-blue-500 ring-offset-2"
-                : "bg-white border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            <span className="text-gray-800 font-medium">
-              มีผู้เช่า: <span className="font-bold">{stats.occupied}</span>
-            </span>
-          </button>
-          <button
-            onClick={() => handleStatusFilter("maintenance")}
-            className={`px-6 py-2 rounded-xl shadow-sm border flex items-center gap-2 min-w-[100px] justify-center transition-all ${
-              filterStatus === "maintenance"
-                ? "bg-red-100 border-red-300 ring-2 ring-red-500 ring-offset-2"
-                : "bg-white border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            <span className="text-gray-800 font-medium">
-              กำลังซ่อม: <span className="font-bold">{stats.maintenance}</span>
-            </span>
-          </button>
-          <button
-            onClick={() => handleStatusFilter("reserved")}
-            className={`px-6 py-2 rounded-xl shadow-sm border flex items-center gap-2 min-w-[100px] justify-center transition-all ${
-              filterStatus === "reserved"
-                ? "bg-yellow-100 border-yellow-300 ring-2 ring-yellow-500 ring-offset-2"
-                : "bg-white border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            <span className="text-gray-800 font-medium">
-              จองแล้ว: <span className="font-bold">{stats.reserved}</span>
-            </span>
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-        {filteredRooms.map((room) => {
-          const status = getStatusStyle(room.status);
-          const StatusIcon = status.icon;
-
+      {/* Filter toolbar */}
+      <div className="flex gap-2 flex-wrap items-center select-none pb-2 border-b border-border-subtle">
+        {filters.map((f) => {
+          const isActive = filterStatus === f.status;
           return (
-            <div
-              key={room.room_id}
-              className={`rounded-2xl border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer flex flex-col h-full ${status.bg} ${status.border}`}
+            <button
+              key={f.status}
+              onClick={() => setFilterStatus(f.status)}
+              className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer flex items-center gap-1.5 select-none ${
+                isActive
+                  ? f.activeClass
+                  : "bg-white text-ink border-border hover:bg-surface hover:border-border"
+              }`}
             >
-              {/* Card Header */}
-              <div className="px-6 py-4 flex justify-between items-center border-b border-black/5">
-                <span className="text-2xl font-bold text-gray-800">
-                  {room.house_number}
-                </span>
-                <div
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold bg-white/50 shadow-sm ring-1 ring-black/5 ${status.color}`}
-                >
-                  <StatusIcon size={18} />
-                  <span>{status.label}</span>
-                </div>
-              </div>
-
-              {/* Card Body */}
-              <div className="p-6 space-y-4 flex-grow">
-                {/* House Details */}
-                <div className="flex items-start gap-4">
-                  <div className="text-gray-600 shrink-0 mt-1">
-                    <Building2 size={20} />
-                  </div>
-                  <div className="pt-0.5">
-                    <p className="text-xs text-gray-500 font-medium mb-0.5">
-                      รายละเอียด
-                    </p>
-                    <p className="text-base font-bold text-gray-800 leading-tight">
-                      {room.bedrooms} ห้องนอน, {room.bathrooms} ห้องน้ำ
-                    </p>
-                  </div>
-                </div>
-
-                {/* Tenant Info */}
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`shrink-0 mt-1 ${
-                      room.tenant_name ? "text-blue-600" : "text-gray-400"
-                    }`}
-                  >
-                    <Users size={20} />
-                  </div>
-                  <div className="pt-0.5">
-                    <p className="text-xs text-gray-500 font-medium mb-0.5">
-                      ผู้เช่า
-                    </p>
-                    <p
-                      className={`text-base font-bold leading-tight ${
-                        room.tenant_name
-                          ? "text-gray-800"
-                          : "text-gray-500 italic"
-                      }`}
-                    >
-                      {room.tenant_name || "ไม่มีผู้เช่า"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Price Footer */}
-              <div className="px-6 py-4 border-t border-black/5 flex justify-between items-center">
-                <div className="flex items-center gap-2 text-gray-700">
-                  <Wallet size={16} />
-                  <span className="text-sm font-medium">ค่าเช่า</span>
-                </div>
-                <span className="text-emerald-700 text-lg font-bold">
-                  ฿{Number(room.base_rent).toLocaleString()}
-                </span>
-              </div>
-            </div>
+              <span>{f.label}</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                  isActive
+                    ? f.status === "all" || f.status === "reserved" || f.status === "maintenance"
+                      ? "bg-white/20 text-white"
+                      : f.status === "vacant"
+                        ? "bg-success/25 text-success"
+                        : "bg-info/25 text-info"
+                    : "bg-surface text-muted"
+                }`}
+              >
+                {f.count}
+              </span>
+            </button>
           );
         })}
       </div>
+
+      {/* Compact Grid of Rooms */}
+      {filteredRooms.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredRooms.map((room) => {
+            const meta = statusMap[room.status] || { label: "ไม่ระบุ", variant: "neutral" };
+            return (
+              <Card
+                key={room.room_id}
+                hoverLift
+                className="flex flex-col gap-4 border border-border-subtle justify-between min-h-[170px]"
+              >
+                {/* Top: Room number + Status badge */}
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col">
+                    <span className="font-heading text-lg font-bold text-ink leading-tight select-all">
+                      {room.house_number}
+                    </span>
+                    <span className="text-[10px] text-muted font-sans select-none">
+                      บ้านเช่า
+                    </span>
+                  </div>
+                  <Badge variant={meta.variant} showIcon>
+                    {meta.label}
+                  </Badge>
+                </div>
+
+                {/* Middle: Details (Bedrooms & Bathrooms + Tenant Name) */}
+                <div className="flex flex-col gap-2.5 font-sans">
+                  {/* Bed icon + details */}
+                  <div className="flex items-center gap-2 text-xs text-muted">
+                    <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>
+                      {room.bedrooms} นอน · {room.bathrooms} น้ำ
+                    </span>
+                  </div>
+
+                  {/* Users icon + Tenant */}
+                  <div className="flex items-center gap-2 text-xs">
+                    <svg className="w-4 h-4 flex-shrink-0 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    {room.tenant_name ? (
+                      <span className="text-ink font-semibold truncate max-w-[150px]">
+                        คุณ {room.tenant_name}
+                      </span>
+                    ) : (
+                      <span className="text-muted italic select-none">
+                        ไม่มีผู้เช่า
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Bottom: Rent Price */}
+                <div className="flex items-center justify-between pt-3 border-t border-border-subtle select-none">
+                  <span className="text-[10px] font-semibold text-muted font-sans uppercase">
+                    ค่าเช่ารายเดือน
+                  </span>
+                  <span className="font-mono text-sm text-primary font-bold">
+                    ฿{Number(room.base_rent).toLocaleString()}
+                  </span>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      ) : (
+        <EmptyState
+          title="ไม่พบห้องพักตามตัวกรองนี้"
+          description="ลองเปลี่ยนสถานะตัวกรองด้านบนเพื่อตรวจสอบรายการห้องพักแบบอื่นในระบบ"
+        />
+      )}
     </div>
   );
 };

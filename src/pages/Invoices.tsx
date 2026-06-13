@@ -13,7 +13,6 @@ import {
 import { QRCodeCanvas } from "qrcode.react";
 import html2canvas from "html2canvas";
 import invoiceService, { type Invoice } from "../services/invoiceService";
-import promptpayQr from "../payments/promptpay-qr.png";
 import { generatePromptPayPayload } from "../utils/promptpay";
 import { useAlert } from "../hooks/useAlert";
 import Pagination from "../components/Pagination";
@@ -989,14 +988,6 @@ const Invoices: React.FC = () => {
                       size={200}
                       level={"M"}
                       includeMargin={true}
-                      imageSettings={{
-                        src: promptpayQr,
-                        x: undefined,
-                        y: undefined,
-                        height: 40,
-                        width: 40,
-                        excavate: true,
-                      }}
                     />
                   </div>
                   <p className="mt-4 text-sm text-gray-500">

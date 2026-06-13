@@ -77,23 +77,23 @@ export default function PaymentManagement() {
       </div>
 
       <div className="mb-4">
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap select-none">
           <button
             onClick={() => setFilterStatus("all")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "all"
-                ? "bg-emerald-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-primary text-white border-primary ring-2 ring-primary/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             ทั้งหมด ({payments.length})
           </button>
           <button
             onClick={() => setFilterStatus("pending")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "pending"
-                ? "bg-yellow-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-warning text-white border-warning ring-2 ring-warning/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             รอการอนุมัติ (
@@ -101,10 +101,10 @@ export default function PaymentManagement() {
           </button>
           <button
             onClick={() => setFilterStatus("approved")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "approved"
-                ? "bg-green-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-success-light text-success border-success/30 ring-2 ring-success/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             อนุมัติแล้ว (

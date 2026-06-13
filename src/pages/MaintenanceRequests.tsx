@@ -239,43 +239,43 @@ export default function MaintenanceRequests() {
       )}
 
       <div className="mb-4">
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap select-none">
           <button
             onClick={() => setFilterStatus("all")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "all"
-                ? "bg-emerald-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-primary text-white border-primary ring-2 ring-primary/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             ทั้งหมด
           </button>
           <button
             onClick={() => setFilterStatus("pending")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "pending"
-                ? "bg-yellow-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-warning text-white border-warning ring-2 ring-warning/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             รอดำเนินการ
           </button>
           <button
             onClick={() => setFilterStatus("in_progress")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "in_progress"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-info text-white border-info ring-2 ring-info/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             กำลังดำเนินการ
           </button>
           <button
             onClick={() => setFilterStatus("completed")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "completed"
-                ? "bg-green-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-success text-white border-success ring-2 ring-success/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             เสร็จสิ้น
