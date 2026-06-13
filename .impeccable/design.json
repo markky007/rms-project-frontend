@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-13T03:31:00Z",
+  "title": "Design System: RMS Manager",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Ledger Cobalt",
+        "canonical": "oklch(0.420 0.120 255)",
+        "tonalRamp": [
+          "oklch(0.150 0.060 255)",
+          "oklch(0.250 0.090 255)",
+          "oklch(0.340 0.120 255)",
+          "oklch(0.420 0.120 255)",
+          "oklch(0.520 0.140 255)",
+          "oklch(0.650 0.120 255)",
+          "oklch(0.800 0.060 255)",
+          "oklch(0.930 0.020 255)"
+        ]
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "Ledger Cobalt Deep",
+        "canonical": "oklch(0.340 0.120 255)"
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "Amber Signal",
+        "canonical": "oklch(0.600 0.160 75)",
+        "tonalRamp": [
+          "oklch(0.200 0.060 75)",
+          "oklch(0.300 0.100 75)",
+          "oklch(0.450 0.140 75)",
+          "oklch(0.600 0.160 75)",
+          "oklch(0.700 0.140 75)",
+          "oklch(0.800 0.100 75)",
+          "oklch(0.900 0.050 75)",
+          "oklch(0.960 0.020 75)"
+        ]
+      },
+      "accent-hover": {
+        "role": "secondary",
+        "displayName": "Amber Signal Deep",
+        "canonical": "oklch(0.500 0.160 75)"
+      },
+      "bg": {
+        "role": "neutral",
+        "displayName": "Pure White",
+        "canonical": "oklch(1.000 0.000 0)"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "canonical": "oklch(0.960 0.005 250)"
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "Surface White",
+        "canonical": "oklch(1.000 0.000 0)"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "oklch(0.180 0.015 250)",
+        "tonalRamp": [
+          "oklch(0.080 0.010 250)",
+          "oklch(0.180 0.015 250)",
+          "oklch(0.300 0.015 250)",
+          "oklch(0.420 0.012 250)",
+          "oklch(0.550 0.010 250)",
+          "oklch(0.700 0.008 250)",
+          "oklch(0.850 0.005 250)",
+          "oklch(0.950 0.003 250)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Pencil Gray",
+        "canonical": "oklch(0.550 0.010 250)"
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Cool Slate",
+        "canonical": "oklch(0.900 0.008 250)"
+      },
+      "border-subtle": {
+        "role": "neutral",
+        "displayName": "Cool Slate Light",
+        "canonical": "oklch(0.940 0.005 250)"
+      },
+      "success": {
+        "role": "semantic",
+        "displayName": "Ledger Green",
+        "canonical": "oklch(0.500 0.140 155)",
+        "tonalRamp": [
+          "oklch(0.200 0.060 155)",
+          "oklch(0.300 0.100 155)",
+          "oklch(0.400 0.130 155)",
+          "oklch(0.500 0.140 155)",
+          "oklch(0.600 0.120 155)",
+          "oklch(0.750 0.080 155)",
+          "oklch(0.880 0.040 155)",
+          "oklch(0.960 0.015 155)"
+        ]
+      },
+      "error": {
+        "role": "semantic",
+        "displayName": "Alert Red",
+        "canonical": "oklch(0.500 0.200 25)",
+        "tonalRamp": [
+          "oklch(0.200 0.080 25)",
+          "oklch(0.300 0.140 25)",
+          "oklch(0.400 0.180 25)",
+          "oklch(0.500 0.200 25)",
+          "oklch(0.600 0.180 25)",
+          "oklch(0.750 0.120 25)",
+          "oklch(0.880 0.050 25)",
+          "oklch(0.960 0.020 25)"
+        ]
+      },
+      "warning": {
+        "role": "semantic",
+        "displayName": "Warning Amber",
+        "canonical": "oklch(0.500 0.160 75)"
+      },
+      "info": {
+        "role": "semantic",
+        "displayName": "Info Blue",
+        "canonical": "oklch(0.520 0.140 255)"
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page titles only. One per screen." },
+      "headline": { "displayName": "Headline", "purpose": "Section headers, modal titles." },
+      "title": { "displayName": "Title", "purpose": "Card headers, sidebar labels." },
+      "body": { "displayName": "Body", "purpose": "All prose, table data, form content. Max 65-75ch." },
+      "label": { "displayName": "Label", "purpose": "Form labels, table headers, metadata." },
+      "mono": { "displayName": "Mono", "purpose": "Invoice numbers, ID cards, meter readings." }
+    },
+    "shadows": [
+      { "name": "ambient-low", "value": "0 1px 3px oklch(0 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.04)", "purpose": "Default card/panel shadow. Most common in the system." },
+      { "name": "ambient-medium", "value": "0 4px 12px oklch(0 0 0 / 0.08), 0 2px 4px oklch(0 0 0 / 0.04)", "purpose": "Hover lift on cards, dropdowns, popovers." },
+      { "name": "elevated", "value": "0 8px 24px oklch(0 0 0 / 0.12), 0 4px 8px oklch(0 0 0 / 0.06)", "purpose": "Modal dialogs, confirmation overlays." },
+      { "name": "focus-ring", "value": "0 0 0 3px oklch(0.420 0.120 255 / 0.25)", "purpose": "Focus indicator on interactive elements." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default state transitions (color, shadow, border)." },
+      { "name": "ease-out-quart", "value": "cubic-bezier(0.25, 1, 0.5, 1)", "purpose": "Entry animations (modal appear, card lift)." },
+      { "name": "duration-fast", "value": "150ms", "purpose": "Hover, focus, active state changes." },
+      { "name": "duration-normal", "value": "200ms", "purpose": "Modal entry, card transitions." },
+      { "name": "duration-exit", "value": "150ms", "purpose": "Modal exit (faster out than in)." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action button. Used once per visible context as the primary CTA.",
+      "html": "<button class=\"ds-btn-primary\">เพิ่มผู้เช่า</button>",
+      "css": ".ds-btn-primary { background: oklch(0.420 0.120 255); color: #fff; font-family: Inter, Kanit, sans-serif; font-size: 0.875rem; font-weight: 500; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1), transform 150ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-primary:hover { background: oklch(0.340 0.120 255); transform: translateY(-1px); box-shadow: 0 4px 12px oklch(0 0 0 / 0.08), 0 2px 4px oklch(0 0 0 / 0.04); } .ds-btn-primary:active { background: oklch(0.300 0.110 255); transform: translateY(0); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px oklch(0.420 0.120 255 / 0.25); } .ds-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary action. Cancel, dismiss, or non-primary alternative.",
+      "html": "<button class=\"ds-btn-secondary\">ยกเลิก</button>",
+      "css": ".ds-btn-secondary { background: oklch(0.960 0.005 250); color: oklch(0.180 0.015 250); font-family: Inter, Kanit, sans-serif; font-size: 0.875rem; font-weight: 500; padding: 10px 20px; border: 1px solid oklch(0.900 0.008 250); border-radius: 10px; cursor: pointer; transition: border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), background 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-secondary:hover { border-color: oklch(0.700 0.008 250); background: oklch(0.940 0.005 250); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 3px oklch(0.420 0.120 255 / 0.25); }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive action. Delete confirmations only — never inline.",
+      "html": "<button class=\"ds-btn-danger\">ลบ</button>",
+      "css": ".ds-btn-danger { background: oklch(0.500 0.200 25); color: #fff; font-family: Inter, Kanit, sans-serif; font-size: 0.875rem; font-weight: 500; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-danger:hover { background: oklch(0.430 0.200 25); } .ds-btn-danger:focus-visible { outline: none; box-shadow: 0 0 0 3px oklch(0.500 0.200 25 / 0.25); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Standard text field for forms.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-label\">ชื่อ-นามสกุล</label><input class=\"ds-input\" type=\"text\" placeholder=\"นายสมชาย ใจดี\" /></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-label { font-family: Inter, Kanit, sans-serif; font-size: 0.75rem; font-weight: 500; color: oklch(0.420 0.012 250); letter-spacing: 0.01em; } .ds-input { font-family: Inter, Kanit, sans-serif; font-size: 0.875rem; color: oklch(0.180 0.015 250); background: #fff; border: 1px solid oklch(0.900 0.008 250); border-radius: 10px; padding: 10px 14px; transition: border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-input::placeholder { color: oklch(0.550 0.010 250); } .ds-input:focus { outline: none; border-color: oklch(0.420 0.120 255); box-shadow: 0 0 0 3px oklch(0.420 0.120 255 / 0.25); }"
+    },
+    {
+      "name": "Status Badge - Paid",
+      "kind": "chip",
+      "refersTo": "chip-status",
+      "description": "Paid status indicator on invoices and payments.",
+      "html": "<span class=\"ds-badge ds-badge--success\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><polyline points=\"22 4 12 14.01 9 11.01\"/></svg> ชำระแล้ว</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 9999px; font-family: Inter, Kanit, sans-serif; font-size: 0.75rem; font-weight: 500; line-height: 1.4; } .ds-badge--success { background: oklch(0.500 0.140 155 / 0.12); color: oklch(0.400 0.130 155); }"
+    },
+    {
+      "name": "Status Badge - Pending",
+      "kind": "chip",
+      "refersTo": "chip-status",
+      "description": "Pending payment status on invoices.",
+      "html": "<span class=\"ds-badge ds-badge--warning\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><polyline points=\"12 6 12 12 16 14\"/></svg> รอชำระ</span>",
+      "css": ".ds-badge--warning { background: oklch(0.600 0.160 75 / 0.12); color: oklch(0.500 0.160 75); }"
+    },
+    {
+      "name": "Card Container",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Standard content container with ambient shadow.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">ห้อง A101</h3><p class=\"ds-card-body\">2 ห้องนอน, 1 ห้องน้ำ</p></div>",
+      "css": ".ds-card { background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 1px 3px oklch(0 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.04); transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-card:hover { box-shadow: 0 4px 12px oklch(0 0 0 / 0.08), 0 2px 4px oklch(0 0 0 / 0.04); } .ds-card-title { font-family: Kanit, sans-serif; font-size: 1.125rem; font-weight: 500; color: oklch(0.180 0.015 250); margin: 0 0 8px 0; } .ds-card-body { font-family: Inter, Kanit, sans-serif; font-size: 0.875rem; color: oklch(0.550 0.010 250); margin: 0; line-height: 1.6; }"
+    },
+    {
+      "name": "Navigation Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Sidebar navigation link. Active state uses cobalt highlight.",
+      "html": "<a class=\"ds-nav-item ds-nav-item--active\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/><polyline points=\"9 22 9 12 15 12 15 22\"/></svg> ห้องพัก</a>",
+      "css": ".ds-nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 10px; font-family: Inter, Kanit, sans-serif; font-size: 0.875rem; font-weight: 500; color: oklch(0.550 0.010 250); text-decoration: none; transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-nav-item:hover { background: oklch(1 0 0 / 0.05); color: oklch(0.800 0.005 250); } .ds-nav-item--active { background: oklch(0.420 0.120 255 / 0.15); color: #fff; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Landlord's Ledger",
+    "overview": "A well-organized personal notebook: clean pages, clear numbers, the satisfaction of everything accounted for. RMS Manager is a tool that disappears into the task. The design earns trust through clarity, not ornamentation — every pixel serves the landlord's need to see what's happening across their properties at a glance.\n\nThe system is restrained by default. A single cobalt blue accent handles primary actions and current state; everything else is tonal neutrals. The interface feels airy and lifted — soft ambient shadows give panels a gentle sense of separation without heaviness. Components are tactile and confident: buttons feel solid when you press them, inputs feel grounded when you type, controls respond clearly to every action.\n\nThis system explicitly rejects: overly complex enterprise tools (SAP-style density), generic bland SaaS gray aesthetics, and dark-mode developer-facing tool styling. It also rejects decorative motion, gradient text, glassmorphism, and any visual complexity that doesn't serve the task.",
+    "keyCharacteristics": [
+      "Clean pages, clear numbers. Data density is comfortable, not cramped. White space is structural, not decorative.",
+      "One accent, used with intent. Cobalt blue marks the active thing, the primary action, the current state — nothing else.",
+      "Ambient lift. Cards and panels float gently above the surface. Depth is subtle and consistent.",
+      "Thai-first typography. Kanit leads for headings and navigation; Inter supports body text and data.",
+      "State-complete components. Every interactive element ships with default, hover, focus, active, disabled, loading, and error states."
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Ledger Cobalt is the only saturated color on routine screens. Amber Signal and semantic colors appear only in response to state. If a screen uses more than two saturated colors simultaneously, the hierarchy has collapsed.", "section": "colors" },
+      { "name": "The No-Tint-Background Rule", "body": "The page background is pure white. Warmth and brand feeling come from the cobalt accent and the Kanit typeface. Adding cream, sand, or warm tints is forbidden.", "section": "colors" },
+      { "name": "The Fixed Scale Rule", "body": "No fluid typography (clamp()). Product UI is viewed at consistent DPI. Fixed rem values at each step.", "section": "typography" },
+      { "name": "The Kanit-for-Structure Rule", "body": "Kanit sets the tone; Inter does the work. Headings get Kanit. Everything else gets Inter.", "section": "typography" },
+      { "name": "The Lift-on-Interact Rule", "body": "Cards at rest use Ambient Low. On hover, they transition to Ambient Medium over 150ms. Shadows are feedback, not decoration.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Ledger Cobalt exclusively for primary actions and active state. One blue per screen.",
+      "Do use white text on all saturated color fills.",
+      "Do provide all interactive states: default, hover, focus-visible, active, disabled, loading, error.",
+      "Do use skeleton loading states for content areas.",
+      "Do write empty states that teach, not just 'ไม่พบข้อมูล.'",
+      "Do maintain consistent spacing: 24px card padding, 16px element gaps, 32px page margins.",
+      "Do test Thai text at every weight used.",
+      "Do use prefers-reduced-motion: reduce for every animation."
+    ],
+    "donts": [
+      "Don't use gradient text (background-clip: text with gradient). Absolute ban.",
+      "Don't use glassmorphism or blur effects decoratively.",
+      "Don't use cream, sand, beige, or warm-tinted backgrounds.",
+      "Don't mix inline styles and Tailwind classes on the same element.",
+      "Don't add border-left or border-right > 1px as colored accent stripes.",
+      "Don't use uppercase text transforms on Thai text.",
+      "Don't use decorative motion that doesn't convey state change.",
+      "Don't use bounce or elastic easing curves.",
+      "Don't use arbitrary z-index values (999, 9999).",
+      "Don't build overly complex enterprise-style interfaces.",
+      "Don't use the hero-metric template."
+    ]
+  }
+}

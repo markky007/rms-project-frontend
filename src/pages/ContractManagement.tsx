@@ -327,33 +327,33 @@ export default function ContractManagement() {
       )}
 
       <div className="mb-4">
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap select-none">
           <button
             onClick={() => setFilterStatus("all")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "all"
-                ? "bg-emerald-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-primary text-white border-primary ring-2 ring-primary/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             ทั้งหมด
           </button>
           <button
             onClick={() => setFilterStatus("active")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "active"
-                ? "bg-green-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-success-light text-success border-success/30 ring-2 ring-success/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             ใช้งานอยู่
           </button>
           <button
             onClick={() => setFilterStatus("inactive")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 cursor-pointer select-none ${
               filterStatus === "inactive"
-                ? "bg-gray-600 text-white"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-surface text-muted border-border/80 ring-2 ring-border/20"
+                : "bg-white text-ink border-border hover:bg-surface hover:border-border"
             }`}
           >
             ยกเลิกแล้ว
@@ -434,18 +434,18 @@ export default function ContractManagement() {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end items-center gap-2">
                       <button
                         onClick={() => handleViewDetails(contract)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="w-8 h-8 text-xs font-medium rounded-full bg-surface text-ink hover:bg-primary hover:text-white transition-all duration-150 inline-flex items-center justify-center cursor-pointer"
                         title="ดูรายละเอียด"
                       >
-                        <Eye size={18} />
+                        <Eye size={16} />
                       </button>
                       {contract.is_active && (
                         <button
                           onClick={() => handleTerminate(contract.contract_id)}
-                          className="text-orange-600 hover:text-orange-900"
+                          className="h-8 px-3.5 text-xs font-medium rounded-full bg-warning-light text-warning hover:bg-warning hover:text-white transition-all duration-150 inline-flex items-center justify-center gap-1 cursor-pointer"
                           title="ยกเลิกสัญญา"
                         >
                           ยกเลิก
@@ -453,10 +453,10 @@ export default function ContractManagement() {
                       )}
                       <button
                         onClick={() => handleDelete(contract.contract_id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="w-8 h-8 text-xs font-medium rounded-full bg-error-light text-error hover:bg-error hover:text-white transition-all duration-150 inline-flex items-center justify-center cursor-pointer"
                         title="ลบข้อมูล"
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </td>

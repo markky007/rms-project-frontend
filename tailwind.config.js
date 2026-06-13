@@ -3,56 +3,66 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      colors: {
+        primary: "var(--color-primary)",
+        "primary-hover": "var(--color-primary-hover)",
+        "primary-active": "var(--color-primary-active)",
+        "primary-light": "var(--color-primary-light)",
+        accent: "var(--color-accent)",
+        "accent-hover": "var(--color-accent-hover)",
+        bg: "var(--color-bg)",
+        surface: "var(--color-surface)",
+        "surface-raised": "var(--color-surface-raised)",
+        ink: "var(--color-ink)",
+        muted: "var(--color-muted)",
+        border: "var(--color-border)",
+        "border-subtle": "var(--color-border-subtle)",
+        success: "var(--color-success)",
+        "success-light": "var(--color-success-light)",
+        warning: "var(--color-warning)",
+        "warning-light": "var(--color-warning-light)",
+        error: "var(--color-error)",
+        "error-light": "var(--color-error-light)",
+        info: "var(--color-info)",
+        "info-light": "var(--color-info-light)",
+        "sidebar-bg": "var(--color-sidebar-bg)"
+      },
       fontFamily: {
-        sans: ["Kanit", "sans-serif"],
+        sans: ["Inter", "Kanit", "sans-serif"],
+        heading: ["Kanit", "sans-serif"],
+        mono: ["'JetBrains Mono'", "'Fira Code'", "monospace"]
+      },
+      borderRadius: {
+        sm: "var(--rounded-sm)",
+        md: "var(--rounded-md)",
+        lg: "var(--rounded-lg)",
+      },
+      boxShadow: {
+        low: "var(--shadow-low)",
+        medium: "var(--shadow-medium)",
+        elevated: "var(--shadow-elevated)",
+        focus: "var(--shadow-focus)",
+      },
+      zIndex: {
+        dropdown: "var(--z-dropdown)",
+        sticky: "var(--z-sticky)",
+        "modal-backdrop": "var(--z-modal-backdrop)",
+        modal: "var(--z-modal)",
+        toast: "var(--z-toast)",
+        tooltip: "var(--z-tooltip)",
       },
       animation: {
-        "gradient-shift": "gradient-shift 15s ease infinite",
-        blob: "blob 7s infinite",
-        "gradient-rotate": "gradient-rotate 8s linear infinite",
         shake: "shake 0.5s ease-in-out",
       },
       keyframes: {
-        "gradient-shift": {
-          "0%, 100%": {
-            "background-size": "200% 200%",
-            "background-position": "left center",
-          },
-          "50%": {
-            "background-size": "200% 200%",
-            "background-position": "right center",
-          },
-        },
-        blob: {
-          "0%": {
-            transform: "translate(0px, 0px) scale(1)",
-          },
-          "33%": {
-            transform: "translate(30px, -50px) scale(1.1)",
-          },
-          "66%": {
-            transform: "translate(-20px, 20px) scale(0.9)",
-          },
-          "100%": {
-            transform: "translate(0px, 0px) scale(1)",
-          },
-        },
-        "gradient-rotate": {
-          "0%": {
-            transform: "rotate(0deg)",
-          },
-          "100%": {
-            transform: "rotate(360deg)",
-          },
-        },
         shake: {
           "0%, 100%": {
             transform: "translateX(0)",
           },
-          "10%, 30%, 50%, 70%, 90%": {
+          "25%": {
             transform: "translateX(-5px)",
           },
-          "20%, 40%, 60%, 80%": {
+          "75%": {
             transform: "translateX(5px)",
           },
         },
