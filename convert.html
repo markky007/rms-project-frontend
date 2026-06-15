@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OKLCH to RGB Converter</title>
+</head>
+<body>
+  <div id="output" style="font-family: monospace; white-space: pre;"></div>
+  <script>
+    const colors = [
+      "oklch(42% 0.120 255)",
+      "oklch(34% 0.120 255)",
+      "oklch(30% 0.110 255)",
+      "oklch(42% 0.120 255 / 0.15)",
+      "oklch(60% 0.160 75)",
+      "oklch(52% 0.140 75)",
+      "oklch(100% 0.000 0)",
+      "oklch(96% 0.005 250)",
+      "oklch(100% 0.000 0)",
+      "oklch(90% 0.008 250)",
+      "oklch(94% 0.005 250)",
+      "oklch(18% 0.015 250)",
+      "oklch(55% 0.010 250)",
+      "oklch(50% 0.140 155)",
+      "oklch(50% 0.140 155 / 0.15)",
+      "oklch(60% 0.160 75)",
+      "oklch(60% 0.160 75 / 0.15)",
+      "oklch(50% 0.200 25)",
+      "oklch(50% 0.200 25 / 0.15)",
+      "oklch(52% 0.140 255)",
+      "oklch(52% 0.140 255 / 0.15)",
+      "oklch(18% 0.015 250)",
+      "oklch(0 0 0 / 0.06)",
+      "oklch(0 0 0 / 0.04)",
+      "oklch(0 0 0 / 0.08)",
+      "oklch(0 0 0 / 0.12)",
+      "oklch(42% 0.120 255 / 0.25)",
+      "oklch(0 0 0 / 0.40)"
+    ];
+
+    function convertColor(oklchStr) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1;
+      canvas.height = 1;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.fillStyle = oklchStr;
+      ctx.fillRect(0, 0, 1, 1);
+      const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+      if (a === 255) {
+        return `rgb(${r}, ${g}, ${b})`;
+      } else {
+        return `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(2)})`;
+      }
+    }
+
+    const results = colors.map(c => `${c} => ${convertColor(c)}`);
+    document.getElementById("output").textContent = results.join("\n");
+  </script>
+</body>
+</html>
