@@ -1,4 +1,4 @@
-name = "frontend"
+name = "rms-project-frontend"
 main = "src/entry.ts"
 compatibility_date = "2026-01-17"
 
