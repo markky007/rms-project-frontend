@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import api from "../services/api";
 import { Calculator, Save, Calendar } from "lucide-react";
@@ -107,6 +107,30 @@ const MeterReadingForm: React.FC = () => {
   // Partial Deposit State
   const [isPartialDeposit, setIsPartialDeposit] = useState<boolean>(false);
   const [depositAmount, setDepositAmount] = useState<string>("");
+
+  // Move Out Calculations Preview
+  const moveOutData = useMemo(() => {
+    if (!calculation) return null;
+    const utilitiesCost =
+      (Number(calculation.costs?.water) || 0) +
+      (Number(calculation.costs?.elec) || 0);
+    const cleanCost = Number(cleaningFee) || 0;
+    const dmgCost = Number(damageFee) || 0;
+    const totalDeductions = utilitiesCost + cleanCost + dmgCost;
+    const deposit = Number(calculation.deposit) || 0;
+    const refund = deposit - totalDeductions;
+
+    return {
+      items: [
+        { name: "ค่าน้ำ+ไฟ", amount: utilitiesCost },
+        { name: "ค่าทำความสะอาด", amount: cleanCost },
+        { name: "ค่าความเสียหาย", amount: dmgCost },
+      ],
+      totalDeductions,
+      deposit,
+      refund,
+    };
+  }, [calculation, cleaningFee, damageFee]);
 
   // Fetch all rooms on component mount
   useEffect(() => {
