@@ -180,21 +180,40 @@ const MeterReadingForm: React.FC = () => {
   // Debounced calculation
   useEffect(() => {
     const timer = setTimeout(() => {
+      const prevW = overridePrevWater !== "" ? Number(overridePrevWater) : 0;
+      const prevE = overridePrevElec !== "" ? Number(overridePrevElec) : 0;
+      const currW = Number(currentWater);
+      const currE = Number(currentElec);
+
       if (
         roomId &&
-        currentWater &&
-        currentElec &&
-        overridePrevWater &&
-        overridePrevElec
+        currentWater !== "" &&
+        currentElec !== "" &&
+        !isNaN(currW) &&
+        !isNaN(currE)
       ) {
+        if (currW < prevW || currE < prevE) {
+          setError("เลขมิเตอร์ปัจจุบันต้องไม่น้อยกว่าเลขมิเตอร์ครั้งก่อน");
+          setCalculation(null);
+          return;
+        }
         handleCalculate();
       } else {
         setCalculation(null);
+        setError(null);
       }
-    }, 800);
+    }, 600);
 
     return () => clearTimeout(timer);
-  }, [roomId, currentWater, currentElec, overridePrevWater, overridePrevElec]);
+  }, [
+    roomId,
+    currentWater,
+    currentElec,
+    overridePrevWater,
+    overridePrevElec,
+    selectedMonth,
+    selectedYear,
+  ]);
 
   const handleCalculate = async (): Promise<void> => {
     setLoading(true);
@@ -213,10 +232,15 @@ const MeterReadingForm: React.FC = () => {
       setCalculation(response.data);
     } catch (error) {
       console.error("Calculation error", error);
+      setCalculation(null);
       if (axios.isAxiosError(error) && error.response) {
         // Backend returns JSON with error field
-        const msg = error.response.data.error || "ข้อผิดพลาดจากเซิร์ฟเวอร์";
-        setError(msg);
+        const msg = error.response.data?.error || "ข้อผิดพลาดจากเซิร์ฟเวอร์";
+        const translatedMsg =
+          msg === "Current reading cannot be less than previous reading"
+            ? "เลขมิเตอร์ปัจจุบันต้องไม่น้อยกว่าเลขมิเตอร์ครั้งก่อน"
+            : msg;
+        setError(translatedMsg);
       } else {
         setError(
           "เกิดข้อผิดพลาดในการเชื่อมต่อ: กรุณาตรวจสอบว่าเซิร์ฟเวอร์ทำงานอยู่",
@@ -343,6 +367,7 @@ const MeterReadingForm: React.FC = () => {
                     setCurrentWater("");
                     setCurrentElec("");
                     setCalculation(null);
+                    setError(null);
                     setPrevReadings(null);
                     setOverridePrevWater("");
                     setOverridePrevElec("");
